@@ -4,7 +4,7 @@ import Web3 from 'web3';
 import WebSocket from 'ws';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import EventEmitter from 'events';
-import logger from '../../common-files/utils/logger.mjs';
+// import logger from '../../common-files/utils/logger.mjs';
 import { approve } from './tokens.mjs';
 import erc20 from './abis/ERC20.mjs';
 import erc721 from './abis/ERC721.mjs';
@@ -255,7 +255,7 @@ class Nf3 {
         this.web3.eth
           .sendSignedTransaction(signed.rawTransaction)
           .once('receipt', receipt => {
-            logger.debug(`Transaction ${receipt.transactionHash} has been received.`);
+            console.debug(`**********submitTransaction >> Transaction ${receipt.transactionHash} has been received.`);
             resolve(receipt);
           })
           .on('error', err => {
@@ -620,7 +620,7 @@ class Nf3 {
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
+      console.debug('**********getInstantWithdrawalRequestedEmitter >> websocket connection opened');
       connection.send('instant');
     };
     connection.onmessage = async message => {
@@ -826,7 +826,7 @@ class Nf3 {
       address: this.ethereumAddress,
       url,
     });
-    logger.debug(`Proposer with address ${this.ethereumAddress} updated to URL ${url}`);
+    console.debug(`**********updateProposer >> Proposer with address ${this.ethereumAddress} updated to URL ${url}`);
     return new Promise((resolve, reject) => {
       proposerQueue.push(async () => {
         try {
@@ -866,13 +866,13 @@ class Nf3 {
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
+      console.debug('**********startProposer >> websocket connection opened');
       connection.send('blocks');
     };
     connection.onmessage = async message => {
       const msg = JSON.parse(message.data);
       const { type, txDataToSign, block, transactions } = msg;
-      logger.debug(`Proposer received websocket message of type ${type}`);
+      console.debug(`**********startProposer >> Proposer received websocket message of type ${type}`);
       if (type === 'block') {
         proposerQueue.push(async () => {
           try {
@@ -889,8 +889,8 @@ class Nf3 {
       }
       return null;
     };
-    connection.onerror = () => logger.error('websocket connection error');
-    connection.onclosed = () => logger.warn('websocket connection closed');
+    connection.onerror = () => console.error('**********startProposer >> websocket connection error');
+    connection.onclosed = () => console.warn('**********startProposer >> websocket connection closed');
     // add this proposer to the list of peers that can accept direct transfers and withdraws
     return blockProposeEmitter;
   }
@@ -921,32 +921,32 @@ class Nf3 {
     @async
     @returns {Promise} A Promise that resolves into an event emitter.
     */
-  async getNewBlockEmitter() {
-    const newBlockEmitter = new EventEmitter();
-    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
-    this.websockets.push(connection); // save so we can close it properly later
-    connection.onopen = () => {
-      // setup a ping every 15s
-      this.intervalIDs.push(
-        setInterval(() => {
-          connection._ws.ping();
-          // logger.debug('sent websocket ping');
-        }, WEBSOCKET_PING_TIME),
-      );
-      // and a listener for the pong
-      // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
-      connection.send('blocks');
-    };
-    connection.onmessage = async message => {
-      const msg = JSON.parse(message.data);
-      const { type, txDataToSign } = msg;
-      if (type === 'block') {
-        newBlockEmitter.emit('data', txDataToSign);
-      }
-    };
-    return newBlockEmitter;
-  }
+  // async getNewBlockEmitter() {
+  //   const newBlockEmitter = new EventEmitter();
+  //   const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
+  //   this.websockets.push(connection); // save so we can close it properly later
+  //   connection.onopen = () => {
+  //     // setup a ping every 15s
+  //     this.intervalIDs.push(
+  //       setInterval(() => {
+  //         connection._ws.ping();
+  //         // logger.debug('sent websocket ping');
+  //       }, WEBSOCKET_PING_TIME),
+  //     );
+  //     // and a listener for the pong
+  //     // connection._ws.on('pong', () => logger.debug('websocket received pong'));
+  //     logger.debug('websocket connection opened');
+  //     connection.send('blocks');
+  //   };
+  //   connection.onmessage = async message => {
+  //     const msg = JSON.parse(message.data);
+  //     const { type, txDataToSign } = msg;
+  //     if (type === 'block') {
+  //       newBlockEmitter.emit('data', txDataToSign);
+  //     }
+  //   };
+  //   return newBlockEmitter;
+  // }
 
   /**
     Registers our address as a challenger address with the optimist container.
@@ -991,7 +991,7 @@ class Nf3 {
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
+      console.debug('**********startChallenger >> websocket connection opened');
       connection.send('challenge');
     };
     connection.onmessage = async message => {
@@ -1027,32 +1027,32 @@ class Nf3 {
     @async
     @returns {Promise} A Promise that resolves into an event emitter.
     */
-  async getChallengeEmitter() {
-    const newChallengeEmitter = new EventEmitter();
-    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
-    this.websockets.push(connection); // save so we can close it properly later
-    connection.onopen = () => {
-      // setup a ping every 15s
-      this.intervalIDs.push(
-        setInterval(() => {
-          connection._ws.ping();
-          // logger.debug('sent websocket ping');
-        }, WEBSOCKET_PING_TIME),
-      );
-      // and a listener for the pong
-      // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
-      connection.send('challenge');
-    };
-    connection.onmessage = async message => {
-      const msg = JSON.parse(message.data);
-      const { type, txDataToSign } = msg;
-      if (type === 'challenge') {
-        newChallengeEmitter.emit('data', txDataToSign);
-      }
-    };
-    return newChallengeEmitter;
-  }
+  // async getChallengeEmitter() {
+  //   const newChallengeEmitter = new EventEmitter();
+  //   const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
+  //   this.websockets.push(connection); // save so we can close it properly later
+  //   connection.onopen = () => {
+  //     // setup a ping every 15s
+  //     this.intervalIDs.push(
+  //       setInterval(() => {
+  //         connection._ws.ping();
+  //         // logger.debug('sent websocket ping');
+  //       }, WEBSOCKET_PING_TIME),
+  //     );
+  //     // and a listener for the pong
+  //     // connection._ws.on('pong', () => logger.debug('websocket received pong'));
+  //     logger.debug('websocket connection opened');
+  //     connection.send('challenge');
+  //   };
+  //   connection.onmessage = async message => {
+  //     const msg = JSON.parse(message.data);
+  //     const { type, txDataToSign } = msg;
+  //     if (type === 'challenge') {
+  //       newChallengeEmitter.emit('data', txDataToSign);
+  //     }
+  //   };
+  //   return newChallengeEmitter;
+  // }
 
   /**
     Returns the balance of tokens held in layer 2
@@ -1204,9 +1204,9 @@ Set a Web3 Provider URL
       }
     }
 
-    provider.on('error', err => logger.error(`web3 error: ${err}`));
-    provider.on('connect', () => logger.info('Blockchain Connected ...'));
-    provider.on('end', () => logger.info('Blockchain disconnected'));
+    provider.on('error', err => console.error(`**********setWeb3Provider >> web3 error: ${err}`));
+    provider.on('connect', () => console.info('**********setWeb3Provider >> Blockchain Connected ...'));
+    provider.on('end', () => console.info('**********setWeb3Provider >> Blockchain disconnected'));
 
     // attempt a reconnect if the socket is down
     this.intervalIDs.push(() => {
