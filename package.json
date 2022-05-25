@@ -1,6 +1,6 @@
 {
   "name": "nightfall-sdk",
-  "version": "1.0.0",
+  "version": "beta.xxxx",
   "description": "SDK for interacting with Polygon Nightfall",
   "main": "index.mjs",
   "scripts": {
@@ -13,7 +13,7 @@
     "nf3"
   ],
   "author": "Polygon Nightfall",
-  "license": "ISC",
+  "license": "",
   "dependencies": {
     "axios": "^0.27.2",
     "events": "^3.3.0",
