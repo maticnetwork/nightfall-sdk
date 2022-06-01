@@ -4,7 +4,7 @@ SDK for interacting with Polygon Nightfall.
 
 WIP.
 
-## Preparing the devevelopment environemnt
+## Preparing the development environment
 
 run:
 
