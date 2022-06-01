@@ -1,51 +1,51 @@
 const SUPPORTED_ENVIRONMENTS = {
   mainnet: {
-    name: 'Mainnet',
+    name: "Mainnet",
     chainId: 1,
-    clientApiUrl: '',
-    optimistApiUrl: '',
-    optimistWsUrl: '',
-    web3WsUrl: '',
+    clientApiUrl: "",
+    optimistApiUrl: "",
+    optimistWsUrl: "",
+    web3WsUrl: "",
   },
   ropsten: {
-    name: 'Ropsten',
+    name: "Ropsten",
     chainId: 3,
-    clientApiUrl: 'https://client1.testnet.nightfall3.com',
-    optimistApiUrl: 'https://optimist1.testnet.nightfall3.com',
-    optimistWsUrl: 'wss://optimist1-ws.testnet.nightfall3.com',
-    web3WsUrl: 'wss://ropsten1-ws.testnet.nightfall3.com',
+    clientApiUrl: "https://client1.testnet.nightfall3.com",
+    optimistApiUrl: "https://optimist1.testnet.nightfall3.com",
+    optimistWsUrl: "wss://optimist1-ws.testnet.nightfall3.com",
+    web3WsUrl: "wss://ropsten1-ws.testnet.nightfall3.com",
   },
   rinkeby: {
-    name: 'Rinkeby',
+    name: "Rinkeby",
     chainId: 4,
-    clientApiUrl: '',
-    optimistApiUrl: '',
-    optimistWsUrl: '',
-    web3WsUrl: '',
+    clientApiUrl: "",
+    optimistApiUrl: "",
+    optimistWsUrl: "",
+    web3WsUrl: "",
   },
   localhost: {
-    name: 'Localhost',
+    name: "Localhost",
     chainId: 4378921,
-    clientApiUrl: 'http://localhost:8080',
-    optimistApiUrl: 'http://localhost:8081',
-    optimistWsUrl: 'ws://localhost:8082',
-    web3WsUrl: 'ws://localhost:8546',
+    clientApiUrl: "http://localhost:8080",
+    optimistApiUrl: "http://localhost:8081",
+    optimistWsUrl: "ws://localhost:8082",
+    web3WsUrl: "ws://localhost:8546",
   },
   docker: {
-    name: 'Docker',
+    name: "Docker",
     chainId: 4378921,
-    clientApiUrl: 'http://client1',
-    optimistApiUrl: 'http://optimist1',
-    optimistWsUrl: 'ws://optimist1:8080',
-    web3WsUrl: 'ws://blockchain1:8546',
+    clientApiUrl: "http://client1",
+    optimistApiUrl: "http://optimist1",
+    optimistWsUrl: "ws://optimist1:8080",
+    web3WsUrl: "ws://blockchain1:8546",
   },
 };
 
 const currentEnvironment = {
-  clientApiUrl: '',
-  optimistApiUrl: '',
-  optimistWsUrl: '',
-  web3WsUrl: '',
+  clientApiUrl: "",
+  optimistApiUrl: "",
+  optimistWsUrl: "",
+  web3WsUrl: "",
   chainId: null,
 };
 
@@ -64,8 +64,9 @@ function getSupportedEnvironments() {
  */
 function isEnvironmentSupportedByNetworkName(env) {
   if (
-    Object.values(SUPPORTED_ENVIRONMENTS).find(supportedEnv => supportedEnv.name === env) !==
-    undefined
+    Object.values(SUPPORTED_ENVIRONMENTS).find(
+      (supportedEnv) => supportedEnv.name === env
+    ) !== undefined
   ) {
     return true;
   }
@@ -118,12 +119,12 @@ function setChainId(chainId) {
  */
 function setEnvironment(env) {
   if (!env) {
-    throw new Error('A environment is required');
+    throw new Error("A environment is required");
   }
 
-  if (typeof env === 'string') {
+  if (typeof env === "string") {
     if (!isEnvironmentSupportedByNetworkName(env)) {
-      throw new Error('Environment not supported');
+      throw new Error("Environment not supported");
     }
 
     setClientApiUrl(SUPPORTED_ENVIRONMENTS[env.toLowerCase()].clientApiUrl);
@@ -131,20 +132,20 @@ function setEnvironment(env) {
     setOptimistWsUrl(SUPPORTED_ENVIRONMENTS[env.toLowerCase()].optimistWsUrl);
     setWeb3WsUrl(SUPPORTED_ENVIRONMENTS[env.toLowerCase()].web3WsUrl);
     setChainId(SUPPORTED_ENVIRONMENTS[env.toLowerCase()].chainId);
-  } else if (typeof env === 'object') {
-    if (env.clientApiUrl && typeof env.clientApiUrl === 'string') {
+  } else if (typeof env === "object") {
+    if (env.clientApiUrl && typeof env.clientApiUrl === "string") {
       setClientApiUrl(env.clientApiUrl);
     }
-    if (env.optimistApiUrl && typeof env.optimistApiUrl === 'string') {
+    if (env.optimistApiUrl && typeof env.optimistApiUrl === "string") {
       setOptimistApiUrl(env.optimistApiUrl);
     }
-    if (env.optimistWsUrl && typeof env.optimistWsUrl === 'string') {
+    if (env.optimistWsUrl && typeof env.optimistWsUrl === "string") {
       setOptimistWsUrl(env.optimistWsUrl);
     }
-    if (env.web3WsUrl && typeof env.Web3WsUrl === 'string') {
+    if (env.web3WsUrl && typeof env.Web3WsUrl === "string") {
       setWeb3WsUrl(env.web3WsUrl);
     }
-    if (env.chainId && typeof env.chainId === 'string') {
+    if (env.chainId && typeof env.chainId === "string") {
       setChainId(env.chainId);
     }
   }
