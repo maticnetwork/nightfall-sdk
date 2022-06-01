@@ -24,7 +24,7 @@ Add the Eslint, Prettier and EditorConfig plugins in your VSCode or development 
 
 ### Commits
 
-We are following the convetional commits specification for our commits.
+We are following the conventional commits specification for our commits.
 https://www.conventionalcommits.org/en/v1.0.0/
 For this we're using commitzen to help us in the commits creation.
 
