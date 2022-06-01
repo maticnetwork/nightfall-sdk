@@ -8,10 +8,15 @@
     "build": "tsc",
     "eslint:fix": "eslint --fix",
     "lint-staged": "npx lint-staged",
+    "prettier:check": "npx prettier --check .",
+    "prettier:fix": "npx prettier --write .",
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.mjs": [
+    "*.{css,less,scss,html,json,jsx,js,mjs,ts}": [
+      "prettier --write ."
+    ],
+    "*.{mjs,ts,js}": [
       "npm run eslint:fix"
     ]
   },
