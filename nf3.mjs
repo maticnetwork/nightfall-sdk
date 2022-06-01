@@ -1,14 +1,14 @@
-import axios from 'axios';
-import Queue from 'queue';
-import Web3 from 'web3';
-import WebSocket from 'ws';
-import ReconnectingWebSocket from 'reconnecting-websocket';
-import EventEmitter from 'events';
+import axios from "axios";
+import Queue from "queue";
+import Web3 from "web3";
+import WebSocket from "ws";
+import ReconnectingWebSocket from "reconnecting-websocket";
+import EventEmitter from "events";
 // import logger from '../../common-files/utils/logger.mjs';
-import { approve } from './tokens.mjs';
-import erc20 from './abis/ERC20.mjs';
-import erc721 from './abis/ERC721.mjs';
-import erc1155 from './abis/ERC1155.mjs';
+import { approve } from "./tokens.mjs";
+import erc20 from "./abis/ERC20.mjs";
+import erc721 from "./abis/ERC721.mjs";
+import erc1155 from "./abis/ERC1155.mjs";
 
 import {
   DEFAULT_BLOCK_STAKE,
@@ -20,7 +20,7 @@ import {
   GAS_PRICE,
   GAS_PRICE_MULTIPLIER,
   GAS_ESTIMATE_ENDPOINT,
-} from './constants.mjs';
+} from "./constants.mjs";
 
 // TODO when SDK is refactored such that these functions are split by user, proposer and challenger,
 // then there will only be one queue here. The constructor does not need to initialise clientBaseUrl
@@ -88,12 +88,12 @@ class Nf3 {
   constructor(
     ethereumSigningKey,
     environment = {
-      clientApiUrl: 'http://localhost:8080',
-      optimistApiUrl: 'http://localhost:8081',
-      optimistWsUrl: 'ws://localhost:8082',
-      web3WsUrl: 'ws://localhost:8546',
+      clientApiUrl: "http://localhost:8080",
+      optimistApiUrl: "http://localhost:8081",
+      optimistWsUrl: "ws://localhost:8082",
+      web3WsUrl: "ws://localhost:8546",
     },
-    zkpKeys,
+    zkpKeys
   ) {
     this.clientBaseUrl = environment.clientApiUrl;
     this.optimistBaseUrl = environment.optimistApiUrl;
@@ -116,26 +116,26 @@ class Nf3 {
       case undefined:
         this.contractGetter = this.getContractAddress;
         break;
-      case 'client':
+      case "client":
         this.contractGetter = this.getContractAddress;
         break;
-      case 'optimist':
+      case "optimist":
         this.contractGetter = this.getContractAddressOptimist;
         break;
       default:
-        throw new Error('Unknown contract address server');
+        throw new Error("Unknown contract address server");
     }
     // once we know where to ask, we can get the contract addresses
-    this.shieldContractAddress = await this.contractGetter('Shield');
-    this.proposersContractAddress = await this.contractGetter('Proposers');
-    this.challengesContractAddress = await this.contractGetter('Challenges');
-    this.stateContractAddress = await this.contractGetter('State');
+    this.shieldContractAddress = await this.contractGetter("Shield");
+    this.proposersContractAddress = await this.contractGetter("Proposers");
+    this.challengesContractAddress = await this.contractGetter("Challenges");
+    this.stateContractAddress = await this.contractGetter("State");
     // set the ethereumAddress iff we have a signing key
-    if (typeof this.ethereumSigningKey === 'string') {
+    if (typeof this.ethereumSigningKey === "string") {
       this.ethereumAddress = await this.getAccounts();
     }
     // set zkp keys from mnemonic if provided
-    if (typeof mnemonic !== 'undefined') {
+    if (typeof mnemonic !== "undefined") {
       await this.setzkpKeysFromMnemonic(mnemonic, 0);
     }
   }
@@ -172,7 +172,7 @@ class Nf3 {
     @param {number} addressIndex - Index used to generate keys combined with mnemonic
     */
   async setzkpKeysFromMnemonic(mnemonic, addressIndex) {
-    if (mnemonic !== '') {
+    if (mnemonic !== "") {
       this.mnemonic.phrase = mnemonic;
     }
     this.mnemonic.addressIndex = addressIndex.toString();
@@ -192,8 +192,10 @@ class Nf3 {
     */
 
   async unprocessedTransactionCount() {
-    const { result: mempool } = (await axios.get(`${this.optimistBaseUrl}/proposer/mempool`)).data;
-    return mempool.filter(e => e.mempool).length;
+    const { result: mempool } = (
+      await axios.get(`${this.optimistBaseUrl}/proposer/mempool`)
+    ).data;
+    return mempool.filter((e) => e.mempool).length;
   }
 
   /**
@@ -216,7 +218,9 @@ class Nf3 {
         data: unsignedTransaction,
       });
     } catch (error) {
-      console.warn(`**********estimateGas >> estimateGas failed. Falling back to constant value`);
+      console.warn(
+        `**********estimateGas >> estimateGas failed. Falling back to constant value`
+      );
       gasLimit = GAS; // backup if estimateGas failed
     }
     return Math.ceil(Number(gasLimit) * GAS_MULTIPLIER); // 50% seems a more than reasonable buffer.
@@ -229,11 +233,15 @@ class Nf3 {
       const res = (await axios.get(GAS_ESTIMATE_ENDPOINT)).data.result;
       proposedGasPrice = Number(res?.ProposeGasPrice) * 10 ** 9;
     } catch (error) {
-      console.warn('**********estimateGasPrice >> Gas Estimation Failed, using previous block gasPrice');
+      console.warn(
+        "**********estimateGasPrice >> Gas Estimation Failed, using previous block gasPrice"
+      );
       try {
         proposedGasPrice = Number(await this.web3.eth.getGasPrice());
       } catch (err) {
-        console.warn('**********estimateGasPrice >> Failed to get previous block gasprice.  Falling back to default');
+        console.warn(
+          "**********estimateGasPrice >> Failed to get previous block gasprice.  Falling back to default"
+        );
         proposedGasPrice = GAS_PRICE;
       }
     }
@@ -254,7 +262,7 @@ class Nf3 {
   async submitTransaction(
     unsignedTransaction,
     contractAddress = this.shieldContractAddress,
-    fee = this.defaultFee,
+    fee = this.defaultFee
   ) {
     // estimate the gasPrice
     const gasPrice = await this.estimateGasPrice();
@@ -262,8 +270,8 @@ class Nf3 {
     const gas = await this.estimateGas(contractAddress, unsignedTransaction);
     console.debug(
       `**********submitTransaction >> Transaction gasPrice was set at ${Math.ceil(
-        gasPrice / 10 ** 9,
-      )} GWei, gas limit was set at ${gas}`,
+        gasPrice / 10 ** 9
+      )} GWei, gas limit was set at ${gas}`
     );
     const tx = {
       from: this.ethereumAddress,
@@ -277,15 +285,20 @@ class Nf3 {
     // logger.debug(`The nonce for the unsigned transaction ${tx.data} is ${this.nonce}`);
     // this.nonce++;
     if (this.ethereumSigningKey) {
-      const signed = await this.web3.eth.accounts.signTransaction(tx, this.ethereumSigningKey);
+      const signed = await this.web3.eth.accounts.signTransaction(
+        tx,
+        this.ethereumSigningKey
+      );
       const promiseTest = new Promise((resolve, reject) => {
         this.web3.eth
           .sendSignedTransaction(signed.rawTransaction)
-          .once('receipt', receipt => {
-            console.debug(`**********submitTransaction >> Transaction ${receipt.transactionHash} has been received.`);
+          .once("receipt", (receipt) => {
+            console.debug(
+              `**********submitTransaction >> Transaction ${receipt.transactionHash} has been received.`
+            );
             resolve(receipt);
           })
-          .on('error', err => {
+          .on("error", (err) => {
             reject(err);
           });
       });
@@ -304,14 +317,14 @@ class Nf3 {
   async healthcheck(server) {
     let url;
     switch (server) {
-      case 'client':
+      case "client":
         url = this.clientBaseUrl;
         break;
-      case 'optimist':
+      case "optimist":
         url = this.optimistBaseUrl;
         break;
       default:
-        throw new Error('Unknown server name');
+        throw new Error("Unknown server name");
     }
     let res;
     try {
@@ -332,7 +345,9 @@ class Nf3 {
     @returns {Promise} Resolves into the Ethereum address of the contract
     */
   async getContractAddress(contractName) {
-    const res = await axios.get(`${this.clientBaseUrl}/contract-address/${contractName}`);
+    const res = await axios.get(
+      `${this.clientBaseUrl}/contract-address/${contractName}`
+    );
     return res.data.address.toLowerCase();
   }
 
@@ -345,7 +360,9 @@ class Nf3 {
     @returns {Promise} Resolves into the Ethereum address of the contract
     */
   async getContractAddressOptimist(contractName) {
-    const res = await axios.get(`${this.optimistBaseUrl}/contract-address/${contractName}`);
+    const res = await axios.get(
+      `${this.optimistBaseUrl}/contract-address/${contractName}`
+    );
     return res.data.address;
   }
 
@@ -377,7 +394,7 @@ class Nf3 {
         tokenType,
         value,
         this.web3,
-        !!this.ethereumSigningKey,
+        !!this.ethereumSigningKey
       );
     } catch (err) {
       throw new Error(err);
@@ -402,7 +419,7 @@ class Nf3 {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.shieldContractAddress,
-            fee,
+            fee
           );
           resolve(receipt);
         } catch (err) {
@@ -437,7 +454,7 @@ class Nf3 {
     value,
     tokenId,
     compressedPkd,
-    fee = this.defaultFee,
+    fee = this.defaultFee
   ) {
     const res = await axios.post(`${this.clientBaseUrl}/transfer`, {
       offchain,
@@ -451,8 +468,8 @@ class Nf3 {
       ask: this.zkpKeys.ask,
       fee,
     });
-    if (res.data.error && res.data.error === 'No suitable commitments') {
-      throw new Error('No suitable commitments');
+    if (res.data.error && res.data.error === "No suitable commitments") {
+      throw new Error("No suitable commitments");
     }
     if (!offchain) {
       return new Promise((resolve, reject) => {
@@ -461,7 +478,7 @@ class Nf3 {
             const receipt = await this.submitTransaction(
               res.data.txDataToSign,
               this.shieldContractAddress,
-              fee,
+              fee
             );
             resolve(receipt);
           } catch (err) {
@@ -500,7 +517,7 @@ class Nf3 {
     value,
     tokenId,
     recipientAddress,
-    fee = this.defaultFee,
+    fee = this.defaultFee
   ) {
     const res = await axios.post(`${this.clientBaseUrl}/withdraw`, {
       offchain,
@@ -521,7 +538,7 @@ class Nf3 {
             const receipt = await this.submitTransaction(
               res.data.txDataToSign,
               this.shieldContractAddress,
-              fee,
+              fee
             );
             resolve(receipt);
           } catch (err) {
@@ -551,7 +568,7 @@ class Nf3 {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.shieldContractAddress,
-            0,
+            0
           );
           resolve(receipt);
         } catch (err) {
@@ -572,16 +589,19 @@ class Nf3 {
   async requestInstantWithdrawal(withdrawTransactionHash, fee) {
     try {
       // set the instant withdrawal fee
-      const res = await axios.post(`${this.clientBaseUrl}/set-instant-withdrawal`, {
-        transactionHash: withdrawTransactionHash,
-      });
+      const res = await axios.post(
+        `${this.clientBaseUrl}/set-instant-withdrawal`,
+        {
+          transactionHash: withdrawTransactionHash,
+        }
+      );
       return new Promise((resolve, reject) => {
         userQueue.push(async () => {
           try {
             const receipt = await this.submitTransaction(
               res.data.txDataToSign,
               this.shieldContractAddress,
-              fee,
+              fee
             );
             resolve(receipt);
           } catch (err) {
@@ -601,16 +621,19 @@ class Nf3 {
     @param {string} withdrawTransactionHash - the hash of the Layer 2 transaction in question
     */
   async advanceInstantWithdrawal(withdrawTransactionHash) {
-    const res = await axios.post(`${this.optimistBaseUrl}/transaction/advanceWithdrawal`, {
-      transactionHash: withdrawTransactionHash,
-    });
+    const res = await axios.post(
+      `${this.optimistBaseUrl}/transaction/advanceWithdrawal`,
+      {
+        transactionHash: withdrawTransactionHash,
+      }
+    );
     return new Promise((resolve, reject) => {
       liquidityProviderQueue.push(async () => {
         try {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.shieldContractAddress,
-            0,
+            0
           );
           resolve(receipt);
         } catch (err) {
@@ -635,7 +658,9 @@ class Nf3 {
     */
   async getInstantWithdrawalRequestedEmitter() {
     const emitter = new EventEmitter();
-    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
+    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], {
+      WebSocket,
+    });
     this.websockets.push(connection); // save so we can close it properly later
     connection.onopen = () => {
       // setup a ping every 15s
@@ -643,18 +668,20 @@ class Nf3 {
         setInterval(() => {
           connection._ws.ping();
           // logger.debug('sent websocket ping');
-        }, WEBSOCKET_PING_TIME),
+        }, WEBSOCKET_PING_TIME)
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      console.debug('**********getInstantWithdrawalRequestedEmitter >> websocket connection opened');
-      connection.send('instant');
+      console.debug(
+        "**********getInstantWithdrawalRequestedEmitter >> websocket connection opened"
+      );
+      connection.send("instant");
     };
-    connection.onmessage = async message => {
+    connection.onmessage = async (message) => {
       const msg = JSON.parse(message.data);
       const { type, withdrawTransactionHash, paidBy, amount } = msg;
-      if (type === 'instant') {
-        emitter.emit('data', withdrawTransactionHash, paidBy, amount);
+      if (type === "instant") {
+        emitter.emit("data", withdrawTransactionHash, paidBy, amount);
       }
     };
     return emitter;
@@ -681,9 +708,9 @@ class Nf3 {
     @method
     */
   close() {
-    this.intervalIDs.forEach(intervalID => clearInterval(intervalID));
+    this.intervalIDs.forEach((intervalID) => clearInterval(intervalID));
     this.web3.currentProvider.connection.close();
-    this.websockets.forEach(websocket => websocket.close());
+    this.websockets.forEach((websocket) => websocket.close());
   }
 
   /**
@@ -700,14 +727,14 @@ class Nf3 {
       address: this.ethereumAddress,
       url,
     });
-    if (res.data.txDataToSign === '') return false; // already registered
+    if (res.data.txDataToSign === "") return false; // already registered
     return new Promise((resolve, reject) => {
       proposerQueue.push(async () => {
         try {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.proposersContractAddress,
-            this.PROPOSER_BOND,
+            this.PROPOSER_BOND
           );
           resolve(receipt);
         } catch (err) {
@@ -745,16 +772,19 @@ class Nf3 {
     @returns {Promise} A promise that resolves to the Ethereum transaction receipt.
     */
   async deregisterProposer() {
-    const res = await axios.post(`${this.optimistBaseUrl}/proposer/de-register`, {
-      address: this.ethereumAddress,
-    });
+    const res = await axios.post(
+      `${this.optimistBaseUrl}/proposer/de-register`,
+      {
+        address: this.ethereumAddress,
+      }
+    );
     return new Promise((resolve, reject) => {
       proposerQueue.push(async () => {
         try {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.proposersContractAddress,
-            0,
+            0
           );
           resolve(receipt);
         } catch (err) {
@@ -782,7 +812,7 @@ class Nf3 {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.proposersContractAddress,
-            0,
+            0
           );
           resolve(receipt);
         } catch (err) {
@@ -800,16 +830,19 @@ class Nf3 {
     @returns {Promise} A promise that resolves to the Ethereum transaction receipt.
     */
   async withdrawBond() {
-    const res = await axios.post(`${this.optimistBaseUrl}/proposer/withdrawBond`, {
-      address: this.ethereumAddress,
-    });
+    const res = await axios.post(
+      `${this.optimistBaseUrl}/proposer/withdrawBond`,
+      {
+        address: this.ethereumAddress,
+      }
+    );
     return new Promise((resolve, reject) => {
       proposerQueue.push(async () => {
         try {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.proposersContractAddress,
-            0,
+            0
           );
           resolve(receipt);
         } catch (err) {
@@ -826,7 +859,9 @@ class Nf3 {
     @returns {array} A promise that resolves to the Ethereum transaction receipt.
     */
   async getCurrentProposer() {
-    const res = await axios.get(`${this.optimistBaseUrl}/proposer/current-proposer`);
+    const res = await axios.get(
+      `${this.optimistBaseUrl}/proposer/current-proposer`
+    );
     return res.data.currentProposer;
   }
 
@@ -853,14 +888,16 @@ class Nf3 {
       address: this.ethereumAddress,
       url,
     });
-    console.debug(`**********updateProposer >> Proposer with address ${this.ethereumAddress} updated to URL ${url}`);
+    console.debug(
+      `**********updateProposer >> Proposer with address ${this.ethereumAddress} updated to URL ${url}`
+    );
     return new Promise((resolve, reject) => {
       proposerQueue.push(async () => {
         try {
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.proposersContractAddress,
-            0,
+            0
           );
           resolve(receipt);
         } catch (err) {
@@ -878,7 +915,9 @@ class Nf3 {
     */
   async startProposer() {
     const blockProposeEmitter = new EventEmitter();
-    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
+    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], {
+      WebSocket,
+    });
     this.websockets.push(connection); // save so we can close it properly later
     // we can't setup up a ping until the connection is made because the ping function
     // only exists in the underlying 'ws' object (_ws) and that is undefined until the
@@ -889,35 +928,39 @@ class Nf3 {
         setInterval(() => {
           connection._ws.ping();
           // logger.debug('sent websocket ping');
-        }, WEBSOCKET_PING_TIME),
+        }, WEBSOCKET_PING_TIME)
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      console.debug('**********startProposer >> websocket connection opened');
-      connection.send('blocks');
+      console.debug("**********startProposer >> websocket connection opened");
+      connection.send("blocks");
     };
-    connection.onmessage = async message => {
+    connection.onmessage = async (message) => {
       const msg = JSON.parse(message.data);
       const { type, txDataToSign, block, transactions } = msg;
-      console.debug(`**********startProposer >> Proposer received websocket message of type ${type}`);
-      if (type === 'block') {
+      console.debug(
+        `**********startProposer >> Proposer received websocket message of type ${type}`
+      );
+      if (type === "block") {
         proposerQueue.push(async () => {
           try {
             const receipt = await this.submitTransaction(
               txDataToSign,
               this.stateContractAddress,
-              this.BLOCK_STAKE,
+              this.BLOCK_STAKE
             );
-            blockProposeEmitter.emit('receipt', receipt, block, transactions);
+            blockProposeEmitter.emit("receipt", receipt, block, transactions);
           } catch (err) {
-            blockProposeEmitter.emit('error', err, block, transactions);
+            blockProposeEmitter.emit("error", err, block, transactions);
           }
         });
       }
       return null;
     };
-    connection.onerror = () => console.error('**********startProposer >> websocket connection error');
-    connection.onclosed = () => console.warn('**********startProposer >> websocket connection closed');
+    connection.onerror = () =>
+      console.error("**********startProposer >> websocket connection error");
+    connection.onclosed = () =>
+      console.warn("**********startProposer >> websocket connection closed");
     // add this proposer to the list of peers that can accept direct transfers and withdraws
     return blockProposeEmitter;
   }
@@ -933,7 +976,7 @@ class Nf3 {
     const res = axios.post(
       `${this.optimistBaseUrl}/proposer/offchain-transaction`,
       { transaction },
-      { timeout: 3600000 },
+      { timeout: 3600000 }
     );
     return res.status;
   }
@@ -984,7 +1027,9 @@ class Nf3 {
     @return {Promise} A promise that resolves to an axios response.
     */
   async registerChallenger() {
-    return axios.post(`${this.optimistBaseUrl}/challenger/add`, { address: this.ethereumAddress });
+    return axios.post(`${this.optimistBaseUrl}/challenger/add`, {
+      address: this.ethereumAddress,
+    });
   }
 
   /**
@@ -1006,7 +1051,9 @@ class Nf3 {
     @async
     */
   async startChallenger() {
-    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
+    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], {
+      WebSocket,
+    });
     this.websockets.push(connection); // save so we can close it properly later
     connection.onopen = () => {
       // setup a ping every 15s
@@ -1014,24 +1061,24 @@ class Nf3 {
         setInterval(() => {
           connection._ws.ping();
           // logger.debug('sent websocket ping');
-        }, WEBSOCKET_PING_TIME),
+        }, WEBSOCKET_PING_TIME)
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      console.debug('**********startChallenger >> websocket connection opened');
-      connection.send('challenge');
+      console.debug("**********startChallenger >> websocket connection opened");
+      connection.send("challenge");
     };
-    connection.onmessage = async message => {
+    connection.onmessage = async (message) => {
       const msg = JSON.parse(message.data);
       const { type, txDataToSign } = msg;
-      if (type === 'commit' || type === 'challenge') {
+      if (type === "commit" || type === "challenge") {
         return new Promise((resolve, reject) => {
           challengerQueue.push(async () => {
             try {
               const receipt = await this.submitTransaction(
                 txDataToSign,
                 this.challengesContractAddress,
-                0,
+                0
               );
               resolve(receipt);
             } catch (err) {
@@ -1121,12 +1168,16 @@ class Nf3 {
     value of each propery is the number of tokens pending deposit from that contract.
     */
   async getLayer2PendingDepositBalances(ercList, filterByCompressedPkd) {
-    const res = await axios.get(`${this.clientBaseUrl}/commitment/pending-deposit`, {
-      params: {
-        compressedPkd: filterByCompressedPkd === true ? this.zkpKeys.compressedPkd : null,
-        ercList,
-      },
-    });
+    const res = await axios.get(
+      `${this.clientBaseUrl}/commitment/pending-deposit`,
+      {
+        params: {
+          compressedPkd:
+            filterByCompressedPkd === true ? this.zkpKeys.compressedPkd : null,
+          ercList,
+        },
+      }
+    );
     return res.data.balance;
   }
 
@@ -1143,12 +1194,16 @@ class Nf3 {
     from that contract.
     */
   async getLayer2PendingSpentBalances(ercList, filterByCompressedPkd) {
-    const res = await axios.get(`${this.clientBaseUrl}/commitment/pending-spent`, {
-      params: {
-        compressedPkd: filterByCompressedPkd === true ? this.zkpKeys.compressedPkd : null,
-        ercList,
-      },
-    });
+    const res = await axios.get(
+      `${this.clientBaseUrl}/commitment/pending-spent`,
+      {
+        params: {
+          compressedPkd:
+            filterByCompressedPkd === true ? this.zkpKeys.compressedPkd : null,
+          ercList,
+        },
+      }
+    );
     return res.data.balance;
   }
 
@@ -1216,29 +1271,39 @@ Set a Web3 Provider URL
         onTimeout: false,
       },
     };
-    const provider = new Web3.providers.WebsocketProvider(this.web3WsUrl, WEB3_PROVIDER_OPTIONS);
+    const provider = new Web3.providers.WebsocketProvider(
+      this.web3WsUrl,
+      WEB3_PROVIDER_OPTIONS
+    );
 
     this.web3 = new Web3(provider);
     this.web3.eth.transactionBlockTimeout = 2000;
     this.web3.eth.transactionConfirmationBlocks = 12;
-    if (typeof window !== 'undefined') {
-      if (window.ethereum && this.ethereumSigningKey === '') {
+    if (typeof window !== "undefined") {
+      if (window.ethereum && this.ethereumSigningKey === "") {
         this.web3 = new Web3(window.ethereum);
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        await window.ethereum.request({ method: "eth_requestAccounts" });
       } else {
         // Metamask not available
-        throw new Error('No Web3 provider found');
+        throw new Error("No Web3 provider found");
       }
     }
 
-    provider.on('error', err => console.error(`**********setWeb3Provider >> web3 error: ${err}`));
-    provider.on('connect', () => console.info('**********setWeb3Provider >> Blockchain Connected ...'));
-    provider.on('end', () => console.info('**********setWeb3Provider >> Blockchain disconnected'));
+    provider.on("error", (err) =>
+      console.error(`**********setWeb3Provider >> web3 error: ${err}`)
+    );
+    provider.on("connect", () =>
+      console.info("**********setWeb3Provider >> Blockchain Connected ...")
+    );
+    provider.on("end", () =>
+      console.info("**********setWeb3Provider >> Blockchain disconnected")
+    );
 
     // attempt a reconnect if the socket is down
     this.intervalIDs.push(() => {
       setInterval(() => {
-        if (!this.web3.currentProvider.connected) this.web3.setProvider(provider);
+        if (!this.web3.currentProvider.connected)
+          this.web3.setProvider(provider);
       }, 2000);
     });
     // set up a pinger to ping the web3 provider. This will help to further ensure
@@ -1278,8 +1343,9 @@ Set a Web3 Provider URL
   getAccounts() {
     const account =
       this.ethereumSigningKey.length === 0
-        ? this.web3.eth.getAccounts().then(address => address[0])
-        : this.web3.eth.accounts.privateKeyToAccount(this.ethereumSigningKey).address;
+        ? this.web3.eth.getAccounts().then((address) => address[0])
+        : this.web3.eth.accounts.privateKeyToAccount(this.ethereumSigningKey)
+            .address;
     return account;
   }
 
@@ -1291,7 +1357,8 @@ Set a Web3 Provider URL
     */
   signMessage(msg, account) {
     if (this.ethereumSigningKey) {
-      return this.web3.eth.accounts.sign(msg, this.ethereumSigningKey).signature;
+      return this.web3.eth.accounts.sign(msg, this.ethereumSigningKey)
+        .signature;
     }
     return this.web3.eth.personal.sign(msg, account);
   }

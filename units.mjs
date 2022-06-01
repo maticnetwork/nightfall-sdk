@@ -1,4 +1,4 @@
-import Web3 from 'web3';
+import Web3 from "web3";
 
 /**
  * Checks if passed object is of type string
@@ -6,7 +6,7 @@ import Web3 from 'web3';
  * @returns {Boolean}
  */
 function isString(s) {
-  return typeof s === 'string' || s instanceof String;
+  return typeof s === "string" || s instanceof String;
 }
 
 /**
@@ -17,7 +17,7 @@ function isString(s) {
  */
 function toBaseUnit(value, decimals = 9) {
   if (!isString(value)) {
-    throw new Error('Pass strings to prevent floating point precision issues.');
+    throw new Error("Pass strings to prevent floating point precision issues.");
   }
   if (decimals === 0) {
     return value;
@@ -27,38 +27,38 @@ function toBaseUnit(value, decimals = 9) {
   const base = ten.pow(new Web3.utils.BN(decimals));
 
   // Is it negative?
-  const negative = value.substring(0, 1) === '-';
+  const negative = value.substring(0, 1) === "-";
   if (negative) {
     throw new Error(`Invalid  value cannot be converted negative`);
   }
 
-  if (value === '.') {
+  if (value === ".") {
     throw new Error(
-      `Invalid  value ${value} cannot be converted to${+`  base unit with  $ { decimals }  decimals .`}`,
+      `Invalid  value ${value} cannot be converted to${+`  base unit with  $ { decimals }  decimals .`}`
     );
   }
 
   // Split it into a whole and fractional part
-  const comps = value.split('.');
+  const comps = value.split(".");
   if (comps.length > 2) {
-    throw new Error('Too many decimal points');
+    throw new Error("Too many decimal points");
   }
 
   let whole = comps[0];
   let fraction = comps[1];
 
   if (!whole) {
-    whole = '0';
+    whole = "0";
   }
   if (!fraction) {
-    fraction = '0';
+    fraction = "0";
   }
   if (fraction.length > decimals) {
-    throw new Error('Too many decimal places');
+    throw new Error("Too many decimal places");
   }
 
   while (fraction.length < decimals) {
-    fraction += '0';
+    fraction += "0";
   }
   whole = new Web3.utils.BN(whole);
   fraction = new Web3.utils.BN(fraction);
@@ -76,12 +76,14 @@ function toBaseUnit(value, decimals = 9) {
  */
 function fromBaseUnit(value, decimals) {
   if (!isString(value)) {
-    throw new Error('Pass strings to prevent floating point precision issues.');
+    throw new Error("Pass strings to prevent floating point precision issues.");
   }
 
   const { unitMap } = Web3.utils;
   const factor = 10 ** decimals;
-  const unit = Object.keys(unitMap).find(key => unitMap[key] === factor.toString());
+  const unit = Object.keys(unitMap).find(
+    (key) => unitMap[key] === factor.toString()
+  );
 
   return Web3.utils.fromWei(value, unit);
 }
