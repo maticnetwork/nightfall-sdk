@@ -30,6 +30,6 @@ For this we're using commitzen to help us in the commits creation.
 
 ### Branches pattern
 
-We're following the github flow standard. So we have the master branch that is our releasy ready branch and for features and bugfixes we use the following:
+We're following the GitHub flow standard. So we have the master branch that is our release ready branch and for features and bugfixes we use the following:
 
 TBD...
