@@ -41,12 +41,10 @@ class User {
 
     // FYI Set this.shieldContractAddress, this.tokenContractAddress
     this.tokenStandard = config.tokenStandard; // TODO validate tokenStandard
-    this.shieldContractAddress = await this.getContractAddress("Shield"); // TODO improve
-    this.tokenContractAddress = await this.getContractAddress(
-      config.tokenStandard
-    ); // TODO need `updateTokenStandard` (?)
+    await this.setContractAddress("shieldContractAddress", "shield"); // TODO improve
+    await this.setContractAddress("tokenContractAddress", config.tokenStandard);
 
-    // FYI Set this.nightfallMnemonic, this.zkpKeys
+    // FYI Set this.nightfallMnemonic, this.zkpKeys, call subscribeToIncomingViewingKeys
     await this.setZkpKeysFromMnemonic(config.nightfallMnemonic);
 
     return {
@@ -56,10 +54,12 @@ class User {
     };
   }
 
-  setEthPrivateKey(ethereumPrivateKey: string) {
-    this.ethereumPrivateKey = this.validateEthPrivateKey(ethereumPrivateKey); // TODO review validation, could is privateKeyToAccount although format checking (0x) is still necessary
+  setEthPrivateKey(ethereumPrivateKey: string): null | string {
+    this.ethereumPrivateKey = this.validateEthPrivateKey(ethereumPrivateKey); // TODO review validation, could be privateKeyToAccount although format checking (0x) is still necessary
+    return this.ethereumPrivateKey;
   }
 
+  // ? Private method
   validateEthPrivateKey(ethereumPrivateKey: string): null | string {
     try {
       const isEthPrivateKey = this.web3.web3.isHexStrict(ethereumPrivateKey);
@@ -74,7 +74,7 @@ class User {
   async setZkpKeysFromMnemonic(mnemonic: undefined | string) {
     // FYI Set this.nightfallMnemonic
     this.setNfMnemonic(mnemonic);
-    if (!this.nightfallMnemonic) return;
+    if (!this.nightfallMnemonic) return null;
 
     // FYI Set this.zkpKeys
     const _mnemonicAddressIdx = 0;
@@ -82,11 +82,17 @@ class User {
       this.nightfallMnemonic,
       _mnemonicAddressIdx
     );
-    if (!this.zkpKeys) return;
+    if (!this.zkpKeys) return this.nightfallMnemonic;
 
     await this.client.subscribeToIncomingViewingKeys(this.zkpKeys);
+
+    return {
+      nightfallMnemonic: this.nightfallMnemonic,
+      zkpKeys: this.zkpKeys,
+    };
   }
 
+  // ? Private method, improve return type
   setNfMnemonic(mnemonic: undefined | string) {
     let _mnemonic: null | string;
     if (!mnemonic) {
@@ -97,6 +103,7 @@ class User {
     this.nightfallMnemonic = _mnemonic;
   }
 
+  // ? Private method
   validateNfMnemonic(mnemonic: string): null | string {
     try {
       const isMnemonic = validateMnemonic(mnemonic); // FYI using bip39
@@ -108,9 +115,15 @@ class User {
     return mnemonic;
   }
 
-  async getContractAddress(contractName: string) {
-    // TODO validate contractName
-    return this.client.getContractAddress(contractName);
+  async setContractAddress(
+    prop: string,
+    contractName: string
+  ): Promise<null | string> {
+    const _contractProps = ["shieldContractAddress", "tokenContractAddress"]; // TODO improve
+    if (!_contractProps.includes(prop) || !contractName.length) return null;
+
+    this[prop] = await this.client.getContractAddress(contractName);
+    return this[prop];
   }
 
   close() {
