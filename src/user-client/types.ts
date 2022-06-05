@@ -1,6 +1,6 @@
 export interface Env {
-  clientApiUrl: string,
-  web3WsUrl: string,
+  clientApiUrl: string;
+  web3WsUrl: string;
 }
 
 export interface UserConfig {

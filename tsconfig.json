@@ -7,10 +7,7 @@
     "noImplicitAny": true,
     "outDir": "dist",
     "sourceMap": true,
-    "target": "es2017",
+    "target": "es2017"
   },
-  "include": [
-    "src/**/*",
-    "scripts/**/*"
-  ]
+  "include": ["src/**/*", "scripts/**/*"]
 }

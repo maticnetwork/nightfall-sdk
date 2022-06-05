@@ -37,7 +37,7 @@ class Web3Websocket {
 
     this.provider = new Web3.providers.WebsocketProvider(
       wsUrl,
-      WEB3_PROVIDER_OPTIONS
+      WEB3_PROVIDER_OPTIONS,
     );
     this.web3 = new Web3(this.provider);
     this.setEthConfig();
@@ -55,7 +55,7 @@ class Web3Websocket {
     this.provider.on("connect", () => console.info("Blockchain connected")); // FYI callback used to capture err
     this.provider.on("end", () => console.info("Blockchain disconnected"));
     this.provider.on("error", () =>
-      console.error("Blockchain connection error")
+      console.error("Blockchain connection error"),
     );
   }
 
@@ -68,7 +68,7 @@ class Web3Websocket {
     this.intervalIds.push(
       setInterval(async () => {
         await this.setEthBlockNo();
-      }, WS_BLOCK_NO_PING_TIME)
+      }, WS_BLOCK_NO_PING_TIME),
     );
   }
 
@@ -76,7 +76,7 @@ class Web3Websocket {
     this.intervalIds.push(
       setInterval(() => {
         if (!this.provider.connected) this.web3.setProvider(this.provider); // TODO review, was this.web3.currentProvider.connected
-      }, WS_CONNECTION_PING_TIME)
+      }, WS_CONNECTION_PING_TIME),
     );
   }
 

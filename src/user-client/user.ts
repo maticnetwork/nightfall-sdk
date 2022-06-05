@@ -5,10 +5,10 @@ import { Env, UserConfig } from "./types";
 
 // TODO rm `environments` from this file
 
-const environments: { [key: string]: Env; } = {
-  "development": {
-    "clientApiUrl": "http://localhost:8080",
-    "web3WsUrl": "ws://localhost:8546",
+const environments: { [key: string]: Env } = {
+  development: {
+    clientApiUrl: "http://localhost:8080",
+    web3WsUrl: "ws://localhost:8546",
   },
 };
 
@@ -82,7 +82,7 @@ class User {
     const _mnemonicAddressIdx = 0;
     this.zkpKeys = await this.client.generateZkpKeys(
       this.nightfallMnemonic,
-      _mnemonicAddressIdx
+      _mnemonicAddressIdx,
     );
     if (!this.zkpKeys) return this.nightfallMnemonic;
 
@@ -119,7 +119,7 @@ class User {
 
   async setContractAddress(
     prop: string,
-    contractName: string
+    contractName: string,
   ): Promise<null | string> {
     const _contractProps = ["shieldContractAddress", "tokenContractAddress"]; // TODO improve
     if (!_contractProps.includes(prop) || !contractName.length) return null;

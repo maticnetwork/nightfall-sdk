@@ -12,11 +12,10 @@ const main = async () => {
     const status = await user.checkStatus();
     console.log(status);
     console.log("Bye bye");
-
   } catch (error) {
     console.log(error);
     process.exit(1);
   }
-}
+};
 
 main();
