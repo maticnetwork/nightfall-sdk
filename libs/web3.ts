@@ -29,8 +29,7 @@ class Web3Websocket {
   wsUrl: string;
   provider: WebsocketProvider;
   web3: Web3;
-  // eslint-disable-next-line no-undef
-  intervalIds: NodeJS.Timer[]; // FYI https://github.com/Chatie/eslint-config/issues/45
+  intervalIds: NodeJS.Timer[] = []; // FYI https://github.com/Chatie/eslint-config/issues/45 - eslint-disable-next-line no-undef
   blocknumber: number;
 
   constructor(wsUrl: string) {
@@ -43,8 +42,8 @@ class Web3Websocket {
     this.web3 = new Web3(this.provider);
     this.setEthConfig();
     this.addWsEventListeners();
-    this.checkWsConnection(); // TODO review checkWsConnection + getBlockNumber "interaction"
-    this.getBlockNumber();
+    this.checkWsConnection(); // TODO review checkWsConnection + refreshWsConnection "dance"
+    this.refreshWsConnection();
   }
 
   setEthConfig() {
@@ -53,27 +52,31 @@ class Web3Websocket {
   }
 
   addWsEventListeners() {
-    this.provider.on("connect", () => console.info("Blockchain connected")); // FYI callback used to capture error but seems that it's not possible
+    this.provider.on("connect", () => console.info("Blockchain connected")); // FYI callback used to capture err
     this.provider.on("end", () => console.info("Blockchain disconnected"));
     this.provider.on("error", () =>
       console.error("Blockchain connection error")
     );
   }
 
-  checkWsConnection() {
+  async setEthBlockNo(): Promise<number> {
+    this.blocknumber = await this.web3.eth.getBlockNumber();
+    return this.blocknumber;
+  }
+
+  refreshWsConnection() {
     this.intervalIds.push(
-      setInterval(() => {
-        if (!this.web3.currentProvider.connected)
-          this.web3.setProvider(this.provider); // TODO review
-      }, WS_CONNECTION_PING_TIME)
+      setInterval(async () => {
+        await this.setEthBlockNo();
+      }, WS_BLOCK_NO_PING_TIME)
     );
   }
 
-  getBlockNumber() {
+  checkWsConnection() {
     this.intervalIds.push(
-      setInterval(async () => {
-        this.blocknumber = await this.web3.eth.getBlockNumber();
-      }, WS_BLOCK_NO_PING_TIME)
+      setInterval(() => {
+        if (!this.provider.connected) this.web3.setProvider(this.provider); // TODO review, was this.web3.currentProvider.connected
+      }, WS_CONNECTION_PING_TIME)
     );
   }
 
@@ -82,7 +85,7 @@ class Web3Websocket {
   }
 
   closeWsConnection() {
-    this.web3.currentProvider.disconnect(); // FYI Was connection.close()
+    this.web3.currentProvider.disconnect(); // TODO review, was connection.close()
   }
 
   close() {

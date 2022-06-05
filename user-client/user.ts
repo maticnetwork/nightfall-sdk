@@ -15,7 +15,7 @@ class User {
   // TODO improve typings
   envString: string;
   currentEnv;
-  web3; // TODO rename
+  web3Websocket;
   client;
 
   ethereumPrivateKey: null | string;
@@ -31,7 +31,7 @@ class User {
     // TODO validate env string
     this.envString = env;
     this.currentEnv = environments[env];
-    this.web3 = new Web3Websocket(this.currentEnv.web3WsUrl);
+    this.web3Websocket = new Web3Websocket(this.currentEnv.web3WsUrl);
     this.client = new Client(this.currentEnv.clientApiUrl);
   }
 
@@ -62,7 +62,8 @@ class User {
   // ? Private method
   validateEthPrivateKey(ethereumPrivateKey: string): null | string {
     try {
-      const isEthPrivateKey = this.web3.web3.isHexStrict(ethereumPrivateKey);
+      const isEthPrivateKey =
+        this.web3Websocket.web3.isHexStrict(ethereumPrivateKey);
       if (!isEthPrivateKey) throw new Error("Invalid Ethereum private key");
     } catch (err) {
       console.error(err);
@@ -126,8 +127,15 @@ class User {
     return this[prop];
   }
 
+  // TODO improve typings
+  async checkStatus() {
+    const _isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
+    const _isClientAlive = await this.client.healthCheck();
+    return { _isWeb3WsAlive, _isClientAlive };
+  }
+
   close() {
-    this.web3.close();
+    this.web3Websocket.close();
   }
 }
 
