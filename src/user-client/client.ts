@@ -46,10 +46,10 @@ class Client {
   }
 
   // TODO check return, improve res + return types, double-check it's coherent with API response
-  async subscribeToIncomingViewingKeys(zkpKeys) {
+  async subscribeToIncomingViewingKeys(zkpKeys: any) {
     let res;
     try {
-      res = axios.post(`${this.apiUrl}/incoming-viewing-key`, {
+      res = await axios.post(`${this.apiUrl}/incoming-viewing-key`, {
         ivks: [zkpKeys.ivk],
         nsks: [zkpKeys.nsk],
       });

@@ -1,10 +1,11 @@
 import { generateMnemonic, validateMnemonic } from "bip39";
 import Client from "./client";
 import Web3Websocket from "../libs/web3";
-import { UserConfig } from "./types";
+import { Env, UserConfig } from "./types";
 
 // TODO rm `environments` from this file
-const environments = {
+
+const environments: { [key: string]: Env; } = {
   "development": {
     "clientApiUrl": "http://localhost:8080",
     "web3WsUrl": "ws://localhost:8546",
@@ -14,7 +15,7 @@ const environments = {
 class User {
   // TODO improve typings
   envString: string;
-  currentEnv;
+  currentEnv: Env;
   web3Websocket;
   client;
 
@@ -25,7 +26,7 @@ class User {
   tokenStandard: string;
 
   nightfallMnemonic: null | string;
-  zkpKeys;
+  zkpKeys: any;
 
   constructor(env: string) {
     // TODO validate env string
@@ -63,7 +64,7 @@ class User {
   validateEthPrivateKey(ethereumPrivateKey: string): null | string {
     try {
       const isEthPrivateKey =
-        this.web3Websocket.web3.isHexStrict(ethereumPrivateKey);
+        this.web3Websocket.web3.utils.isHexStrict(ethereumPrivateKey);
       if (!isEthPrivateKey) throw new Error("Invalid Ethereum private key");
     } catch (err) {
       console.error(err);
@@ -122,9 +123,9 @@ class User {
   ): Promise<null | string> {
     const _contractProps = ["shieldContractAddress", "tokenContractAddress"]; // TODO improve
     if (!_contractProps.includes(prop) || !contractName.length) return null;
-
-    this[prop] = await this.client.getContractAddress(contractName);
-    return this[prop];
+    console.log("=====> TODO setContractAddress");
+    // this[prop] = await this.client.getContractAddress(contractName);
+    // return this[prop];
   }
 
   // TODO improve typings

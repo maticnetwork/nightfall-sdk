@@ -1,6 +1,7 @@
 // npx ts-node src/foo.ts
+// tsc && node scripts/example.ts
 
-import User from "../user-client/user";
+import User from "../src/user-client/user";
 
 const ENVIRONMENT = "development";
 // const localPrivateKey =
@@ -11,12 +12,9 @@ const ENVIRONMENT = "development";
 // };
 // console.log(await checkStatus());
 
-async function main() {
-  const user = new User(ENVIRONMENT);
-  const status = await user.checkStatus();
-  console.log(status);
-}
+const user = new User(ENVIRONMENT);
+const status = await user.checkStatus();
+console.log(status);
 
-await main();
 console.log("Bye bye");
 process.exit();

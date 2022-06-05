@@ -1,3 +1,6 @@
+# editors
+.vscode
+
 # node
 node_modules
 dist

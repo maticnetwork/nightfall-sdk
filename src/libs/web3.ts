@@ -29,7 +29,7 @@ class Web3Websocket {
   wsUrl: string;
   provider: WebsocketProvider;
   web3: Web3;
-  intervalIds: NodeJS.Timer[] = []; // FYI https://github.com/Chatie/eslint-config/issues/45 - eslint-disable-next-line no-undef
+  intervalIds: ReturnType<typeof setInterval>[] = [];
   blocknumber: number;
 
   constructor(wsUrl: string) {
@@ -85,7 +85,7 @@ class Web3Websocket {
   }
 
   closeWsConnection() {
-    this.web3.currentProvider.disconnect(); // TODO review, was connection.close()
+    // this.web3.currentProvider.disconnect(); // TODO review, was connection.close()
   }
 
   close() {
