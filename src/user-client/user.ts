@@ -1,10 +1,10 @@
 import { generateMnemonic, validateMnemonic } from "bip39";
 import Client from "./client";
-import Web3Websocket from "../libs/web3";
 import { Env, UserConfig } from "./types";
+import logger from "../libs/logger";
+import Web3Websocket from "../libs/web3";
 
 // TODO rm `environments` from this file
-
 const environments: { [key: string]: Env } = {
   development: {
     clientApiUrl: "http://localhost:8080",
@@ -21,28 +21,30 @@ class User {
 
   ethereumPrivateKey: null | string;
 
-  shieldContractAddress: string;
-  tokenContractAddress: null | string;
-  tokenStandard: string;
+  shieldContractAddress: null | string = null;
+  tokenContractAddress: null | string = null;
+  tokenStandard = "";
 
-  nightfallMnemonic: null | string;
-  zkpKeys: any;
+  nightfallMnemonic: null | string = null;
+  zkpKeys: any = null;
 
   constructor(env: string) {
-    // TODO validate env string
-    this.envString = env;
+    logger.debug({ env }, "new User connected to");
+    this.envString = env; // TODO validate env string
     this.currentEnv = environments[env];
     this.web3Websocket = new Web3Websocket(this.currentEnv.web3WsUrl);
     this.client = new Client(this.currentEnv.clientApiUrl);
   }
 
   async init(config: UserConfig) {
+    logger.debug({ config }, "User :: init"); // TODO review logs, careful not to log sensitive data
+
     // FYI Set this.ethereumPrivateKey
     this.setEthPrivateKey(config.ethereumPrivateKey);
 
     // FYI Set this.shieldContractAddress, this.tokenContractAddress
-    this.tokenStandard = config.tokenStandard; // TODO validate tokenStandard
-    await this.setContractAddress("shieldContractAddress", "shield"); // TODO improve
+    this.tokenStandard = config.tokenStandard;
+    await this.setContractAddress("shieldContractAddress", "Shield"); // TODO improve
     await this.setContractAddress("tokenContractAddress", config.tokenStandard);
 
     // FYI Set this.nightfallMnemonic, this.zkpKeys, call subscribeToIncomingViewingKeys
@@ -56,24 +58,29 @@ class User {
   }
 
   setEthPrivateKey(ethereumPrivateKey: string): null | string {
+    logger.debug("User :: setEthPrivateKey");
     this.ethereumPrivateKey = this.validateEthPrivateKey(ethereumPrivateKey); // TODO review validation, could be privateKeyToAccount although format checking (0x) is still necessary
     return this.ethereumPrivateKey;
   }
 
   // ? Private method
   validateEthPrivateKey(ethereumPrivateKey: string): null | string {
+    logger.debug("User :: validateEthPrivateKey");
     try {
       const isEthPrivateKey =
         this.web3Websocket.web3.utils.isHexStrict(ethereumPrivateKey);
       if (!isEthPrivateKey) throw new Error("Invalid Ethereum private key");
+      logger.info("Given eth key is hex strict");
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       return null;
     }
     return ethereumPrivateKey;
   }
 
   async setZkpKeysFromMnemonic(mnemonic: undefined | string) {
+    logger.debug("User :: setZkpKeysFromMnemonic");
+
     // FYI Set this.nightfallMnemonic
     this.setNfMnemonic(mnemonic);
     if (!this.nightfallMnemonic) return null;
@@ -96,9 +103,11 @@ class User {
 
   // ? Private method, improve return type
   setNfMnemonic(mnemonic: undefined | string) {
+    logger.debug("User :: setNfMnemonic");
     let _mnemonic: null | string;
     if (!mnemonic) {
       _mnemonic = generateMnemonic(); // FYI using bip39
+      logger.info("New mnemonic");
     } else {
       _mnemonic = this.validateNfMnemonic(mnemonic);
     }
@@ -107,11 +116,13 @@ class User {
 
   // ? Private method
   validateNfMnemonic(mnemonic: string): null | string {
+    logger.debug("User :: validateNfMnemonic");
     try {
       const isMnemonic = validateMnemonic(mnemonic); // FYI using bip39
       if (!isMnemonic) throw new Error("Invalid mnemonic");
+      logger.info("Given mnemonic is valid");
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       return null;
     }
     return mnemonic;
@@ -121,15 +132,17 @@ class User {
     prop: string,
     contractName: string,
   ): Promise<null | string> {
+    const logObj = { prop, contractName }; // TODO review internal vars underscore
+    logger.debug(logObj, "User :: setContractAddress");
     const _contractProps = ["shieldContractAddress", "tokenContractAddress"]; // TODO improve
     if (!_contractProps.includes(prop) || !contractName.length) return null;
-    console.log("=====> TODO setContractAddress");
-    // this[prop] = await this.client.getContractAddress(contractName);
-    // return this[prop];
+    (this as any)[prop] = await this.client.getContractAddress(contractName); // TODO fix, api is case sensitive!!
+    // return this[prop]; // TODO fix, https://stackoverflow.com/questions/12710905/how-do-i-dynamically-assign-properties-to-an-object-in-typescript
   }
 
   // TODO improve typings
   async checkStatus() {
+    logger.debug("User :: checkStatus");
     const _isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
     const _isClientAlive = await this.client.healthCheck();
     return { _isWeb3WsAlive, _isClientAlive };
