@@ -1,0 +1,9 @@
+# node_modules ignored by default
+# Files in version control systems directories (".git", ".svn" and ".hg") ignored by default
+
+# From .gitignore
+dist
+.env
+
+# Ignore nf3 legacy files
+legacy

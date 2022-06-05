@@ -1,0 +1,9 @@
+# node_modules ignored by default
+# dot-files (except for .eslintrc.*), as well as dot-folders and their contents, are ignored
+
+# From .gitignore
+dist
+.env
+
+# Ignore nf3 legacy files
+legacy

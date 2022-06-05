@@ -1,0 +1,4 @@
+endOfLine: auto
+tabWidth: 2
+trailingComma: "es5"
+singleQuote: false
