@@ -38,6 +38,7 @@ class Client {
   }
 
   // TODO improve return types, double-check it's coherent with API response
+  // TODO actually, this endpoint performs mnemonic validation, so maybe SDK val is redundant...
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
@@ -47,7 +48,7 @@ class Client {
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/generate-keys`, {
-        validMnemonic,
+        mnemonic: validMnemonic,
         path: `m/44'/60'/0'/${addressIndex}`,
       });
       logger.info({ status: res.status, data: res.data });
