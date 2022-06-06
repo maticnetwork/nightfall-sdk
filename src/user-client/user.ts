@@ -1,8 +1,8 @@
 import { generateMnemonic, validateMnemonic } from "bip39";
 import Client from "./client";
 import { Env, UserConfig } from "./types";
-import logger from "../libs/logger";
-import Web3Websocket from "../libs/web3";
+import logger from "../utils/logger";
+import Web3Websocket from "../utils/web3Websocket";
 
 // TODO rm `environments` from this file
 const environments: { [key: string]: Env } = {
@@ -19,7 +19,8 @@ class User {
   web3Websocket;
   client;
 
-  ethereumPrivateKey: null | string;
+  ethPrivateKey: null | string = null;
+  ethAddress: null | string = null;
 
   shieldContractAddress: null | string = null;
   tokenContractAddress: null | string = null;
@@ -39,8 +40,8 @@ class User {
   async init(config: UserConfig) {
     logger.debug({ config }, "User :: init"); // TODO review logs, careful not to log sensitive data
 
-    // FYI Set this.ethereumPrivateKey
-    this.setEthPrivateKey(config.ethereumPrivateKey);
+    // FYI Set this.ethPrivateKey, this.ethAddress
+    this.setEthPrivateKeyAndAddress(config.ethereumPrivateKey);
 
     // FYI Set this.shieldContractAddress, this.tokenContractAddress
     this.tokenStandard = config.tokenStandard;
@@ -51,16 +52,25 @@ class User {
     await this.setZkpKeysFromMnemonic(config.nightfallMnemonic);
 
     return {
-      ethereumPrivateKey: this.ethereumPrivateKey,
+      isEthereumPrivateKey: !!this.ethPrivateKey,
+      ethereumAddress: this.ethAddress,
       nightfallMnemonic: this.nightfallMnemonic,
+      hasZkpKeys: !!this.zkpKeys, // TODO test that is never empty object
       tokenStandard: this.tokenContractAddress,
     };
   }
 
-  setEthPrivateKey(ethereumPrivateKey: string): null | string {
-    logger.debug("User :: setEthPrivateKey");
-    this.ethereumPrivateKey = this.validateEthPrivateKey(ethereumPrivateKey); // TODO review validation, could be privateKeyToAccount although format checking (0x) is still necessary
-    return this.ethereumPrivateKey;
+  setEthPrivateKeyAndAddress(ethereumPrivateKey: string) {
+    logger.debug("User :: setEthPrivateKeyAndAddress");
+    this.ethPrivateKey = this.validateEthPrivateKey(ethereumPrivateKey);
+    if (!this.ethPrivateKey) return null;
+
+    this.ethAddress = this.setEthAddressFromPrivateKey(ethereumPrivateKey);
+
+    return {
+      isEthereumPrivateKey: !!this.ethPrivateKey,
+      ethereumAddress: this.ethAddress,
+    };
   }
 
   // ? Private method
@@ -69,7 +79,8 @@ class User {
     try {
       const isEthPrivateKey =
         this.web3Websocket.web3.utils.isHexStrict(ethereumPrivateKey);
-      if (!isEthPrivateKey) throw new Error("Invalid Ethereum private key");
+      if (!isEthPrivateKey)
+        throw new Error("Invalid eth private key: string is not HEX string");
       logger.info("Given eth key is hex strict");
     } catch (err) {
       logger.error(err);
@@ -78,16 +89,32 @@ class User {
     return ethereumPrivateKey;
   }
 
+  setEthAddressFromPrivateKey(validEthPrivateKey: string): null | string {
+    logger.debug("User :: setEthAddressFromPrivateKey");
+    let _ethAccount;
+    try {
+      _ethAccount =
+        this.web3Websocket.web3.eth.accounts.privateKeyToAccount(
+          validEthPrivateKey,
+        ); // TODO review: how can this fail?
+      logger.info({ _ethAccount }, "Account from eth private key");
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return _ethAccount.address;
+  }
+
   async setZkpKeysFromMnemonic(mnemonic: undefined | string) {
     logger.debug("User :: setZkpKeysFromMnemonic");
 
     // FYI Set this.nightfallMnemonic
     this.setNfMnemonic(mnemonic);
-    if (!this.nightfallMnemonic) return null;
+    if (!this.nightfallMnemonic) return null; // TODO review bangs
 
     // FYI Set this.zkpKeys
     const _mnemonicAddressIdx = 0;
-    this.zkpKeys = await this.client.generateZkpKeys(
+    this.zkpKeys = await this.client.generateZkpKeysFromMnemonic(
       this.nightfallMnemonic,
       _mnemonicAddressIdx,
     );
@@ -97,7 +124,7 @@ class User {
 
     return {
       nightfallMnemonic: this.nightfallMnemonic,
-      zkpKeys: this.zkpKeys,
+      hasZkpKeys: !!this.zkpKeys,
     };
   }
 
@@ -114,7 +141,7 @@ class User {
     this.nightfallMnemonic = _mnemonic;
   }
 
-  // ? Private method
+  // ? Private method, or perhaps some of these might be shared with Proposer, etc.
   validateNfMnemonic(mnemonic: string): null | string {
     logger.debug("User :: validateNfMnemonic");
     try {

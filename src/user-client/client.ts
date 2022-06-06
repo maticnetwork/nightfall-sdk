@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import logger from "../libs/logger";
+import logger from "../utils/logger";
 
 // TODO review/improve error handling
 class Client {
@@ -38,13 +38,16 @@ class Client {
   }
 
   // TODO improve return types, double-check it's coherent with API response
-  async generateZkpKeys(mnemonic: string, addressIndex: number) {
-    const logObj = { mnemonic, addressIndex };
+  async generateZkpKeysFromMnemonic(
+    validMnemonic: string,
+    addressIndex: number,
+  ) {
+    const logObj = { validMnemonic, addressIndex };
     logger.debug(logObj, "Calling client at generate-keys");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/generate-keys`, {
-        mnemonic,
+        validMnemonic,
         path: `m/44'/60'/0'/${addressIndex}`,
       });
       logger.info({ status: res.status, data: res.data });
