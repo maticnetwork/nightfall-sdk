@@ -37,7 +37,7 @@ class User {
     this.client = new Client(this.currentEnv.clientApiUrl);
   }
 
-  async init(config: UserConfig) {
+  async configUser(config: UserConfig) {
     logger.debug({ config }, "User :: init"); // TODO review logs, careful not to log sensitive data
 
     // FYI Set this.ethPrivateKey, this.ethAddress

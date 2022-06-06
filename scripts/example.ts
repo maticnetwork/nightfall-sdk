@@ -11,7 +11,7 @@ const main = async () => {
     const user = new User(ENVIRONMENT);
     const status = await user.checkStatus();
     console.log(status);
-    const init = await user.init({
+    const init = await user.configUser({
       ethereumPrivateKey: localPrivateKey,
       tokenStandard: "ERC20Mock",
     });

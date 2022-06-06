@@ -41,6 +41,11 @@ class Web3Websocket {
       WEB3_PROVIDER_OPTIONS,
     );
     this.web3 = new Web3(this.provider);
+
+    this.init();
+  }
+
+  init() {
     this.setEthConfig();
     this.addWsEventListeners();
     this.checkWsConnection(); // TODO review checkWsConnection + refreshWsConnection "dance"
@@ -62,11 +67,6 @@ class Web3Websocket {
     );
   }
 
-  updateWeb3Provider() {
-    logger.debug("Web3Websocket :: updateWeb3Provider");
-    this.web3.setProvider(this.provider);
-  }
-
   checkWsConnection() {
     logger.debug("Web3Websocket :: checkWsConnection");
     this.intervalIds.push(
@@ -79,11 +79,9 @@ class Web3Websocket {
     );
   }
 
-  async setEthBlockNo(): Promise<number> {
-    logger.debug("Web3Websocket :: setEthBlockNo");
-    this.blocknumber = await this.web3.eth.getBlockNumber();
-    logger.info({ blocknumber: this.blocknumber });
-    return this.blocknumber;
+  updateWeb3Provider() {
+    logger.debug("Web3Websocket :: updateWeb3Provider");
+    this.web3.setProvider(this.provider);
   }
 
   refreshWsConnection() {
@@ -95,21 +93,30 @@ class Web3Websocket {
     );
   }
 
-  clearIntervalIds() {
-    logger.debug("Web3Websocket :: clearIntervalIds");
-    this.intervalIds.forEach((intervalId) => clearInterval(intervalId));
-    logger.info(this.intervalIds);
-  }
-
-  closeWsConnection() {
-    logger.debug("TODO :: Web3Websocket :: closeWsConnection");
-    // this.web3.currentProvider.disconnect(); // TODO review, was connection.close()
+  async setEthBlockNo(): Promise<number> {
+    logger.debug("Web3Websocket :: setEthBlockNo");
+    this.blocknumber = await this.web3.eth.getBlockNumber();
+    logger.info({ blocknumber: this.blocknumber });
+    return this.blocknumber;
   }
 
   close() {
     logger.debug("Web3Websocket :: close");
     this.clearIntervalIds();
     this.closeWsConnection();
+  }
+
+  // ? Private method
+  clearIntervalIds() {
+    logger.debug("Web3Websocket :: clearIntervalIds");
+    this.intervalIds.forEach((intervalId) => clearInterval(intervalId));
+    logger.info(this.intervalIds);
+  }
+
+  // ? Private method
+  closeWsConnection() {
+    logger.debug("TODO :: Web3Websocket :: closeWsConnection");
+    // this.web3.currentProvider.disconnect(); // TODO review, was connection.close()
   }
 }
 
