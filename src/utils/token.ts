@@ -22,7 +22,7 @@ class Token {
   tokenId: string;
 
   constructor(options: TokenOptions) {
-    logger.debug({ options }, "new Token");
+    logger.debug("new Token");
     this.web3 = options.web3;
     this.tokenStandard = options.standard;
     this.tokenContractAddress = options.contractAddress;
@@ -41,7 +41,7 @@ class Token {
       _contractAbi,
       this.tokenContractAddress,
     );
-    logger.info({ tokenContract: this.tokenContract });
+    logger.info("Token Contract ready");
   }
 
   getContractAbi() {
@@ -56,6 +56,7 @@ class Token {
     return JSON.parse(_tokenAbiSource);
   }
 
+  // TODO check that ERC165 is deployed
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
     let _decimals: number;

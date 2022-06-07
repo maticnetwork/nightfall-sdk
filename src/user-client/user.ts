@@ -55,7 +55,8 @@ class User {
       hasShield: !!this.shieldContractAddress,
       isEthereumPrivateKey: !!this.ethPrivateKey,
       ethereumAddress: this.ethAddress,
-      token: this.token,
+      tokenStandard: this.token?.tokenStandard,
+      tokenContractAddress: this.token?.tokenContractAddress,
       nightfallMnemonic: this.nightfallMnemonic,
       hasZkpKeys: !!this.zkpKeys, // TODO test that is never empty object
     };
