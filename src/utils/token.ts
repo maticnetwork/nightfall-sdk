@@ -2,19 +2,10 @@ import fs from "fs";
 import path from "path";
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
+import { TOKEN_ABIS, TOKEN_STANDARDS } from "./constants";
 import logger from "./logger";
 
-// TODO consider rm types, const from this file
-const TOKEN_STANDARDS: { [key: string]: string } = {
-  ERC20: "ERC20",
-  ERC721: "ERC721",
-  ERC1155: "ERC1155",
-};
-
-const TOKEN_ABIS: { [key: string]: string } = {
-  ERC20: "ERC20.json",
-};
-
+// TODO consider rm types
 interface TokenOptions {
   web3: Web3;
   standard: string;
@@ -56,9 +47,9 @@ class Token {
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
     const _rootPath = path.resolve();
-    const _tokenAbi = TOKEN_ABIS[this.tokenStandard];
+    const _tokenAbi = TOKEN_ABIS[this.tokenStandard.toUpperCase()]; // TODO review
     const _tokenAbiPath = path.join(_rootPath, "src", "abis", _tokenAbi);
-    logger.info({ path: _tokenAbiPath }, "Read file at");
+    logger.info({ path: _tokenAbiPath }, "Read contract file at");
     const _tokenAbiSource = fs.readFileSync(_tokenAbiPath, {
       encoding: "utf8",
     });
@@ -80,7 +71,7 @@ class Token {
       logger.error("Unknown token standard");
     }
     this.tokenDecimals = _decimals;
-    logger.info({ tokenDecimals: this.tokenDecimals });
+    logger.info({ tokenDecimals: this.tokenDecimals }, "Token decimals");
   }
 
   // setTokenId() {}

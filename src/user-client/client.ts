@@ -43,8 +43,8 @@ class Client {
     validMnemonic: string,
     addressIndex: number,
   ) {
-    const logObj = { validMnemonic, addressIndex };
-    logger.debug(logObj, "Calling client at generate-keys");
+    const _logInput = { validMnemonic, addressIndex }; // TODO review internal vars underscore
+    logger.debug(_logInput, "Calling client at generate-keys");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/generate-keys`, {
@@ -53,7 +53,7 @@ class Client {
       });
       logger.info({ status: res.status, data: res.data });
     } catch (err) {
-      logger.child(logObj).error(err);
+      logger.child(_logInput).error(err);
       return null;
     }
     return res.data;

@@ -106,16 +106,14 @@ class Web3Websocket {
     this.closeWsConnection();
   }
 
-  // ? Private method
   clearIntervalIds() {
     logger.debug("Web3Websocket :: clearIntervalIds");
     this.intervalIds.forEach((intervalId) => clearInterval(intervalId));
-    logger.info(this.intervalIds);
+    logger.info({ intervalIds: this.intervalIds }, "Cleared intervals");
   }
 
-  // ? Private method
   closeWsConnection() {
-    logger.debug("TODO :: Web3Websocket :: closeWsConnection");
+    logger.debug("Web3Websocket :: closeWsConnection");
     // this.web3.currentProvider.disconnect(); // TODO review, was connection.close()
   }
 }
