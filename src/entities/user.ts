@@ -1,22 +1,18 @@
 import { generateMnemonic, validateMnemonic } from "bip39";
 import Client from "./client";
-import { Env, UserConfig } from "./types";
-import { TOKEN_STANDARDS } from "../utils/constants";
+import environments from "../config/environments";
+import networks from "../config/networks";
+import { Env, NetworkTokenConfig, UserConfig } from "../types/types";
 import logger from "../utils/logger";
 import Token from "../utils/token";
 import Web3Websocket from "../utils/web3Websocket";
 
-// TODO rm `environments` from this file
-const environments: { [key: string]: Env } = {
-  development: {
-    clientApiUrl: "http://localhost:8080",
-    web3WsUrl: "ws://localhost:8546",
-  },
-};
+const DEVELOPMENT = "development";
 
 class User {
   envString: string;
   currentEnv: Env;
+  supportedTokens: { [key: string]: NetworkTokenConfig };
   web3Websocket;
   client;
 
@@ -27,12 +23,13 @@ class User {
   nightfallMnemonic: null | string = null;
   zkpKeys: any = null;
 
-  constructor(env: string) {
+  constructor(env = DEVELOPMENT) {
     logger.debug({ env }, "new User connected to");
-    this.envString = env; // TODO validate env string
+    this.envString = env; // TODO validate env string, env options
     this.currentEnv = environments[env];
-    this.web3Websocket = new Web3Websocket(this.currentEnv.web3WsUrl);
-    this.client = new Client(this.currentEnv.clientApiUrl);
+    this.supportedTokens = networks[this.currentEnv.blockchainNetwork].tokens;
+    this.web3Websocket = new Web3Websocket(this.currentEnv.blockchainWs);
+    this.client = new Client(this.currentEnv.apiUrl);
   }
 
   async configUser(config: UserConfig) {
@@ -46,7 +43,7 @@ class User {
     this.setEthAddressFromPrivateKey(config.ethereumPrivateKey);
 
     // FYI Set this.token
-    await this.setToken(config.tokenStandard);
+    await this.setToken(config.tokenName);
 
     // FYI Set this.nightfallMnemonic, this.zkpKeys, call subscribeToIncomingViewingKeys
     await this.setZkpKeysFromMnemonic(config.nightfallMnemonic);
@@ -55,8 +52,8 @@ class User {
       hasShield: !!this.shieldContractAddress,
       isEthereumPrivateKey: !!this.ethPrivateKey,
       ethereumAddress: this.ethAddress,
-      tokenStandard: this.token?.tokenStandard,
-      tokenContractAddress: this.token?.tokenContractAddress,
+      tokenName: this.token?.name,
+      tokenContractAddress: this.token?.contractAddress,
       nightfallMnemonic: this.nightfallMnemonic,
       hasZkpKeys: !!this.zkpKeys, // TODO test that is never empty object
     };
@@ -122,30 +119,21 @@ class User {
     this.nightfallMnemonic = _mnemonic;
   }
 
-  async setToken(tokenStandard: string): Promise<null | string> {
-    logger.debug({ tokenStandard }, "User :: setToken");
-    let _fmTokenStandard;
+  async setToken(tokenName: string): Promise<null | string> {
+    logger.debug({ tokenName }, "User :: setToken");
+    let _fmTokenName;
     try {
-      _fmTokenStandard = this.validateTokenStandard(tokenStandard);
+      _fmTokenName = this.validateTokenName(tokenName);
     } catch (err) {
-      logger.child({ tokenStandard }).error(err);
+      logger.child({ tokenName }).error(err);
       return null;
     }
-    logger.info({ fmTokenStandard: _fmTokenStandard }, "Token standard is");
-
-    const _tokenContractAddress = await this.client.getContractAddress(
-      _fmTokenStandard,
-    );
-    if (_tokenContractAddress === null) return null;
-    logger.info(
-      { contractAddress: _tokenContractAddress },
-      "Token contract at address",
-    );
+    logger.info({ fmTokenName: _fmTokenName }, "Token is");
 
     this.token = new Token({
       web3: this.web3Websocket.web3,
-      standard: _fmTokenStandard,
-      contractAddress: _tokenContractAddress,
+      name: _fmTokenName,
+      config: this.supportedTokens[_fmTokenName],
     });
     return this.token;
   }
@@ -187,12 +175,12 @@ class User {
     return mnemonic;
   }
 
-  validateTokenStandard(tokenStandard: string) {
-    logger.debug({ tokenStandard }, "User :: validateTokenStandard");
-    const _fmTokenStandard = TOKEN_STANDARDS[tokenStandard.toUpperCase()];
-    if (!Object.values(TOKEN_STANDARDS).includes(_fmTokenStandard))
+  validateTokenName(tokenName: string) {
+    logger.debug({ tokenName }, "User :: validateTokenName");
+    const _fmTokenName = tokenName.toUpperCase();
+    if (!Object.keys(this.supportedTokens).includes(_fmTokenName))
       throw new Error("Unknown token standard");
-    return _fmTokenStandard;
+    return _fmTokenName;
   }
 }
 

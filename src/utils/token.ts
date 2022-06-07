@@ -2,30 +2,25 @@ import fs from "fs";
 import path from "path";
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
-import { TOKEN_ABIS, TOKEN_STANDARDS } from "./constants";
 import logger from "./logger";
-
-// TODO consider rm types
-interface TokenOptions {
-  web3: Web3;
-  standard: string;
-  contractAddress: string;
-}
+import { TokenOptions } from "../types/types";
 
 class Token {
   web3: Web3;
-  tokenStandard: string;
-  tokenContractAddress: string;
+  name: string;
+  contractAbi: string;
+  contractAddress: string;
 
-  tokenContract: Contract;
-  tokenDecimals: number;
-  tokenId: string;
+  contract: Contract;
+  // tokenDecimals: number;
+  // tokenId: string;
 
   constructor(options: TokenOptions) {
     logger.debug("new Token");
     this.web3 = options.web3;
-    this.tokenStandard = options.standard;
-    this.tokenContractAddress = options.contractAddress;
+    this.name = options.name;
+    this.contractAbi = options.config.contractAbi;
+    this.contractAddress = options.config.contractAddress;
 
     this.init();
   }
@@ -37,9 +32,9 @@ class Token {
   setTokenContract() {
     logger.debug("Token :: setTokenContract");
     const _contractAbi = this.getContractAbi();
-    this.tokenContract = new this.web3.eth.Contract(
+    this.contract = new this.web3.eth.Contract(
       _contractAbi,
-      this.tokenContractAddress,
+      this.contractAddress,
     );
     logger.info("Token Contract ready");
   }
@@ -47,8 +42,7 @@ class Token {
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
     const _rootPath = path.resolve();
-    const _tokenAbi = TOKEN_ABIS[this.tokenStandard.toUpperCase()]; // TODO review
-    const _tokenAbiPath = path.join(_rootPath, "src", "abis", _tokenAbi);
+    const _tokenAbiPath = path.join(_rootPath, "src", "abis", this.contractAbi);
     logger.info({ path: _tokenAbiPath }, "Read contract file at");
     const _tokenAbiSource = fs.readFileSync(_tokenAbiPath, {
       encoding: "utf8",
@@ -57,23 +51,23 @@ class Token {
   }
 
   // TODO check that ERC165 is deployed
-  async setTokenDecimals() {
-    logger.debug("Token :: setTokenDecimals");
-    let _decimals: number;
-    if (this.tokenStandard === TOKEN_STANDARDS.ERC20) {
-      _decimals = Number(await this.tokenContract.methods.decimals().call());
-    } else if (
-      this.tokenStandard === TOKEN_STANDARDS.ERC165 ||
-      this.tokenStandard === TOKEN_STANDARDS.ERC721 ||
-      this.tokenStandard === TOKEN_STANDARDS.ERC1155
-    ) {
-      _decimals = 0;
-    } else {
-      logger.error("Unknown token standard");
-    }
-    this.tokenDecimals = _decimals;
-    logger.info({ tokenDecimals: this.tokenDecimals }, "Token decimals");
-  }
+  // async setTokenDecimals() {
+  //   logger.debug("Token :: setTokenDecimals");
+  //   let _decimals: number;
+  //   if (this.tokenStandard === TOKEN_STANDARDS.ERC20) {
+  //     _decimals = Number(await this.tokenContract.methods.decimals().call());
+  //   } else if (
+  //     this.tokenStandard === TOKEN_STANDARDS.ERC165 ||
+  //     this.tokenStandard === TOKEN_STANDARDS.ERC721 ||
+  //     this.tokenStandard === TOKEN_STANDARDS.ERC1155
+  //   ) {
+  //     _decimals = 0;
+  //   } else {
+  //     logger.error("Unknown token standard");
+  //   }
+  //   this.tokenDecimals = _decimals;
+  //   logger.info({ tokenDecimals: this.tokenDecimals }, "Token decimals");
+  // }
 
   // setTokenId() {}
 }
