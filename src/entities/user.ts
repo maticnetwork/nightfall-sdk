@@ -1,4 +1,10 @@
+import * as dotenv from "dotenv";
 import { generateMnemonic, validateMnemonic } from "bip39";
+import path from "path";
+
+const _rootPath = path.resolve();
+dotenv.config({ path: path.join(_rootPath, ".env") });
+
 import Client from "./client";
 import environments from "../config/environments";
 import networks from "../config/networks";

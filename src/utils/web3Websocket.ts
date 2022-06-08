@@ -60,10 +60,10 @@ class Web3Websocket {
 
   addWsEventListeners() {
     logger.debug("Web3Websocket :: addWsEventListeners");
-    this.provider.on("connect", () => console.info("Blockchain connected")); // FYI callback used to capture err
-    this.provider.on("end", () => console.info("Blockchain disconnected"));
+    this.provider.on("connect", () => logger.info("Blockchain connected")); // FYI callback used to capture err
+    this.provider.on("end", () => logger.info("Blockchain disconnected"));
     this.provider.on("error", () =>
-      console.error("Blockchain connection error"),
+      logger.error("Blockchain connection error"),
     );
   }
 
