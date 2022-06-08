@@ -11,7 +11,8 @@ const DEVELOPMENT = "development";
 
 class User {
   envString: string;
-  currentEnv: Env;
+  environment: Env;
+  blockchainNetwork: string;
   supportedTokens: { [key: string]: NetworkTokenConfig };
   web3Websocket;
   client;
@@ -26,10 +27,11 @@ class User {
   constructor(env = DEVELOPMENT) {
     logger.debug({ env }, "new User connected to");
     this.envString = env; // TODO validate env string, env options
-    this.currentEnv = environments[env];
-    this.supportedTokens = networks[this.currentEnv.blockchainNetwork].tokens;
-    this.web3Websocket = new Web3Websocket(this.currentEnv.blockchainWs);
-    this.client = new Client(this.currentEnv.apiUrl);
+    this.environment = environments[env];
+    this.blockchainNetwork = this.environment.blockchainNetwork.toUpperCase();
+    this.supportedTokens = networks[this.blockchainNetwork].tokens;
+    this.web3Websocket = new Web3Websocket(this.environment.blockchainWs);
+    this.client = new Client(this.environment.apiUrl);
   }
 
   async configUser(config: UserConfig) {
@@ -52,10 +54,10 @@ class User {
       hasShield: !!this.shieldContractAddress,
       isEthereumPrivateKey: !!this.ethPrivateKey,
       ethereumAddress: this.ethAddress,
-      tokenName: this.token?.name,
-      tokenContractAddress: this.token?.contractAddress,
+      tokenName: this.token?.name || null,
+      tokenContractAddress: this.token?.contractAddress || null,
       nightfallMnemonic: this.nightfallMnemonic,
-      hasZkpKeys: !!this.zkpKeys, // TODO test that is never empty object
+      nightfallAddress: this.zkpKeys?.compressedPkd || null,
     };
   }
 
@@ -97,7 +99,7 @@ class User {
 
     return {
       nightfallMnemonic: this.nightfallMnemonic,
-      hasZkpKeys: !!this.zkpKeys,
+      nightfallAddress: this.zkpKeys?.compressedPkd || null,
     };
   }
 

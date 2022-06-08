@@ -17,7 +17,7 @@ const main = async () => {
     console.log(status);
     const init = await user.configUser({
       ethereumPrivateKey: localPrivateKey,
-      tokenStandard: "erc20mock",
+      tokenName: "erc20mock",
     });
     console.log(init);
   } catch (error) {
