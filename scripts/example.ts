@@ -26,7 +26,7 @@ const main = async () => {
     const user = new User(environment); // now goerli
     const status = await user.checkStatus();
     console.log(status);
-    const configUser = await user.configUser({
+    const configUser = await user.init({
       ethereumPrivateKey: ethereumPrivateKey,
     });
     console.log(configUser);

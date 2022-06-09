@@ -23,13 +23,15 @@ class User {
   web3Websocket;
   client;
 
-  // config
+  // init
   shieldContractAddress: null | string = null;
   ethPrivateKey: null | string = null;
   ethAddress: null | string = null;
-  token: any = null;
   nightfallMnemonic: null | string = null;
   zkpKeys: any = null;
+
+  // when transacting
+  token: any = null;
 
   constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
     console.log(logger);
@@ -42,8 +44,8 @@ class User {
     this.client = new Client(this.apiUrl);
   }
 
-  async configUser(config: UserConfig) {
-    logger.debug({ config }, "User :: configUser"); // TODO review logs, careful not to log sensitive data in prod
+  async init(config: UserConfig) {
+    logger.debug({ config }, "User :: init"); // TODO review logs, careful not to log sensitive data in prod
 
     // FYI Set this.shieldContractAddress
     logger.debug("User :: setShieldContractAddress");
@@ -117,24 +119,45 @@ class User {
     this.nightfallMnemonic = _mnemonic;
   }
 
-  // async setToken(tokenName: string): Promise<null | string> {
-  //   logger.debug({ tokenName }, "User :: setToken");
-  //   let _fmTokenName;
-  //   try {
-  //     _fmTokenName = this.validateTokenName(tokenName);
-  //   } catch (err) {
-  //     logger.child({ tokenName }).error(err);
-  //     return null;
-  //   }
-  //   logger.info({ fmTokenName: _fmTokenName }, "Token is");
+  async makeDeposit(
+    tokenAddress: string,
+    tokenStandard: string,
+    value: number,
+    fee: number,
+  ) {
+    logger.debug({ tokenAddress }, "User :: makeDeposit");
+    const _owner = this.ethAddress;
+    const _spender = this.shieldContractAddress;
 
-  //   this.token = new Token({
-  //     web3: this.web3Websocket.web3,
-  //     name: _fmTokenName,
-  //     config: this.supportedTokens[_fmTokenName],
-  //   });
-  //   return this.token;
-  // }
+    // FYI Set this.token TODO only if it's not set
+    await this.setToken(tokenAddress, tokenStandard);
+
+    // TODO convert value to wei, what about the fee?
+    const _value = value;
+    const _txDataToSign = await this.token.approveTransaction(
+      _owner,
+      _spender,
+      _value,
+    );
+  }
+
+  async setToken(
+    tokenAddress: string,
+    tokenStandard: string,
+  ): Promise<null | string> {
+    logger.debug({ tokenAddress }, "User :: setToken");
+
+    // TODO validate and format tokenAddress, tokenStandard
+
+    this.token = new Token({
+      web3: this.web3Websocket.web3,
+      address: tokenAddress,
+      standard: tokenStandard,
+    });
+    await this.token.init();
+
+    return this.token;
+  }
 
   async checkStatus() {
     logger.debug("User :: checkStatus");
@@ -172,14 +195,6 @@ class User {
     if (!_isMnemonic) throw new Error("Invalid mnemonic");
     return mnemonic;
   }
-
-  // validateTokenName(tokenName: string) {
-  //   logger.debug({ tokenName }, "User :: validateTokenName");
-  //   const _fmTokenName = tokenName.toUpperCase();
-  //   if (!Object.keys(this.supportedTokens).includes(_fmTokenName))
-  //     throw new Error("Unknown token standard");
-  //   return _fmTokenName;
-  // }
 }
 
 export default User;

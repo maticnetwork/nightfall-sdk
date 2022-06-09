@@ -5,28 +5,32 @@ import { Contract } from "web3-eth-contract";
 import logger from "./logger";
 import { TokenOptions } from "../types/types";
 
-class Token {
-  web3: Web3;
-  name: string;
-  contractAbi: string;
-  contractAddress: string;
+const TOKEN_STANDARDS: { [key: string]: string } = {
+  ERC20: "ERC20.json",
+};
 
+class Token {
+  // constructor
+  web3: Web3;
+  contractAddress: string;
+  standard: string;
   contract: Contract;
-  // tokenDecimals: number;
-  // tokenId: string;
+
+  // init
+  decimals: number;
+  id: string;
 
   constructor(options: TokenOptions) {
     logger.debug("new Token");
     this.web3 = options.web3;
-    this.name = options.name;
-    this.contractAbi = options.config.contractAbi;
-    this.contractAddress = options.config.contractAddress;
+    this.contractAddress = options.address;
+    this.standard = options.standard;
 
-    this.init();
+    this.setTokenContract();
   }
 
-  init() {
-    this.setTokenContract();
+  async init() {
+    await this.setTokenDecimals();
   }
 
   setTokenContract() {
@@ -42,34 +46,59 @@ class Token {
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
     const _rootPath = path.resolve();
-    const _tokenAbiPath = path.join(_rootPath, "src", "abis", this.contractAbi);
-    logger.info({ path: _tokenAbiPath }, "Read contract file at");
-    const _tokenAbiSource = fs.readFileSync(_tokenAbiPath, {
+    const _contractAbiFile = TOKEN_STANDARDS[this.standard];
+    const _contractAbiPath = path.join(
+      _rootPath,
+      "src",
+      "abis",
+      _contractAbiFile,
+    );
+    logger.info({ path: _contractAbiPath }, "Read contract file at");
+    const _contractAbi = fs.readFileSync(_contractAbiPath, {
       encoding: "utf8",
     });
-    return JSON.parse(_tokenAbiSource);
+    return JSON.parse(_contractAbi);
   }
 
   // TODO check that ERC165 is deployed
-  // async setTokenDecimals() {
-  //   logger.debug("Token :: setTokenDecimals");
-  //   let _decimals: number;
-  //   if (this.tokenStandard === TOKEN_STANDARDS.ERC20) {
-  //     _decimals = Number(await this.tokenContract.methods.decimals().call());
-  //   } else if (
-  //     this.tokenStandard === TOKEN_STANDARDS.ERC165 ||
-  //     this.tokenStandard === TOKEN_STANDARDS.ERC721 ||
-  //     this.tokenStandard === TOKEN_STANDARDS.ERC1155
-  //   ) {
-  //     _decimals = 0;
-  //   } else {
-  //     logger.error("Unknown token standard");
-  //   }
-  //   this.tokenDecimals = _decimals;
-  //   logger.info({ tokenDecimals: this.tokenDecimals }, "Token decimals");
-  // }
+  async setTokenDecimals() {
+    logger.debug("Token :: setTokenDecimals");
+    let _decimals: number;
+    if (this.standard === TOKEN_STANDARDS.ERC20) {
+      _decimals = Number(await this.contract.methods.decimals().call());
+    } else _decimals = 0;
+    this.decimals = _decimals;
+    logger.info({ tokenDecimals: this.decimals }, "Token decimals");
+  }
 
-  // setTokenId() {}
+  async approveTransaction(
+    ownerAddress: string,
+    spenderAddress: string,
+    value,
+  ) {
+    logger.debug("Token :: approveTransaction");
+    if (this.standard === TOKEN_STANDARDS.ERC20) {
+      await this.approveErc20Transaction(ownerAddress, spenderAddress, value);
+    }
+    // else TODO
+  }
+
+  // TODO needs to return boolean
+  // TODO review allowance, and approve (ERC ERC)
+  async approveErc20Transaction(
+    ownerAddress: string,
+    spenderAddress: string,
+    value: any,
+  ) {
+    const _allowance = await this.contract.methods
+      .allowance(ownerAddress, spenderAddress)
+      .call();
+    const _allowanceBN = this.web3.utils.toBN(_allowance);
+    const _valueBN = this.web3.utils.toBN(value);
+    if (_allowanceBN.lt(_valueBN)) {
+      this.contract.methods.approve(spenderAddress).encodeABI();
+    }
+  }
 }
 
 export default Token;

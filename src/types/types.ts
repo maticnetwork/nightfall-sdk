@@ -9,7 +9,7 @@ export interface Env {
 export interface TokenOptions {
   web3: Web3;
   address: string;
-  name?: string;
+  standard: string;
 }
 
 export interface UserConfig {

@@ -27,6 +27,7 @@ const WS_CONNECTION_PING_TIME = 2000;
 const WS_BLOCK_NO_PING_TIME = 15000;
 
 class Web3Websocket {
+  // constructor
   wsUrl: string;
   provider: WebsocketProvider;
   web3: Web3;
@@ -42,10 +43,6 @@ class Web3Websocket {
     );
     this.web3 = new Web3(this.provider);
 
-    this.init();
-  }
-
-  init() {
     this.setEthConfig();
     this.addWsEventListeners();
     this.checkWsConnection(); // TODO review checkWsConnection + refreshWsConnection "dance"
