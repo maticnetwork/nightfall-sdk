@@ -1,28 +1,29 @@
-import * as dotenv from "dotenv";
 import { generateMnemonic, validateMnemonic } from "bip39";
-import path from "path";
-
-const _rootPath = path.resolve();
-dotenv.config({ path: path.join(_rootPath, ".env") });
-
 import Client from "./client";
-import environments from "../config/environments";
-import networks from "../config/networks";
-import { Env, NetworkTokenConfig, UserConfig } from "../types/types";
+import { Env, UserConfig } from "../types/types";
 import logger from "../utils/logger";
 import Token from "../utils/token";
 import Web3Websocket from "../utils/web3Websocket";
 
-const DEVELOPMENT = "development";
+const ENV_BC_NETWORK_DEFAULT = "ganache";
+const ENV_BC_WEBSOCKET_DEFAULT = "ws://localhost:8546";
+const ENV_API_URL_DEFAULT = "http://localhost:8080";
+
+const NIGHTFALL_DEFAULT_CONFIG: Env = {
+  blockchainNetwork: ENV_BC_NETWORK_DEFAULT,
+  blockchainWs: ENV_BC_WEBSOCKET_DEFAULT,
+  apiUrl: ENV_API_URL_DEFAULT,
+};
 
 class User {
-  envString: string;
-  environment: Env;
+  // constructor
   blockchainNetwork: string;
-  supportedTokens: { [key: string]: NetworkTokenConfig };
+  blockchainWs: string;
+  apiUrl: string;
   web3Websocket;
   client;
 
+  // config
   shieldContractAddress: null | string = null;
   ethPrivateKey: null | string = null;
   ethAddress: null | string = null;
@@ -30,14 +31,15 @@ class User {
   nightfallMnemonic: null | string = null;
   zkpKeys: any = null;
 
-  constructor(env = DEVELOPMENT) {
+  constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
+    console.log(logger);
     logger.debug({ env }, "new User connected to");
-    this.envString = env; // TODO validate env string, env options
-    this.environment = environments[env];
-    this.blockchainNetwork = this.environment.blockchainNetwork.toUpperCase();
-    this.supportedTokens = networks[this.blockchainNetwork].tokens;
-    this.web3Websocket = new Web3Websocket(this.environment.blockchainWs);
-    this.client = new Client(this.environment.apiUrl);
+    this.blockchainNetwork = env.blockchainNetwork.toLowerCase();
+    this.blockchainWs = env.blockchainWs.toLowerCase();
+    this.apiUrl = env.apiUrl.toLowerCase();
+
+    this.web3Websocket = new Web3Websocket(this.blockchainWs);
+    this.client = new Client(this.apiUrl);
   }
 
   async configUser(config: UserConfig) {
@@ -50,21 +52,10 @@ class User {
     // FYI Set this.ethPrivateKey, this.ethAddress
     this.setEthAddressFromPrivateKey(config.ethereumPrivateKey);
 
-    // FYI Set this.token
-    await this.setToken(config.tokenName);
-
     // FYI Set this.nightfallMnemonic, this.zkpKeys, call subscribeToIncomingViewingKeys
     await this.setZkpKeysFromMnemonic(config.nightfallMnemonic);
 
-    return {
-      hasShield: !!this.shieldContractAddress,
-      isEthereumPrivateKey: !!this.ethPrivateKey,
-      ethereumAddress: this.ethAddress,
-      tokenName: this.token?.name || null,
-      tokenContractAddress: this.token?.contractAddress || null,
-      nightfallMnemonic: this.nightfallMnemonic,
-      nightfallAddress: this.zkpKeys?.compressedPkd || null,
-    };
+    return { User: this };
   }
 
   setEthAddressFromPrivateKey(ethereumPrivateKey: string) {
@@ -80,10 +71,8 @@ class User {
 
     this.ethPrivateKey = ethereumPrivateKey;
     this.ethAddress = _ethAddress;
-    return {
-      isEthereumPrivateKey: !!this.ethPrivateKey,
-      ethereumAddress: this.ethAddress,
-    };
+
+    return { ethereumAddress: this.ethAddress };
   }
 
   async setZkpKeysFromMnemonic(mnemonic: undefined | string) {
@@ -105,6 +94,7 @@ class User {
 
     return {
       nightfallMnemonic: this.nightfallMnemonic,
+      nightfallZkpKeys: this.zkpKeys,
       nightfallAddress: this.zkpKeys?.compressedPkd || null,
     };
   }
@@ -127,24 +117,24 @@ class User {
     this.nightfallMnemonic = _mnemonic;
   }
 
-  async setToken(tokenName: string): Promise<null | string> {
-    logger.debug({ tokenName }, "User :: setToken");
-    let _fmTokenName;
-    try {
-      _fmTokenName = this.validateTokenName(tokenName);
-    } catch (err) {
-      logger.child({ tokenName }).error(err);
-      return null;
-    }
-    logger.info({ fmTokenName: _fmTokenName }, "Token is");
+  // async setToken(tokenName: string): Promise<null | string> {
+  //   logger.debug({ tokenName }, "User :: setToken");
+  //   let _fmTokenName;
+  //   try {
+  //     _fmTokenName = this.validateTokenName(tokenName);
+  //   } catch (err) {
+  //     logger.child({ tokenName }).error(err);
+  //     return null;
+  //   }
+  //   logger.info({ fmTokenName: _fmTokenName }, "Token is");
 
-    this.token = new Token({
-      web3: this.web3Websocket.web3,
-      name: _fmTokenName,
-      config: this.supportedTokens[_fmTokenName],
-    });
-    return this.token;
-  }
+  //   this.token = new Token({
+  //     web3: this.web3Websocket.web3,
+  //     name: _fmTokenName,
+  //     config: this.supportedTokens[_fmTokenName],
+  //   });
+  //   return this.token;
+  // }
 
   async checkStatus() {
     logger.debug("User :: checkStatus");
@@ -183,13 +173,13 @@ class User {
     return mnemonic;
   }
 
-  validateTokenName(tokenName: string) {
-    logger.debug({ tokenName }, "User :: validateTokenName");
-    const _fmTokenName = tokenName.toUpperCase();
-    if (!Object.keys(this.supportedTokens).includes(_fmTokenName))
-      throw new Error("Unknown token standard");
-    return _fmTokenName;
-  }
+  // validateTokenName(tokenName: string) {
+  //   logger.debug({ tokenName }, "User :: validateTokenName");
+  //   const _fmTokenName = tokenName.toUpperCase();
+  //   if (!Object.keys(this.supportedTokens).includes(_fmTokenName))
+  //     throw new Error("Unknown token standard");
+  //   return _fmTokenName;
+  // }
 }
 
 export default User;

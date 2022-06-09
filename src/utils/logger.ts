@@ -1,8 +1,9 @@
 import pino from "pino";
 
-// TODO log level
+const LOGGER_DEFAULT_LEVEL = "debug";
+
 const logger = pino({
-  level: "debug",
+  level: process.env.SDK_LOGGER_LEVEL || LOGGER_DEFAULT_LEVEL, // TODO review
   transport: {
     target: "pino-pretty",
     options: {

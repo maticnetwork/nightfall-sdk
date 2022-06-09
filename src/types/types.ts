@@ -6,23 +6,13 @@ export interface Env {
   apiUrl: string;
 }
 
-export interface NetworkConfig {
-  tokens: { [key: string]: NetworkTokenConfig };
-}
-
-export interface NetworkTokenConfig {
-  contractAbi: string;
-  contractAddress: string;
-}
-
 export interface TokenOptions {
   web3: Web3;
-  name: string;
-  config: NetworkTokenConfig;
+  address: string;
+  name?: string;
 }
 
 export interface UserConfig {
   ethereumPrivateKey: string;
-  tokenName: string;
   nightfallMnemonic?: string;
 }
