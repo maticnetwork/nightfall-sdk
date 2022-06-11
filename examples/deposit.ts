@@ -1,6 +1,4 @@
-// npx ts-node scripts/example.ts
-
-import User from "../src/entities/user";
+import User from "../libs/entities/user";
 import * as dotenv from "dotenv";
 import path from "path";
 

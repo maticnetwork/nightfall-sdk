@@ -5,7 +5,6 @@ import { Contract } from "web3-eth-contract";
 import logger from "./logger";
 import { TokenOptions } from "../types/types";
 
-
 // TODO review
 const TOKEN_STANDARDS: { [key: string]: string } = {
   ERC20: "ERC20.json",
@@ -49,7 +48,7 @@ class Token {
 
     const _rootPath = path.resolve();
     const _abiFile = TOKEN_STANDARDS[this.standard];
-    const _abiPath = path.join(_rootPath, "src", "abis", _abiFile);
+    const _abiPath = path.join(_rootPath, "libs", "abis", _abiFile);
     logger.info({ path: _abiPath }, "Read contract file at");
 
     const _abi = fs.readFileSync(_abiPath, { encoding: "utf8" });
