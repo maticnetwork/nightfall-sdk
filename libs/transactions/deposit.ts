@@ -124,6 +124,7 @@ export async function createDeposit(
     }
   });
   logger.info({ queue: userQueue }, "New tx 2 added");
+  // ERROR (libs/transactions/deposit.ts): Returned error: replacement transaction underpriced
   // BUG(?) potentially in queue management, TODO
   // create and manage that from User
 

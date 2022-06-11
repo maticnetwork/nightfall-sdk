@@ -11,8 +11,7 @@ import {
   createZkpKeysFromMnemonic,
 } from "../keys";
 import { Client } from "../client";
-import { parentLogger } from "../utils";
-import Web3Websocket from "../utils/web3Websocket";
+import { parentLogger, Web3Websocket } from "../utils";
 import { createDeposit } from "../transactions/deposit";
 
 const logger = parentLogger.child({
@@ -83,6 +82,7 @@ class User {
     return { User: this };
   }
 
+  // TODO needs massive refactor
   async makeDeposit(options: UserDeposit): Promise<any> {
     logger.debug({ options }, "User :: makeDeposit");
 
@@ -100,93 +100,7 @@ class User {
     );
     this.token = deposit.token;
     this.txQueue = deposit.userQueue;
-    // // FYI Set this.token TODO only if it's not set
-    // await this.setToken(tokenAddress, tokenStandard);
-    // logger.info(
-    //   {
-    //     address: this.token.contractAddress,
-    //     standard: this.token.standard,
-    //     decimals: this.token.decimals,
-    //   },
-    //   "Token is",
-    // );
-    // // TODO value in wei, but what about fees?
-    // const _web3 = this.web3Websocket.web3;
-    // const _value = toBaseUnit(value.toString(), this.token.decimals, _web3);
-    // logger.info({ _value }, "Value in wei is");
-    // // Approval start (tx1)
-    // const _txDataToSign = await this.token.approveTransaction(
-    //   this.ethAddress,
-    //   this.shieldContractAddress,
-    //   _value,
-    // );
-    // logger.info({ unsignedTx: _txDataToSign }, "Approved tx, unsigned");
-    // if (_txDataToSign !== null) {
-    //   this.userQueue.push(async () => {
-    //     try {
-    //       const receipt1 = await submitTransaction(
-    //         this.ethAddress,
-    //         this.token.contractAddress,
-    //         _txDataToSign,
-    //         fee,
-    //         this.ethPrivateKey,
-    //         _web3,
-    //       );
-    //       logger.info({ receipt1 }, "Proof from tx 1");
-    //     } catch (err) {
-    //       logger.error(err);
-    //     }
-    //   });
-    //   logger.info({ queue: this.userQueue }, "New tx 1 added");
-    // }
-    // // Approval end
-    // // Deposit start (tx2)
-    // const _resData = await this.client.deposit(
-    //   this.token.contractAddress,
-    //   this.token.standard,
-    //   _value,
-    //   this.zkpKeys.pkd,
-    //   this.zkpKeys.nsk,
-    //   fee,
-    // );
-    // if (_resData === null) return null;
-    // this.userQueue.push(async () => {
-    //   try {
-    //     const receipt2 = await submitTransaction(
-    //       this.ethAddress,
-    //       this.shieldContractAddress,
-    //       _resData.txDataToSign,
-    //       fee,
-    //       this.ethPrivateKey,
-    //       _web3,
-    //     );
-    //     logger.info({ receipt2 }, "Proof from tx 2");
-    //   } catch (err) {
-    //     logger.error(err);
-    //   }
-    // });
-    // logger.info({ queue: this.userQueue }, "New tx 2 added");
-    // // Deposit end
-    // // TODO return something
   }
-
-  // async setToken(
-  //   tokenAddress: string,
-  //   tokenStandard: string,
-  // ): Promise<null | string> {
-  //   logger.debug({ tokenAddress }, "User :: setToken");
-
-  //   // TODO validate and format tokenAddress, tokenStandard
-
-  //   this.token = new Token({
-  //     web3: this.web3Websocket.web3,
-  //     address: tokenAddress,
-  //     standard: tokenStandard,
-  //   });
-  //   await this.token.init();
-
-  //   return this.token;
-  // }
 
   async checkStatus() {
     logger.debug("User :: checkStatus");
