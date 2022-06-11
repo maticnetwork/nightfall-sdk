@@ -1,6 +1,6 @@
 import Web3 from "web3";
 import path from "path";
-import parentLogger from "../utils/logger";
+import { parentLogger } from "../utils";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
