@@ -1,26 +1,20 @@
 import { generateMnemonic, validateMnemonic } from "bip39";
 import Queue from "queue";
-import Client from "./client";
-import { Env, UserConfig } from "../types/types";
+
+import {
+  CONTRACT_SHIELD,
+  NIGHTFALL_DEFAULT_CONFIG,
+  TX_FEE_DEFAULT,
+} from "./constants";
+import { UserConfig } from "./types";
+
+import { getEthAddressFromPrivateKey } from "../keys";
+import Client from "../entities/client";
 import logger from "../utils/logger";
 import Token from "../utils/token";
 import Web3Websocket from "../utils/web3Websocket";
 import { submitTransaction } from "../utils/transactions";
 import { toBaseUnit } from "../utils/units";
-
-const CONTRACT_SHIELD = "Shield";
-
-const ENV_BC_NETWORK_DEFAULT = "ganache";
-const ENV_BC_WEBSOCKET_DEFAULT = "ws://localhost:8546";
-const ENV_API_URL_DEFAULT = "http://localhost:8080";
-
-const NIGHTFALL_DEFAULT_CONFIG: Env = {
-  blockchainNetwork: ENV_BC_NETWORK_DEFAULT,
-  blockchainWs: ENV_BC_WEBSOCKET_DEFAULT,
-  apiUrl: ENV_API_URL_DEFAULT,
-};
-
-const TX_FEE_DEFAULT = 0;
 
 class User {
   // constructor
@@ -52,6 +46,24 @@ class User {
     this.userQueue = new Queue({ autostart: true, concurrency: 1 });
   }
 
+  // async init(config: UserConfig) {
+  //   logger.debug({ config }, "User :: init"); // TODO review logs, dedicated issue #33
+
+  //   // FYI Set this.shieldContractAddress
+  //   logger.debug("User :: setShieldContractAddress");
+  //   this.shieldContractAddress = await this.client.getContractAddress(
+  //     CONTRACT_SHIELD,
+  //   );
+
+  //   // FYI Set this.ethPrivateKey, this.ethAddress
+  //   this.setEthAddressFromPrivateKey(config.ethereumPrivateKey);
+
+  //   // FYI Set this.nightfallMnemonic, this.zkpKeys, call subscribeToIncomingViewingKeys
+  //   await this.setZkpKeysFromMnemonic(config.nightfallMnemonic);
+
+  //   return { User: this };
+  // }
+
   async init(config: UserConfig) {
     logger.debug({ config }, "User :: init"); // TODO review logs, dedicated issue #33
 
@@ -61,8 +73,13 @@ class User {
       CONTRACT_SHIELD,
     );
 
-    // FYI Set this.ethPrivateKey, this.ethAddress
-    this.setEthAddressFromPrivateKey(config.ethereumPrivateKey);
+    // FYI Set this.ethPrivateKey, this.ethAddress if valid private key
+    const ethAddress = getEthAddressFromPrivateKey(
+      config.ethereumPrivateKey,
+      this.web3Websocket.web3,
+    );
+    this.ethPrivateKey = config.ethereumPrivateKey;
+    this.ethAddress = ethAddress;
 
     // FYI Set this.nightfallMnemonic, this.zkpKeys, call subscribeToIncomingViewingKeys
     await this.setZkpKeysFromMnemonic(config.nightfallMnemonic);
@@ -70,22 +87,22 @@ class User {
     return { User: this };
   }
 
-  setEthAddressFromPrivateKey(ethereumPrivateKey: string) {
-    logger.debug("User :: setEthAddressFromPrivateKey");
-    let _ethAddress;
-    try {
-      _ethAddress = this.validateEthPrivateKey(ethereumPrivateKey);
-    } catch (err) {
-      logger.child({ ethereumPrivateKey }).error(err);
-      return null;
-    }
-    logger.info({ ethAddress: _ethAddress }, "Eth address is");
+  // setEthAddressFromPrivateKey(ethereumPrivateKey: string) {
+  //   logger.debug("User :: setEthAddressFromPrivateKey");
+  //   let _ethAddress;
+  //   try {
+  //     _ethAddress = this.validateEthPrivateKey(ethereumPrivateKey);
+  //   } catch (err) {
+  //     logger.child({ ethereumPrivateKey }).error(err);
+  //     return null;
+  //   }
+  //   logger.info({ ethAddress: _ethAddress }, "Eth address is");
 
-    this.ethPrivateKey = ethereumPrivateKey;
-    this.ethAddress = _ethAddress;
+  //   this.ethPrivateKey = ethereumPrivateKey;
+  //   this.ethAddress = _ethAddress;
 
-    return { ethereumAddress: this.ethAddress };
-  }
+  //   return { ethereumAddress: this.ethAddress };
+  // }
 
   async setZkpKeysFromMnemonic(mnemonic: undefined | string) {
     logger.debug({ mnemonic }, "User :: setZkpKeysFromMnemonic");
@@ -239,24 +256,6 @@ class User {
   close() {
     logger.debug("User :: close");
     this.web3Websocket.close();
-  }
-
-  /*
-    Private methods, or perhaps some of these might be shared with Proposer, etc.
-  */
-  validateEthPrivateKey(ethereumPrivateKey: string): null | string {
-    logger.debug("User :: validateEthPrivateKey");
-    const _isKeyHexStrict =
-      this.web3Websocket.web3.utils.isHexStrict(ethereumPrivateKey);
-    if (!_isKeyHexStrict)
-      throw new Error("Invalid eth private key: string is not HEX string");
-    logger.info("Given eth key is hex strict");
-
-    const _ethAccount =
-      this.web3Websocket.web3.eth.accounts.privateKeyToAccount(
-        ethereumPrivateKey,
-      );
-    return _ethAccount.address;
   }
 
   validateNfMnemonic(mnemonic: string): null | string {

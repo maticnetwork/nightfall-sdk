@@ -1,4 +1,4 @@
-import User from "../libs/entities/user";
+import { User } from "../libs/user";
 import * as dotenv from "dotenv";
 import path from "path";
 
@@ -31,7 +31,7 @@ const main = async () => {
     });
     console.log(configUser);
 
-    const value = 0.0011;
+    const value = 0.0012;
     const deposit = await user.makeDeposit(token, "ERC20", value); // wei 20000000000000000
 
     // user.close();
