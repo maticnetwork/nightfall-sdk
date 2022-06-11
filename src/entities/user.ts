@@ -1,9 +1,14 @@
 import { generateMnemonic, validateMnemonic } from "bip39";
+import Queue from "queue";
 import Client from "./client";
 import { Env, UserConfig } from "../types/types";
 import logger from "../utils/logger";
 import Token from "../utils/token";
 import Web3Websocket from "../utils/web3Websocket";
+import { submitTransaction } from "../utils/transactions";
+import { toBaseUnit } from "../utils/units";
+
+const CONTRACT_SHIELD = "Shield";
 
 const ENV_BC_NETWORK_DEFAULT = "ganache";
 const ENV_BC_WEBSOCKET_DEFAULT = "ws://localhost:8546";
@@ -15,6 +20,8 @@ const NIGHTFALL_DEFAULT_CONFIG: Env = {
   apiUrl: ENV_API_URL_DEFAULT,
 };
 
+const TX_FEE_DEFAULT = 0;
+
 class User {
   // constructor
   blockchainNetwork: string;
@@ -22,6 +29,7 @@ class User {
   apiUrl: string;
   web3Websocket;
   client;
+  userQueue: Queue;
 
   // init
   shieldContractAddress: null | string = null;
@@ -34,7 +42,6 @@ class User {
   token: any = null;
 
   constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
-    console.log(logger);
     logger.debug({ env }, "new User connected to");
     this.blockchainNetwork = env.blockchainNetwork.toLowerCase();
     this.blockchainWs = env.blockchainWs.toLowerCase();
@@ -42,14 +49,17 @@ class User {
 
     this.web3Websocket = new Web3Websocket(this.blockchainWs);
     this.client = new Client(this.apiUrl);
+    this.userQueue = new Queue({ autostart: true, concurrency: 1 });
   }
 
   async init(config: UserConfig) {
-    logger.debug({ config }, "User :: init"); // TODO review logs, careful not to log sensitive data in prod
+    logger.debug({ config }, "User :: init"); // TODO review logs, dedicated issue #33
 
     // FYI Set this.shieldContractAddress
     logger.debug("User :: setShieldContractAddress");
-    this.shieldContractAddress = await this.client.getContractAddress("Shield"); // TODO improve
+    this.shieldContractAddress = await this.client.getContractAddress(
+      CONTRACT_SHIELD,
+    );
 
     // FYI Set this.ethPrivateKey, this.ethAddress
     this.setEthAddressFromPrivateKey(config.ethereumPrivateKey);
@@ -82,7 +92,7 @@ class User {
 
     // FYI Set this.nightfallMnemonic
     this.setNfMnemonic(mnemonic);
-    if (this.nightfallMnemonic === null) return null; // TODO review bangs
+    if (this.nightfallMnemonic === null) return null;
 
     // FYI Set this.zkpKeys
     const _mnemonicAddressIdx = 0;
@@ -123,22 +133,82 @@ class User {
     tokenAddress: string,
     tokenStandard: string,
     value: number,
-    fee: number,
-  ) {
+    fee = TX_FEE_DEFAULT,
+  ): Promise<any> {
     logger.debug({ tokenAddress }, "User :: makeDeposit");
-    const _owner = this.ethAddress;
-    const _spender = this.shieldContractAddress;
 
     // FYI Set this.token TODO only if it's not set
     await this.setToken(tokenAddress, tokenStandard);
+    logger.info(
+      {
+        address: this.token.contractAddress,
+        standard: this.token.standard,
+        decimals: this.token.decimals,
+      },
+      "Token is",
+    );
 
-    // TODO convert value to wei, what about the fee?
-    const _value = value;
+    // TODO value in wei, but what about fees?
+    const _web3 = this.web3Websocket.web3;
+    const _value = toBaseUnit(value.toString(), this.token.decimals, _web3);
+    logger.info({ _value }, "Value in wei is");
+
+    // Approval start (tx1)
     const _txDataToSign = await this.token.approveTransaction(
-      _owner,
-      _spender,
+      this.ethAddress,
+      this.shieldContractAddress,
       _value,
     );
+    logger.info({ unsignedTx: _txDataToSign }, "Approved tx, unsigned");
+    if (_txDataToSign !== null) {
+      this.userQueue.push(async () => {
+        try {
+          const receipt1 = await submitTransaction(
+            this.ethAddress,
+            this.token.contractAddress,
+            _txDataToSign,
+            fee,
+            this.ethPrivateKey,
+            _web3,
+          );
+          logger.info({ receipt1 }, "Proof from tx 1");
+        } catch (err) {
+          logger.error(err);
+        }
+      });
+      logger.info({ queue: this.userQueue }, "New tx 1 added");
+    }
+    // Approval end
+
+    // Deposit start (tx2)
+    const _resData = await this.client.deposit(
+      this.token.contractAddress,
+      this.token.standard,
+      _value,
+      this.zkpKeys.pkd,
+      this.zkpKeys.nsk,
+      fee,
+    );
+    if (_resData === null) return null;
+
+    this.userQueue.push(async () => {
+      try {
+        const receipt2 = await submitTransaction(
+          this.ethAddress,
+          this.shieldContractAddress,
+          _resData.txDataToSign,
+          fee,
+          this.ethPrivateKey,
+          _web3,
+        );
+        logger.info({ receipt2 }, "Proof from tx 2");
+      } catch (err) {
+        logger.error(err);
+      }
+    });
+    logger.info({ queue: this.userQueue }, "New tx 2 added");
+    // Deposit end
+    // TODO return something
   }
 
   async setToken(
@@ -185,7 +255,7 @@ class User {
     const _ethAccount =
       this.web3Websocket.web3.eth.accounts.privateKeyToAccount(
         ethereumPrivateKey,
-      ); // TODO review: how can this fail?
+      );
     return _ethAccount.address;
   }
 

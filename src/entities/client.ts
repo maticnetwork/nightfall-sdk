@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import logger from "../utils/logger";
 
-// TODO review/improve error handling
+// TODO review/improve error handling, types
 class Client {
   apiUrl: string;
 
@@ -37,8 +37,7 @@ class Client {
     return res.data.address;
   }
 
-  // TODO improve return types, double-check it's coherent with API response
-  // TODO actually, this endpoint performs mnemonic validation, so maybe SDK val is redundant...
+  // TODO double-check that return is coherent with API response
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
@@ -59,7 +58,7 @@ class Client {
     return res.data;
   }
 
-  // TODO check return, improve res + return types, double-check it's coherent with API response
+  // TODO double-check that return is coherent with API response
   async subscribeToIncomingViewingKeys(zkpKeys: any) {
     logger.debug({ zkpKeys }, "Calling client at incoming-viewing-key");
     let res: AxiosResponse;
@@ -71,6 +70,35 @@ class Client {
       logger.info({ status: res.status, data: res.data });
     } catch (err) {
       logger.child({ zkpKeys }).error(err);
+      return null;
+    }
+    return res.data;
+  }
+
+  async deposit(
+    tokenAddress: string,
+    tokenStandard: string,
+    value: string,
+    pkd: [],
+    nsk: string,
+    fee: number,
+  ) {
+    const _logInput = { tokenAddress, tokenStandard, value, pkd, nsk, fee };
+    logger.debug(_logInput, "Calling client at deposit");
+    let res: AxiosResponse;
+    try {
+      res = await axios.post(`${this.apiUrl}/deposit`, {
+        ercAddress: tokenAddress,
+        tokenType: tokenStandard,
+        tokenId: "0x00", // TODO review when addressing issue #32 re other standards
+        value,
+        pkd,
+        nsk,
+        fee,
+      });
+      logger.info({ status: res.status, data: res.data });
+    } catch (err) {
+      logger.child({ _logInput }).error(err);
       return null;
     }
     return res.data;

@@ -10,6 +10,7 @@ dotenv.config({ path: path.join(_rootPath, ".env") });
 // Script config for ganache
 // const ethereumPrivateKey =
 //   "0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e";
+// const token = "0xf05e9FB485502E5A93990C714560b7cE654173c3"; // ERC20Mock contract address in ganache
 
 // Script config for goerli
 const environment = {
@@ -17,8 +18,8 @@ const environment = {
   blockchainWs: process.env.SDK_ENV_BLOCKCHAIN_WEBSOCKET,
   apiUrl: process.env.SDK_ENV_API_URL,
 };
-const ethereumPrivateKey =
-  "0xdfa0f64681e33a5682900779c1155b1b1eed82fdd12302a70cfbaa2926734361"; // Prepend `0x`
+const ethereumPrivateKey = process.env.SDK_ETH_PRIVATE_KEY;
+const token = process.env.SDK_ETH_TOKEN_ADDRESS; // MATIC contract address in goerli
 
 // Script
 const main = async () => {
@@ -26,10 +27,17 @@ const main = async () => {
     const user = new User(environment); // now goerli
     const status = await user.checkStatus();
     console.log(status);
+
     const configUser = await user.init({
       ethereumPrivateKey: ethereumPrivateKey,
     });
     console.log(configUser);
+
+    const value = 0.0077;
+    const deposit = await user.makeDeposit(token, "ERC20", value); // wei 20000000000000000
+
+    // user.close();
+    console.log("Bye bye");
   } catch (error) {
     console.log(error);
     process.exit(1);

@@ -2,8 +2,7 @@ import Web3 from "web3";
 import { WebsocketProvider } from "web3-core";
 import logger from "./logger";
 
-// TODO consider rm constants from this file
-// TODO review WEB3_PROVIDER_OPTIONS
+// CHECK WEB3_PROVIDER_OPTIONS
 const WEB3_PROVIDER_OPTIONS = {
   clientConfig: {
     keepalive: true,
@@ -45,7 +44,7 @@ class Web3Websocket {
 
     this.setEthConfig();
     this.addWsEventListeners();
-    this.checkWsConnection(); // TODO review checkWsConnection + refreshWsConnection "dance"
+    this.checkWsConnection(); // CHECK checkWsConnection + refreshWsConnection "dance"
     this.refreshWsConnection();
   }
 
@@ -57,10 +56,11 @@ class Web3Websocket {
 
   addWsEventListeners() {
     logger.debug("Web3Websocket :: addWsEventListeners");
-    this.provider.on("connect", () => logger.info("Blockchain connected")); // FYI callback used to capture err
+    this.provider.on("connect", () => logger.info("Blockchain connected"));
     this.provider.on("end", () => logger.info("Blockchain disconnected"));
-    this.provider.on("error", () =>
-      logger.error("Blockchain connection error"),
+    this.provider.on(
+      "error",
+      () => logger.error("Blockchain connection error"), // CHECK callback used to capture err, but does not look possible
     );
   }
 
@@ -69,7 +69,6 @@ class Web3Websocket {
     this.intervalIds.push(
       setInterval(() => {
         if (!this.provider.connected) {
-          // TODO review, condition was this.web3.currentProvider.connected (FYI provider same as web3.currentProvider)
           this.updateWeb3Provider();
         }
       }, WS_CONNECTION_PING_TIME),
@@ -111,7 +110,7 @@ class Web3Websocket {
 
   closeWsConnection() {
     logger.debug("Web3Websocket :: closeWsConnection");
-    // this.web3.currentProvider.disconnect(); // TODO review, was connection.close()
+    this.provider.disconnect();
   }
 }
 

@@ -5,9 +5,14 @@ import { Contract } from "web3-eth-contract";
 import logger from "./logger";
 import { TokenOptions } from "../types/types";
 
+
+// TODO review
 const TOKEN_STANDARDS: { [key: string]: string } = {
   ERC20: "ERC20.json",
 };
+
+export const APPROVE_AMOUNT =
+  "115792089237316195423570985008687907853269984665640564039457584007913129639935";
 
 class Token {
   // constructor
@@ -18,7 +23,6 @@ class Token {
 
   // init
   decimals: number;
-  id: string;
 
   constructor(options: TokenOptions) {
     logger.debug("new Token");
@@ -35,69 +39,53 @@ class Token {
 
   setTokenContract() {
     logger.debug("Token :: setTokenContract");
-    const _contractAbi = this.getContractAbi();
-    this.contract = new this.web3.eth.Contract(
-      _contractAbi,
-      this.contractAddress,
-    );
+    const _abi = this.getContractAbi();
+    this.contract = new this.web3.eth.Contract(_abi, this.contractAddress);
     logger.info("Token Contract ready");
   }
 
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
+
     const _rootPath = path.resolve();
-    const _contractAbiFile = TOKEN_STANDARDS[this.standard];
-    const _contractAbiPath = path.join(
-      _rootPath,
-      "src",
-      "abis",
-      _contractAbiFile,
-    );
-    logger.info({ path: _contractAbiPath }, "Read contract file at");
-    const _contractAbi = fs.readFileSync(_contractAbiPath, {
-      encoding: "utf8",
-    });
-    return JSON.parse(_contractAbi);
+    const _abiFile = TOKEN_STANDARDS[this.standard];
+    const _abiPath = path.join(_rootPath, "src", "abis", _abiFile);
+    logger.info({ path: _abiPath }, "Read contract file at");
+
+    const _abi = fs.readFileSync(_abiPath, { encoding: "utf8" });
+    return JSON.parse(_abi);
   }
 
-  // TODO check that ERC165 is deployed
+  // TODO support other token standards (issue #32)
+  // CHECK that ERC165 is deployed to ganache
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
-    let _decimals: number;
-    if (this.standard === TOKEN_STANDARDS.ERC20) {
-      _decimals = Number(await this.contract.methods.decimals().call());
-    } else _decimals = 0;
+    const _decimals = Number(await this.contract.methods.decimals().call());
     this.decimals = _decimals;
     logger.info({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
-  async approveTransaction(
-    ownerAddress: string,
-    spenderAddress: string,
-    value,
-  ) {
-    logger.debug("Token :: approveTransaction");
-    if (this.standard === TOKEN_STANDARDS.ERC20) {
-      await this.approveErc20Transaction(ownerAddress, spenderAddress, value);
-    }
-    // else TODO
-  }
+  // TODO support other token standards (issue #32)
+  // TODO can this throw Errors?
+  async approveTransaction(owner: string, spender: string, value: string) {
+    const _logInput = { owner, spender, value };
+    logger.debug({ _logInput }, "Token :: approveTransaction");
 
-  // TODO needs to return boolean
-  // TODO review allowance, and approve (ERC ERC)
-  async approveErc20Transaction(
-    ownerAddress: string,
-    spenderAddress: string,
-    value: any,
-  ) {
     const _allowance = await this.contract.methods
-      .allowance(ownerAddress, spenderAddress)
+      .allowance(owner, spender)
       .call();
+    logger.debug({ _allowance }, "Token allowance is");
+
     const _allowanceBN = this.web3.utils.toBN(_allowance);
     const _valueBN = this.web3.utils.toBN(value);
+    logger.info({ _allowanceBN, _valueBN }, "ERC allowance vs tx value");
+
+    // FYI When tx value is bigger than the spender allowance, will require approval
     if (_allowanceBN.lt(_valueBN)) {
-      this.contract.methods.approve(spenderAddress).encodeABI();
+      return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI(); // CHECK const
     }
+
+    return null;
   }
 }
 
