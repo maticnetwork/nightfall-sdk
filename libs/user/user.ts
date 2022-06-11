@@ -1,20 +1,23 @@
 import { generateMnemonic, validateMnemonic } from "bip39";
 import Queue from "queue";
-
+import path from "path";
 import {
   CONTRACT_SHIELD,
   NIGHTFALL_DEFAULT_CONFIG,
   TX_FEE_DEFAULT,
 } from "./constants";
 import { UserConfig } from "./types";
-
 import { getEthAddressFromPrivateKey } from "../keys";
 import Client from "../entities/client";
-import logger from "../utils/logger";
+import parentLogger from "../utils/logger";
 import Token from "../utils/token";
 import Web3Websocket from "../utils/web3Websocket";
 import { submitTransaction } from "../utils/transactions";
 import { toBaseUnit } from "../utils/units";
+
+const logger = parentLogger.child({
+  name: path.relative(process.cwd(), __filename),
+});
 
 class User {
   // constructor
@@ -86,23 +89,6 @@ class User {
 
     return { User: this };
   }
-
-  // setEthAddressFromPrivateKey(ethereumPrivateKey: string) {
-  //   logger.debug("User :: setEthAddressFromPrivateKey");
-  //   let _ethAddress;
-  //   try {
-  //     _ethAddress = this.validateEthPrivateKey(ethereumPrivateKey);
-  //   } catch (err) {
-  //     logger.child({ ethereumPrivateKey }).error(err);
-  //     return null;
-  //   }
-  //   logger.info({ ethAddress: _ethAddress }, "Eth address is");
-
-  //   this.ethPrivateKey = ethereumPrivateKey;
-  //   this.ethAddress = _ethAddress;
-
-  //   return { ethereumAddress: this.ethAddress };
-  // }
 
   async setZkpKeysFromMnemonic(mnemonic: undefined | string) {
     logger.debug({ mnemonic }, "User :: setZkpKeysFromMnemonic");
