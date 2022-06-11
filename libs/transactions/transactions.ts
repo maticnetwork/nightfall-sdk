@@ -1,6 +1,11 @@
 import axios from "axios";
 import Web3 from "web3";
-import logger from "./logger";
+import path from "path";
+import { parentLogger } from "../utils";
+
+const logger = parentLogger.child({
+  name: path.relative(process.cwd(), __filename),
+});
 
 const GAS = process.env.GAS || 4000000;
 const GAS_PRICE = process.env.GAS_PRICE || 10000000000;

@@ -8,3 +8,10 @@ export interface UserConfig {
   ethereumPrivateKey: string;
   nightfallMnemonic?: string;
 }
+
+export interface UserDeposit {
+  tokenAddress: string;
+  tokenStandard: string;
+  value: string;
+  fee?: number;
+}

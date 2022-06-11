@@ -1,5 +1,10 @@
 import axios, { AxiosResponse } from "axios";
-import logger from "../utils/logger";
+import path from "path";
+import { parentLogger } from "../utils";
+
+const logger = parentLogger.child({
+  name: path.relative(process.cwd(), __filename),
+});
 
 // TODO review/improve error handling, types
 class Client {
