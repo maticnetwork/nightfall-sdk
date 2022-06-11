@@ -33,7 +33,7 @@ const main = async () => {
     });
     console.log(configUser);
 
-    const value = 0.0077;
+    const value = 0.0011;
     const deposit = await user.makeDeposit(token, "ERC20", value); // wei 20000000000000000
 
     // user.close();

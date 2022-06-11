@@ -9,5 +9,5 @@
     "sourceMap": true,
     "target": "es2017"
   },
-  "include": ["src/**/*", "scripts/**/*"]
+  "include": ["src/**/*", "examples/**/*"]
 }

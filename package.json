@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deposit": "npx ts-node scripts/example.ts"
+    "eg:deposit": "npx ts-node examples/deposit.ts"
   },
   "keywords": [
     "nightfall",
