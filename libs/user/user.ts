@@ -51,24 +51,6 @@ class User {
     this.userQueue = new Queue({ autostart: true, concurrency: 1 });
   }
 
-  // async init(config: UserConfig) {
-  //   logger.debug({ config }, "User :: init"); // TODO review logs, dedicated issue #33
-
-  //   // FYI Set this.shieldContractAddress
-  //   logger.debug("User :: setShieldContractAddress");
-  //   this.shieldContractAddress = await this.client.getContractAddress(
-  //     CONTRACT_SHIELD,
-  //   );
-
-  //   // FYI Set this.ethPrivateKey, this.ethAddress
-  //   this.setEthAddressFromPrivateKey(config.ethereumPrivateKey);
-
-  //   // FYI Set this.nightfallMnemonic, this.zkpKeys, call subscribeToIncomingViewingKeys
-  //   await this.setZkpKeysFromMnemonic(config.nightfallMnemonic);
-
-  //   return { User: this };
-  // }
-
   // TODO improve return type
   async init(config: UserConfig) {
     logger.debug({ config }, "User :: init"); // TODO review logs, dedicated issue #33
@@ -102,48 +84,6 @@ class User {
 
     return { User: this };
   }
-
-  // async setZkpKeysFromMnemonic(mnemonic: undefined | string) {
-  //   logger.debug({ mnemonic }, "User :: setZkpKeysFromMnemonic");
-
-  //   // FYI Set this.nightfallMnemonic
-  //   this.setNfMnemonic(mnemonic);
-  //   if (this.nightfallMnemonic === null) return null;
-
-  //   // FYI Set this.zkpKeys
-  //   const _mnemonicAddressIdx = 0;
-  //   this.zkpKeys = await this.client.generateZkpKeysFromMnemonic(
-  //     this.nightfallMnemonic,
-  //     _mnemonicAddressIdx,
-  //   );
-  //   if (this.zkpKeys === null) return this.nightfallMnemonic;
-
-  //   await this.client.subscribeToIncomingViewingKeys(this.zkpKeys);
-
-  //   return {
-  //     nightfallMnemonic: this.nightfallMnemonic,
-  //     nightfallZkpKeys: this.zkpKeys,
-  //     nightfallAddress: this.zkpKeys?.compressedPkd || null,
-  //   };
-  // }
-
-  // setNfMnemonic(mnemonic: undefined | string): undefined {
-  //   logger.debug({ mnemonic }, "User :: setNfMnemonic");
-  //   let _mnemonic: null | string;
-  //   if (!mnemonic) {
-  //     _mnemonic = generateMnemonic(); // FYI using bip39
-  //     logger.info("New mnemonic");
-  //   } else {
-  //     try {
-  //       _mnemonic = this.validateNfMnemonic(mnemonic);
-  //     } catch (err) {
-  //       logger.child({ mnemonic }).error(err);
-  //       return null;
-  //     }
-  //     logger.info("Valid mnemonic");
-  //   }
-  //   this.nightfallMnemonic = _mnemonic;
-  // }
 
   async makeDeposit(
     tokenAddress: string,
@@ -256,13 +196,6 @@ class User {
     logger.debug("User :: close");
     this.web3Websocket.close();
   }
-
-  // validateNfMnemonic(mnemonic: string): null | string {
-  //   logger.debug({ mnemonic }, "User :: validateNfMnemonic");
-  //   const _isMnemonic = validateMnemonic(mnemonic); // FYI using bip39
-  //   if (!_isMnemonic) throw new Error("Invalid mnemonic");
-  //   return mnemonic;
-  // }
 }
 
 export default User;
