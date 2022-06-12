@@ -2,12 +2,6 @@
   "name": "nightfall-sdk",
   "version": "0.1.0",
   "description": "SDK for interacting with Polygon Nightfall",
-  "main": "index.mjs",
-  "scripts": {
-    "lint": "eslint . --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "eg:deposit": "npx ts-node examples/deposit.ts"
-  },
   "keywords": [
     "nightfall",
     "sdk",
@@ -38,5 +32,12 @@
     "eslint-config-prettier": "^8.5.0",
     "prettier": "2.6.2",
     "typescript": "^4.7.3"
+  },
+  "main": "index.mjs",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "prettier": "prettier --check .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eg:deposit": "npx ts-node examples/deposit.ts"
   }
 }
