@@ -10,4 +10,5 @@ const convertObjectToString = (obj: object) => {
   }
   return JSON.stringify(obj);
 };
+
 export { exportCommitments, convertObjectToString };

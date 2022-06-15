@@ -1,8 +1,8 @@
+import fs from "fs";
 import {
   convertObjectToString,
   exportCommitments,
-} from "../../../useCases/ExportCommitments";
-import fs from "fs";
+} from "../../../../useCases/GetCommitmentsAndExportFile/ExportCommitments";
 
 describe("Suit fo tests for export commitments use cases", () => {
   const OBJECT = [

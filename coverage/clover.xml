@@ -1,15 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1655280993374" clover="3.2.0">
-  <project timestamp="1655280993374" name="All files">
-    <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2" elements="10" coveredelements="10" complexity="0" loc="6" ncloc="6" packages="1" files="1" classes="1"/>
-    <file name="index.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/useCases/ExportCommitments/index.ts">
+<coverage generated="1655325076191" clover="3.2.0">
+  <project timestamp="1655325076191" name="All files">
+    <metrics statements="19" coveredstatements="19" conditionals="2" coveredconditionals="2" methods="6" coveredmethods="6" elements="27" coveredelements="27" complexity="0" loc="19" ncloc="19" packages="4" files="4" classes="4"/>
+    <package name="GetCommitmentsAndExportFile">
+      <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="index.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/useCases/GetCommitmentsAndExportFile/index.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="GetCommitmentsAndExportFile.ConcatTwoArrays">
+      <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="index.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/useCases/GetCommitmentsAndExportFile/ConcatTwoArrays/index.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="GetCommitmentsAndExportFile.ExportCommitments">
       <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
-      <line num="3" count="1" type="stmt"/>
-      <line num="4" count="1" type="stmt"/>
-      <line num="7" count="1" type="stmt"/>
-      <line num="8" count="3" type="cond" truecount="2" falsecount="0"/>
-      <line num="9" count="1" type="stmt"/>
-      <line num="11" count="2" type="stmt"/>
-    </file>
+      <file name="index.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/useCases/GetCommitmentsAndExportFile/ExportCommitments/index.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="11" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="GetCommitmentsAndExportFile.GetCommitments">
+      <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+      <file name="index.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/useCases/GetCommitmentsAndExportFile/GetCommitments/index.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+      </file>
+    </package>
   </project>
 </coverage>
