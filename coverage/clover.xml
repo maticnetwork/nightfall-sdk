@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1655241397578" clover="3.2.0">
-  <project timestamp="1655241397578" name="All files">
-    <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0" elements="0" coveredelements="0" complexity="0" loc="0" ncloc="0" packages="0" files="0" classes="0"/>
+<coverage generated="1655280993374" clover="3.2.0">
+  <project timestamp="1655280993374" name="All files">
+    <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2" elements="10" coveredelements="10" complexity="0" loc="6" ncloc="6" packages="1" files="1" classes="1"/>
+    <file name="index.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/useCases/ExportCommitments/index.ts">
+      <metrics statements="6" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="8" count="3" type="cond" truecount="2" falsecount="0"/>
+      <line num="9" count="1" type="stmt"/>
+      <line num="11" count="2" type="stmt"/>
+    </file>
   </project>
 </coverage>
