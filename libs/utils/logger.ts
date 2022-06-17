@@ -1,10 +1,9 @@
 import pino from "pino";
 
-const LOGGER_DEFAULT_LEVEL = "debug";
 const LOGGER_TIME_STRING = "yyyy-mm-dd HH:MM:ss";
 
 const logger = pino({
-  level: LOGGER_DEFAULT_LEVEL, // TODO env var
+  level: process.env.LOG_LEVEL || "debug",
   transport: {
     target: "pino-pretty",
     options: {

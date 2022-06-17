@@ -33,10 +33,6 @@ class User {
   nightfallMnemonic: null | string = null;
   zkpKeys: any = null;
 
-  // when transacting
-  token: any = null;
-  txQueue: Queue = null;
-
   constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
     logger.debug({ env }, "new User connected to");
 
@@ -86,7 +82,7 @@ class User {
   async makeDeposit(options: UserDeposit): Promise<any> {
     logger.debug({ options }, "User :: makeDeposit");
 
-    const deposit = await createDeposit(
+    return createDeposit(
       options.tokenAddress,
       options.tokenStandard,
       options.value,
@@ -98,8 +94,6 @@ class User {
       this.web3Websocket.web3,
       this.client,
     );
-    this.token = deposit.token;
-    this.txQueue = deposit.userQueue;
   }
 
   async checkStatus() {

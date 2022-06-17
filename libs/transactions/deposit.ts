@@ -108,25 +108,23 @@ export async function createDeposit(
   );
   if (resData === null) return null;
 
-  userQueue.push(async () => {
-    try {
-      const receipt2 = await submitTransaction(
-        ethAddress,
-        shieldContractAddress,
-        resData.txDataToSign,
-        fee,
-        ethPrivateKey,
-        web3,
-      );
-      logger.info({ receipt2 }, "Proof from tx 2");
-    } catch (err) {
-      logger.error(err);
-    }
+  return new Promise((resolve, reject) => {
+    userQueue.push(async () => {
+      try {
+        const receipt2 = await submitTransaction(
+          ethAddress,
+          shieldContractAddress,
+          resData.txDataToSign,
+          fee,
+          ethPrivateKey,
+          web3,
+        );
+        logger.info({ receipt2 }, "Proof from tx 2");
+        resolve(receipt2);
+      } catch (err) {
+        logger.error(err);
+        reject(err);
+      }
+    });  
   });
-  logger.info({ queue: userQueue }, "New tx 2 added");
-  // ERROR (libs/transactions/deposit.ts): Returned error: replacement transaction underpriced
-  // BUG(?) potentially in queue management, TODO
-  // create and manage that from User
-
-  return { token, userQueue };
 }
