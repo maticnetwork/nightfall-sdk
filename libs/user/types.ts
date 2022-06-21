@@ -1,7 +1,7 @@
 export interface Env {
   blockchainNetwork: string;
-  blockchainWs: string;
-  apiUrl: string;
+  blockchainWsUrl: string;
+  clientApiUrl: string;
 }
 
 export interface UserConfig {

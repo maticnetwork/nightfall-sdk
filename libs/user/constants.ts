@@ -6,8 +6,8 @@ const ENV_API_URL_DEFAULT = "http://localhost:8080";
 
 export const NIGHTFALL_DEFAULT_CONFIG: Env = {
   blockchainNetwork: ENV_BC_NETWORK_DEFAULT,
-  blockchainWs: ENV_BC_WEBSOCKET_DEFAULT,
-  apiUrl: ENV_API_URL_DEFAULT,
+  blockchainWsUrl: ENV_BC_WEBSOCKET_DEFAULT,
+  clientApiUrl: ENV_API_URL_DEFAULT,
 };
 
 export const CONTRACT_SHIELD = "Shield";
