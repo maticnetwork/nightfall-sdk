@@ -11,7 +11,8 @@ import {
   createZkpKeysFromMnemonic,
 } from "../keys";
 import { Client } from "../client";
-import { parentLogger, Web3Websocket } from "../utils";
+import { Web3Websocket } from "../ethereum";
+import { parentLogger } from "../utils";
 import { createDeposit } from "../transactions/deposit";
 
 const logger = parentLogger.child({
