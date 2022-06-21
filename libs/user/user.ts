@@ -6,12 +6,9 @@ import {
   TX_FEE_DEFAULT,
 } from "./constants";
 import { UserConfig, UserDeposit } from "./types";
-import {
-  getEthAddressFromPrivateKey,
-  createZkpKeysFromMnemonic,
-} from "../keys";
+import { createZkpKeysFromMnemonic } from "../keys";
 import { Client } from "../client";
-import { Web3Websocket } from "../ethereum";
+import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
 import { parentLogger } from "../utils";
 import { createDeposit } from "../transactions/deposit";
 
