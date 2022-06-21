@@ -31,16 +31,12 @@ class User {
   nightfallMnemonic: null | string = null;
   zkpKeys: any = null;
 
-  // when transacting
-  token: any = null;
-  txQueue: Queue = null;
-
   constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
     logger.debug({ env }, "new User connected to");
 
     this.blockchainNetwork = env.blockchainNetwork.toLowerCase();
-    this.blockchainWs = env.blockchainWsUrl.toLowerCase();
-    this.apiUrl = env.clientApiUrl.toLowerCase();
+    this.blockchainWs = env.blockchainWs.toLowerCase();
+    this.apiUrl = env.apiUrl.toLowerCase();
 
     this.web3Websocket = new Web3Websocket(this.blockchainWs);
     this.client = new Client(this.apiUrl);
@@ -84,7 +80,7 @@ class User {
   async makeDeposit(options: UserDeposit): Promise<any> {
     logger.debug({ options }, "User :: makeDeposit");
 
-    const deposit = await createDeposit(
+    return createDeposit(
       options.tokenAddress,
       options.tokenStandard,
       options.value,
@@ -96,15 +92,13 @@ class User {
       this.web3Websocket.web3,
       this.client,
     );
-    this.token = deposit.token;
-    this.txQueue = deposit.userQueue;
   }
 
   async checkStatus() {
     logger.debug("User :: checkStatus");
-    const _isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
-    const _isClientAlive = await this.client.healthCheck();
-    return { _isWeb3WsAlive, _isClientAlive };
+    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
+    const isClientAlive = await this.client.healthCheck();
+    return { isWeb3WsAlive, isClientAlive };
   }
 
   close() {

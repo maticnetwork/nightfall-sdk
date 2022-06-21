@@ -39,7 +39,7 @@ const main = async () => {
       value,
     }); // wei 20000000000000000
 
-    // user.close();
+    user.close();
     console.log("Bye bye");
   } catch (error) {
     console.log(error);
