@@ -8,35 +8,33 @@ const logger = parentLogger.child({
 
 function createMnemonic(): string {
   logger.debug("createMnemonic");
-  return generateMnemonic(); // FYI using bip39
+  return generateMnemonic(); // Uses bip39
 }
 
 // DOCS can throw errors, use within try/catch
-function validateNfMnemonic(mnemonic: string): string {
+function validateNfMnemonic(mnemonic: string): void {
   logger.debug("validateNfMnemonic");
-  const isMnemonic = validateMnemonic(mnemonic); // FYI using bip39
+  const isMnemonic = validateMnemonic(mnemonic); // Uses bip39
   if (!isMnemonic) throw new Error("Invalid mnemonic");
-  return mnemonic;
 }
 
 function validateOrCreateNfMnemonic(
   mnemonic: undefined | string,
 ): null | string {
   logger.debug("validateOrCreateNfMnemonic");
-  let _mnemonic: null | string;
   if (!mnemonic) {
-    _mnemonic = createMnemonic();
+    mnemonic = createMnemonic();
     logger.info("New mnemonic created successfully");
   } else {
     try {
-      _mnemonic = validateNfMnemonic(mnemonic);
+      validateNfMnemonic(mnemonic);
     } catch (err) {
       logger.child({ mnemonic }).error(err, "Error while validating mnemonic");
       return null;
     }
     logger.info("Valid mnemonic");
   }
-  return _mnemonic;
+  return mnemonic;
 }
 
 // TODO improve client, return types
