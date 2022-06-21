@@ -13,8 +13,8 @@ dotenv.config({ path: path.join(_rootPath, ".env") });
 // Script config for goerli
 const environment = {
   blockchainNetwork: process.env.SDK_ENV_BLOCKCHAIN_NETWORK,
-  blockchainWs: process.env.SDK_ENV_BLOCKCHAIN_WEBSOCKET,
-  apiUrl: process.env.SDK_ENV_API_URL,
+  blockchainWsUrl: process.env.SDK_ENV_BLOCKCHAIN_WEBSOCKET_URL,
+  clientApiUrl: process.env.SDK_ENV_CLIENT_API_URL,
 };
 const ethereumPrivateKey = process.env.SDK_ETH_PRIVATE_KEY;
 const tokenAddress = process.env.SDK_ETH_TOKEN_ADDRESS; // MATIC contract address in goerli
