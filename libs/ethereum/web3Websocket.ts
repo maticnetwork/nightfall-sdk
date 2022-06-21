@@ -1,14 +1,13 @@
 import Web3 from "web3";
 import { WebsocketProvider } from "web3-core";
-import logger from "./logger";
+import logger from "../utils/logger";
 
-// CHECK WEB3_PROVIDER_OPTIONS
 const WEB3_PROVIDER_OPTIONS = {
   clientConfig: {
     keepalive: true,
-    keepaliveInterval: 10,
+    keepaliveInterval: 10, // ms, docs suggest 60000
   },
-  timeout: 3600000, // 1h in ms
+  timeout: 3600000, // ms (1h)
   reconnect: {
     auto: false, // with true is always trying to reconnect and the connection is never closed
     delay: 5000, // ms
@@ -17,16 +16,16 @@ const WEB3_PROVIDER_OPTIONS = {
   },
 };
 
-// FYI see setEthConfig
-const TX_BLOCK_TIMEOUT = 2000;
-const TX_BLOCK_CONFIRMATION_COUNT = 12;
+// See setEthConfig
+const TX_TIMEOUT_BLOCKS = 2000;
+const TX_CONFIRMATION_BLOCKS = 12;
 
-// FYI see checkWsConnection, getBlockNumber
-const WS_CONNECTION_PING_TIME = 2000;
-const WS_BLOCK_NO_PING_TIME = 15000;
+// See checkWsConnection, getBlockNumber
+const WS_CONNECTION_PING_TIME_MS = 2000;
+const WS_BLOCKNO_PING_TIME_MS = 15000;
 
 class Web3Websocket {
-  // constructor
+  // Set by constructor
   wsUrl: string;
   provider: WebsocketProvider;
   web3: Web3;
@@ -44,23 +43,22 @@ class Web3Websocket {
 
     this.setEthConfig();
     this.addWsEventListeners();
-    this.checkWsConnection(); // CHECK checkWsConnection + refreshWsConnection "dance"
+    this.checkWsConnection();
     this.refreshWsConnection();
   }
 
   setEthConfig() {
     logger.debug("Web3Websocket :: setEthConfig");
-    this.web3.eth.transactionBlockTimeout = TX_BLOCK_TIMEOUT;
-    this.web3.eth.transactionConfirmationBlocks = TX_BLOCK_CONFIRMATION_COUNT;
+    this.web3.eth.transactionBlockTimeout = TX_TIMEOUT_BLOCKS;
+    this.web3.eth.transactionConfirmationBlocks = TX_CONFIRMATION_BLOCKS;
   }
 
   addWsEventListeners() {
     logger.debug("Web3Websocket :: addWsEventListeners");
     this.provider.on("connect", () => logger.info("Blockchain connected"));
     this.provider.on("end", () => logger.info("Blockchain disconnected"));
-    this.provider.on(
-      "error",
-      () => logger.error("Blockchain connection error"), // CHECK callback used to capture err, but does not look possible
+    this.provider.on("error", () =>
+      logger.error("Blockchain connection error"),
     );
   }
 
@@ -71,7 +69,7 @@ class Web3Websocket {
         if (!this.provider.connected) {
           this.updateWeb3Provider();
         }
-      }, WS_CONNECTION_PING_TIME),
+      }, WS_CONNECTION_PING_TIME_MS),
     );
   }
 
@@ -85,7 +83,7 @@ class Web3Websocket {
     this.intervalIds.push(
       setInterval(async () => {
         await this.setEthBlockNo();
-      }, WS_BLOCK_NO_PING_TIME),
+      }, WS_BLOCKNO_PING_TIME_MS),
     );
   }
 

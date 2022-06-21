@@ -6,13 +6,11 @@ import {
   TX_FEE_DEFAULT,
 } from "./constants";
 import { UserConfig, UserDeposit } from "./types";
-import {
-  getEthAddressFromPrivateKey,
-  createZkpKeysFromMnemonic,
-} from "../keys";
 import { Client } from "../client";
-import { parentLogger, Web3Websocket } from "../utils";
+import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
+import { createZkpKeysFromMnemonic } from "../nightfall";
 import { createDeposit } from "../transactions/deposit";
+import { parentLogger } from "../utils";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
