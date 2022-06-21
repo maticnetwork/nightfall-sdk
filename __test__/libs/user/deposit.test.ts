@@ -16,9 +16,9 @@ const tokenAddress = process.env.SDK_ETH_TOKEN_ADDRESS || ''; // MATIC contract 
 const tokenStandard = "ERC20";
 const value = "0.0014";
 
-jest.setTimeout(30000);
+jest.setTimeout(50000);
 
-describe("Suit fo tests deposits", () => {
+describe("Suit for tests deposits", () => {
   let user: User;
 
   beforeAll(async () => {    
@@ -30,8 +30,8 @@ describe("Suit fo tests deposits", () => {
 
   test("should check the status for the user", async () => {         
     const status = await user.checkStatus();
-    expect(status._isClientAlive).toBe(true);
-    expect(status._isWeb3WsAlive).toBe(true);
+    expect(status.isClientAlive).toBe(true);
+    expect(status.isWeb3WsAlive).toBe(true);
   });
   
   test("should create a deposit", async () => {         

@@ -98,9 +98,9 @@ class User {
 
   async checkStatus() {
     logger.debug("User :: checkStatus");
-    const _isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
-    const _isClientAlive = await this.client.healthCheck();
-    return { _isWeb3WsAlive, _isClientAlive };
+    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
+    const isClientAlive = await this.client.healthCheck();
+    return { isWeb3WsAlive, isClientAlive };
   }
 
   close() {
