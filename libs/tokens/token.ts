@@ -60,8 +60,7 @@ class Token {
   // CHECK that ERC165 is deployed to ganache
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
-    const _decimals = Number(await this.contract.methods.decimals().call());
-    this.decimals = _decimals;
+    this.decimals = Number(await this.contract.methods.decimals().call());
     logger.info({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
