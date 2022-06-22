@@ -17,14 +17,11 @@ const logger = parentLogger.child({
 });
 
 class User {
-  // constructor
-  blockchainNetwork: string;
-  blockchainWs: string;
-  apiUrl: string;
+  // Set by constructor
   web3Websocket;
   client;
 
-  // init
+  // Set by init
   shieldContractAddress: null | string = null;
   ethPrivateKey: null | string = null;
   ethAddress: null | string = null;
@@ -34,12 +31,11 @@ class User {
   constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
     logger.debug({ env }, "new User connected to");
 
-    this.blockchainNetwork = env.blockchainNetwork.toLowerCase();
-    this.blockchainWs = env.blockchainWsUrl.toLowerCase();
-    this.apiUrl = env.clientApiUrl.toLowerCase();
+    const blockchainWsUrl = env.blockchainWsUrl.toLowerCase();
+    this.web3Websocket = new Web3Websocket(blockchainWsUrl);
 
-    this.web3Websocket = new Web3Websocket(this.blockchainWs);
-    this.client = new Client(this.apiUrl);
+    const clientApiUrl = env.clientApiUrl.toLowerCase();
+    this.client = new Client(clientApiUrl);
   }
 
   // TODO improve return type
