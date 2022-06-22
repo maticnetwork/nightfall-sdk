@@ -20,7 +20,13 @@ class Client {
     let res: AxiosResponse;
     try {
       res = await axios.get(`${this.apiUrl}/healthcheck`);
-      if (res.status !== 200) throw new Error("Client unavailable");
+      if (res.status !== 200) {
+        logger.error(
+          { status: res.status },
+          "Client unavailable, healthcheck status is",
+        );
+        return false;
+      }
       logger.info(
         { status: res.status, data: res.data },
         "Client at healthcheck responded",
@@ -53,7 +59,7 @@ class Client {
     validMnemonic: string,
     addressIndex: number,
   ) {
-    const logInput = { validMnemonic, addressIndex }; // TODO review internal vars underscore
+    const logInput = { validMnemonic, addressIndex };
     logger.debug(logInput, "Calling client at generate-keys");
     let res: AxiosResponse;
     try {
@@ -107,7 +113,7 @@ class Client {
       res = await axios.post(`${this.apiUrl}/deposit`, {
         ercAddress: tokenAddress,
         tokenType: tokenStandard,
-        tokenId: "0x00", // TODO review when addressing issue #32 re other standards
+        tokenId: "0x00",
         value,
         pkd,
         nsk,

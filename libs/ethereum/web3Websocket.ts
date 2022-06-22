@@ -9,7 +9,7 @@ const WEB3_PROVIDER_OPTIONS = {
   },
   timeout: 3600000, // ms (1h)
   reconnect: {
-    auto: false, // with true is always trying to reconnect and the connection is never closed
+    auto: false, // if true will always try to reconnect when closing ws connection
     delay: 5000, // ms
     maxAttempts: 120,
     onTimeout: false,

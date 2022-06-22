@@ -35,8 +35,8 @@ class User {
     logger.debug({ env }, "new User connected to");
 
     this.blockchainNetwork = env.blockchainNetwork.toLowerCase();
-    this.blockchainWs = env.blockchainWs.toLowerCase();
-    this.apiUrl = env.apiUrl.toLowerCase();
+    this.blockchainWs = env.blockchainWsUrl.toLowerCase();
+    this.apiUrl = env.clientApiUrl.toLowerCase();
 
     this.web3Websocket = new Web3Websocket(this.blockchainWs);
     this.client = new Client(this.apiUrl);
