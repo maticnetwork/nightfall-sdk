@@ -113,7 +113,7 @@ class Client {
       res = await axios.post(`${this.apiUrl}/deposit`, {
         ercAddress: tokenAddress,
         tokenType: tokenStandard,
-        tokenId: "0x00",
+        tokenId: "0x00", // ISSUE #32
         value,
         pkd,
         nsk,

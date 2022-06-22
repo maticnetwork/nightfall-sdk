@@ -53,7 +53,7 @@ export async function createDeposit(
   logger.debug({ tokenAddress }, "createDeposit"); // TODO review
 
   const userQueue = new Queue({ autostart: true, concurrency: 1 });
-  // FYI Set token TODO only if it's not set or is different
+  // Set token TODO only if it's not set or is different
   const token = await setToken(tokenAddress, tokenStandard, web3);
   if (token === null) return null;
   logger.info(
@@ -125,6 +125,6 @@ export async function createDeposit(
         logger.error(err);
         reject(err);
       }
-    });  
+    });
   });
 }

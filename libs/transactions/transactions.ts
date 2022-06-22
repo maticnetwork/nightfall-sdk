@@ -68,9 +68,9 @@ export async function submitTransaction(
   logger.debug({ _logInput }, "X :: submitTransaction");
 
   // estimate the gasPrice
-  const gasPrice = Math.ceil(Number(GAS_PRICE) * GAS_PRICE_MULTIPLIER); // TODO restore `estimateGasPrice` above (issue #28);
+  const gasPrice = Math.ceil(Number(GAS_PRICE) * GAS_PRICE_MULTIPLIER); // ISSUE #28
   // Estimate the gasLimit
-  const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // TODO restore `estimateGas` (issue #28);
+  const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // ISSUE #28
   logger.debug(
     `Transaction gasPrice was set at ${Math.ceil(
       gasPrice / 10 ** 9,

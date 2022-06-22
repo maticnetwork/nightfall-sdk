@@ -44,15 +44,15 @@ class User {
 
   // TODO improve return type
   async init(config: UserConfig) {
-    logger.debug({ config }, "User :: init"); // TODO review logs, dedicated issue #33
+    logger.debug({ config }, "User :: init");
 
-    // FYI Set this.shieldContractAddress
+    // Set this.shieldContractAddress
     logger.debug("User :: setShieldContractAddress");
     this.shieldContractAddress = await this.client.getContractAddress(
       CONTRACT_SHIELD,
     );
 
-    // FYI Set this.ethPrivateKey, this.ethAddress if valid private key
+    // Set this.ethPrivateKey, this.ethAddress if valid private key
     const ethAddress = getEthAddressFromPrivateKey(
       config.ethereumPrivateKey,
       this.web3Websocket.web3,
@@ -61,9 +61,9 @@ class User {
     this.ethPrivateKey = config.ethereumPrivateKey;
     this.ethAddress = ethAddress;
 
-    // FYI Set this.nightfallMnemonic, this.zkpKeys,
+    // Set this.nightfallMnemonic, this.zkpKeys,
     // subscribe to incoming viewing keys if valid mnemonic,
-    // or creates one if none was provided
+    // or creates one if no mnemonic was given
     const nightfallKeys = await createZkpKeysFromMnemonic(
       config.nightfallMnemonic,
       this.client,

@@ -9,7 +9,7 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO review, move constants out
+// TODO review
 const TOKEN_STANDARDS: { [key: string]: string } = {
   ERC20: "ERC20.json",
 };
@@ -62,7 +62,7 @@ class Token {
     return JSON.parse(_abi);
   }
 
-  // TODO support other token standards (issue #32)
+  // ISSUE #32
   // CHECK that ERC165 is deployed to ganache
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
@@ -71,7 +71,7 @@ class Token {
     logger.info({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
-  // TODO support other token standards (issue #32)
+  // ISSUE #32
   // TODO can this throw Errors?
   async approveTransaction(owner: string, spender: string, value: string) {
     const _logInput = { owner, spender, value };
@@ -86,7 +86,7 @@ class Token {
     const _valueBN = this.web3.utils.toBN(value);
     logger.info({ _allowanceBN, _valueBN }, "ERC allowance vs tx value");
 
-    // FYI When tx value is bigger than the spender allowance, will require approval
+    // When tx value is bigger than the spender allowance, will require approval
     if (_allowanceBN.lt(_valueBN)) {
       return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI(); // CHECK const
     }
