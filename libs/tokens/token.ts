@@ -3,37 +3,31 @@ import path from "path";
 import Web3 from "web3";
 import { Contract } from "web3-eth-contract";
 import { parentLogger } from "../utils";
+import { TOKEN_STANDARDS, ABIS_PATH, APPROVE_AMOUNT } from "./constants";
 import { TokenOptions } from "./types";
+import { validateConstructorOptions } from "./validations";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO review
-const TOKEN_STANDARDS: { [key: string]: string } = {
-  ERC20: "ERC20.json",
-};
-
-const ABIS_PATH = "libs/tokens/abis";
-
-const APPROVE_AMOUNT =
-  "115792089237316195423570985008687907853269984665640564039457584007913129639935";
-
 class Token {
-  // constructor
+  // Set by constructor
   web3: Web3;
   contractAddress: string;
   standard: string;
   contract: Contract;
 
-  // init
+  // Set by init
   decimals: number;
 
   constructor(options: TokenOptions) {
     logger.debug("new Token");
+    validateConstructorOptions(options);
+
     this.web3 = options.web3;
     this.contractAddress = options.address;
-    this.standard = options.standard;
+    this.standard = options.standard.toUpperCase();
 
     this.setTokenContract();
   }
