@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import path from "path";
 import { parentLogger } from "../utils";
+import getCommitmentsAndExportFileUseCase from "../../useCases/GetCommitmentsAndExportFile/index";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -107,6 +108,10 @@ class Client {
       return null;
     }
     return res.data;
+  }
+
+  async getCommitmentsAndExportFile(pathFileName: string) {
+    getCommitmentsAndExportFileUseCase(pathFileName);
   }
 }
 

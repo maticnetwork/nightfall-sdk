@@ -1,4 +1,4 @@
-import { concatArrays } from "../../../../useCases/GetCommitmentsAndExportFile/ConcatTwoArrays";
+import { concatTwoArrays } from "../../../libs/utils/concatTwoArrays";
 
 describe("Suit of tests for concat array", () => {
   const OBJECT1 = [
@@ -10,7 +10,13 @@ describe("Suit of tests for concat array", () => {
     { table: "timber", rows: [] },
   ];
   test("should concat two arrays", async () => {
-    const concatedArrays = concatArrays(OBJECT1, OBJECT2);
+    const concatedArrays = concatTwoArrays(OBJECT1, OBJECT2);
     expect(concatedArrays).toEqual(OBJECT1.concat(OBJECT2));
+  });
+
+  test("should pass a null object and thown an error.", async () => {
+    expect(() => {
+      concatTwoArrays(null, OBJECT2);
+    }).toThrowError("Array can't be null!");
   });
 });

@@ -8,13 +8,15 @@ import {
   getCommitmentsOnChain,
 } from "./GetCommitments/index";
 
-const getCommitmentsAndExportFile = async (filePath: string) => {
+const getCommitmentsAndExportFileUseCase = async (filePath: string) => {
   const commitmentsOnChain = await getCommitmentsOnChain();
-  const commitmentsOffChain = await getCommitmentsOffChain();
+  //const commitmentsOffChain = await getCommitmentsOffChain();
 
-  const concatedArrays = concatArrays(commitmentsOnChain, commitmentsOffChain);
+  console.log("COMMITMENTS: ", commitmentsOnChain.data);
 
-  await exportCommitments(filePath, convertObjectToString(concatedArrays));
+  // const concatedArrays = concatArrays(commitmentsOnChain, commitmentsOffChain);
+
+  // await exportCommitments(filePath, convertObjectToString(concatedArrays));
 };
 
-export default getCommitmentsAndExportFile;
+export default getCommitmentsAndExportFileUseCase;
