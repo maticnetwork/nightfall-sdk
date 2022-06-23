@@ -1,4 +1,4 @@
-import { concatArrays } from "./ConcatTwoArrays/index";
+import { concatTwoArrays } from "../../libs/utils/concatTwoArrays";
 import {
   convertObjectToString,
   exportCommitments,
