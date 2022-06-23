@@ -5,7 +5,7 @@ import { Contract } from "web3-eth-contract";
 import { parentLogger } from "../utils";
 import { TOKEN_STANDARDS, ABIS_PATH, APPROVE_AMOUNT } from "./constants";
 import { TokenOptions } from "./types";
-import { validateConstructorOptions } from "./validations";
+import { constructorOptions } from "./validations";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -23,7 +23,7 @@ class Token {
 
   constructor(options: TokenOptions) {
     logger.debug("new Token");
-    validateConstructorOptions(options);
+    constructorOptions.validate(options);
 
     this.web3 = options.web3;
     this.contractAddress = options.address;

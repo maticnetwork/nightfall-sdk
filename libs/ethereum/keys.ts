@@ -15,6 +15,7 @@ function validateEthPrivateKey(ethereumPrivateKey: string, web3: Web3): string {
     throw new Error("Invalid eth private key, string is not HEX string");
   logger.info("Eth private key is hex strict");
 
+  // Trying to get the eth address from the pk is the ultimate validation
   const ethAccount = web3.eth.accounts.privateKeyToAccount(ethereumPrivateKey);
 
   return ethAccount.address;
