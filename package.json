@@ -2,24 +2,6 @@
   "name": "nightfall-sdk",
   "version": "0.1.0",
   "description": "SDK for interacting with Polygon Nightfall",
-  "main": "index.mjs",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "eslint:fix": "eslint --fix",
-    "lint-staged": "npx lint-staged",
-    "prettier:check": "npx prettier --check .",
-    "prettier:fix": "npx prettier --write .",
-    "prepare": "husky install"
-  },
-  "lint-staged": {
-    "*.{css,less,scss,html,json,jsx,js,mjs,ts}": [
-      "prettier --write ."
-    ],
-    "*.{mjs,ts,js}": [
-      "npm run eslint:fix"
-    ]
-  },
   "keywords": [
     "nightfall",
     "sdk",
@@ -30,33 +12,33 @@
   "license": "",
   "dependencies": {
     "axios": "^0.27.2",
+    "bip39": "^3.0.4",
+    "dotenv": "^16.0.1",
     "events": "^3.3.0",
+    "joi": "^17.6.0",
+    "pino": "^8.0.0",
+    "pino-pretty": "^8.0.0",
     "queue": "^6.0.2",
     "reconnecting-websocket": "^4.4.0",
     "web3": "^1.7.3",
     "ws": "^8.6.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.38",
+    "@types/events": "^3.0.0",
+    "@types/node": "^17.0.40",
+    "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.27.0",
-    "babel-eslint": "^10.1.0",
-    "cz-conventional-changelog": "^3.0.1",
-    "eslint": "^8.16.0",
+    "eslint": "^8.17.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-n": "^15.2.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-promise": "^6.0.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^12.5.0",
-    "prettier": "^2.6.2",
-    "typescript": "^4.7.2"
+    "prettier": "2.6.2",
+    "typescript": "^4.7.3"
   },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+  "main": "index.mjs",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "prettier": "prettier --check .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "eg:deposit": "npx ts-node examples/deposit.ts"
   }
 }

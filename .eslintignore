@@ -1,5 +1,5 @@
 # node_modules ignored by default
-# Files in version control systems directories (".git", ".svn" and ".hg") ignored by default
+# dot-files (except for .eslintrc.*), as well as dot-folders and their contents, are ignored
 
 # From .gitignore
 dist
