@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1656023205444" clover="3.2.0">
-  <project timestamp="1656023205445" name="All files">
-    <metrics statements="8" coveredstatements="8" conditionals="6" coveredconditionals="6" methods="2" coveredmethods="2" elements="16" coveredelements="16" complexity="0" loc="8" ncloc="8" packages="1" files="2" classes="2"/>
-    <file name="concatTwoArrays.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/libs/utils/concatTwoArrays.ts">
-      <metrics statements="4" coveredstatements="4" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
-      <line num="1" count="1" type="stmt"/>
-      <line num="5" count="2" type="cond" truecount="4" falsecount="0"/>
-      <line num="6" count="1" type="stmt"/>
-      <line num="7" count="1" type="stmt"/>
-    </file>
-    <file name="convertObjectToString.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/libs/utils/convertObjectToString.ts">
-      <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
-      <line num="1" count="1" type="stmt"/>
-      <line num="2" count="2" type="cond" truecount="2" falsecount="0"/>
-      <line num="3" count="1" type="stmt"/>
-      <line num="5" count="1" type="stmt"/>
-    </file>
+<coverage generated="1656363691620" clover="3.2.0">
+  <project timestamp="1656363691621" name="All files">
+    <metrics statements="16" coveredstatements="16" conditionals="6" coveredconditionals="6" methods="5" coveredmethods="5" elements="27" coveredelements="27" complexity="0" loc="16" ncloc="16" packages="2" files="4" classes="4"/>
+    <package name="commitments">
+      <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+      <file name="getCommitments.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/libs/commitments/getCommitments.ts">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="utils">
+      <metrics statements="10" coveredstatements="10" conditionals="6" coveredconditionals="6" methods="3" coveredmethods="3"/>
+      <file name="concatTwoArrays.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/libs/utils/concatTwoArrays.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="5" count="3" type="cond" truecount="4" falsecount="0"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+      </file>
+      <file name="convertObjectToString.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/libs/utils/convertObjectToString.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+      </file>
+      <file name="exportFile.ts" path="/home/snowman/Documents/Polygon/Projects/SDK/SDKV1/nightfall-sdk/libs/utils/exportFile.ts">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+      </file>
+    </package>
   </project>
 </coverage>

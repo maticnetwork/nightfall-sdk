@@ -2,9 +2,9 @@ import axios from "axios";
 import {
   getCommitmentsOffChain,
   getCommitmentsOnChain,
-} from "../../../../useCases/GetCommitmentsAndExportFile/GetCommitments/index";
+} from "../../../libs/commitments/getCommitments";
 
-import { commitments } from "../../../../__mocks__/useCases/ExportCommitments/commitments";
+import { commitments } from "../../../__mocks__/useCases/ExportCommitments/commitments";
 
 jest.mock("axios");
 

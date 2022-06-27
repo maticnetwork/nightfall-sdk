@@ -1,6 +1,6 @@
 import convertObjectToString from "../../../libs/utils/convertObjectToString";
 
-describe("Suit fo tests for export commitments use cases", () => {
+describe("Suit of tests for convert object in string function", () => {
   const OBJECT = [
     { table: "commitments", rows: [] },
     { table: "transactions", rows: [] },

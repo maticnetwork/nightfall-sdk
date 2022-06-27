@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
+import { getCommitmentsOnChain } from "libs/commitments/getCommitments";
 import path from "path";
 import { parentLogger } from "../utils";
-import getCommitmentsAndExportFileUseCase from "../../useCases/GetCommitmentsAndExportFile/index";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -111,7 +111,14 @@ class Client {
   }
 
   async getCommitmentsAndExportFile(pathFileName: string) {
-    getCommitmentsAndExportFileUseCase(pathFileName);
+    const commitmentsOnChain = await getCommitmentsOnChain();
+    //const commitmentsOffChain = await getCommitmentsOffChain();
+
+    console.log("COMMITMENTS: ", commitmentsOnChain.data);
+
+    // const concatedArrays = concatTwoArrays(commitmentsOnChain, commitmentsOffChain);
+
+    // await exportCommitments(filePath, convertObjectToString(concatedArrays));
   }
 }
 
