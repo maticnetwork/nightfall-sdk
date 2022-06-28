@@ -11,8 +11,8 @@ import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
 import { createZkpKeysFromMnemonic } from "../nightfall";
 import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
-import convertObjectToString from "libs/utils/convertObjectToString";
-import exportFile from "libs/utils/exportFile";
+import convertObjectToString from "../utils/convertObjectToString";
+import exportFile from "../utils/exportFile";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
