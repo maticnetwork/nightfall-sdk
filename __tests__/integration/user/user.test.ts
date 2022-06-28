@@ -12,7 +12,7 @@ describe("Suit of integration tests user functionalities", () => {
     apiUrl: process.env.SDK_ENV_API_URL,
   };
 
-  test("Should get a json from getCommitmentsOnChain endpoint", async () => {
+  test("Should test the integration of the unit functions for export commitments flow", async () => {
     
     mockedAxios.get.mockResolvedValue(mockCommitments);
 
