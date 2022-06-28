@@ -11,6 +11,8 @@ import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
 import { createZkpKeysFromMnemonic } from "../nightfall";
 import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
+import convertObjectToString from "libs/utils/convertObjectToString";
+import exportFile from "libs/utils/exportFile";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -95,6 +97,13 @@ class User {
     const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
     const isClientAlive = await this.client.healthCheck();
     return { isWeb3WsAlive, isClientAlive };
+  }
+
+  async exportCommitments(pathFileName: string) {
+    const client = new Client(process.env.SDK_ENV_API_URL)
+    const commitments = await client.getAllCommitments();        
+
+    await exportFile(pathFileName, convertObjectToString(commitments.data));
   }
 
   close() {
