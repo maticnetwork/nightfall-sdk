@@ -110,15 +110,30 @@ class Client {
     return res.data;
   }
 
-  async getCommitmentsAndExportFile(pathFileName: string) {
-    const commitmentsOnChain = await getCommitmentsOnChain();
-    //const commitmentsOffChain = await getCommitmentsOffChain();
+  async getCommitmentsOnChain() {
+    logger.debug("Calling client at /commitment/commitments");
+    let res: AxiosResponse;
+    try {
+      res = await axios.get(
+        `${process.env.SDK_ENV_API_URL}/commitment/commitments`,
+      );
+      logger.info({ status: res.status, data: res.data });
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
 
-    console.log("COMMITMENTS: ", commitmentsOnChain.data);
-
-    // const concatedArrays = concatTwoArrays(commitmentsOnChain, commitmentsOffChain);
-
-    // await exportCommitments(filePath, convertObjectToString(concatedArrays));
+  async getCommitmentsOffChain() {
+    logger.debug("Calling client at ...");
+    // let res: AxiosResponse;
+    // try {
+    //   call API
+    // } catch (err) {
+    //   capture err
+    // }
+    // return res.data;
   }
 }
 

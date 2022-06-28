@@ -1,4 +1,4 @@
-import { Client } from "../libs/client";
+import { User } from "../libs/user";
 import * as dotenv from "dotenv";
 import path from "path";
 
@@ -16,15 +16,21 @@ const environment = {
   blockchainWs: process.env.SDK_ENV_BLOCKCHAIN_WEBSOCKET,
   apiUrl: process.env.SDK_ENV_API_URL,
 };
+// const ethereumPrivateKey = process.env.SDK_ETH_PRIVATE_KEY;
 
 // Script
 const main = async () => {
   try {
-    const client = new Client(environment.apiUrl); // now goerli
-    const status = await client.healthCheck();
+    const user = new User(environment); // now goerli
+    const status = await user.checkStatus();
     console.log(status);
 
-    await client.getCommitmentsAndExportFile("./myfile.json");
+    // const configUser = await user.init({
+    //   ethereumPrivateKey: ethereumPrivateKey,
+    // });
+    // console.log(configUser);
+
+    await user.backupCommitments("./myfile.json");
   } catch (error) {
     console.log(error);
     process.exit(1);

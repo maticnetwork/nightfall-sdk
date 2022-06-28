@@ -102,6 +102,17 @@ class User {
     this.txQueue = deposit.userQueue;
   }
 
+  async backupCommitments(pathFileName: string) {
+    const commitmentsOnChain = await this.client.getCommitmentsOnChain();
+    if (commitmentsOnChain === null) return;
+
+    const commitmentsOffChain = await this.client.getCommitmentsOffChain();
+    if (commitmentsOffChain === null) return;
+
+    // const concatedArrays = concatTwoArrays(commitmentsOnChain, commitmentsOffChain);
+    // await exportCommitments(filePath, convertObjectToString(concatedArrays));
+  }
+
   async checkStatus() {
     logger.debug("User :: checkStatus");
     const _isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
