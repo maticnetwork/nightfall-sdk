@@ -129,6 +129,13 @@ class Client {
     }
     return res.data;
   }
+
+  async getAllCommitments() {
+    const response = await axios.get(
+      `${this.apiUrl}/commitment/commitments`,
+    );
+    return response;
+  };  
 }
 
 export default Client;
