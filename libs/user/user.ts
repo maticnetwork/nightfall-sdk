@@ -1,75 +1,78 @@
 import Queue from "queue";
 import path from "path";
-import {
-  CONTRACT_SHIELD,
-  NIGHTFALL_DEFAULT_CONFIG,
-  TX_FEE_DEFAULT,
-} from "./constants";
-import { UserConfig, UserDeposit } from "./types";
+import { CONTRACT_SHIELD, TX_FEE_DEFAULT } from "./constants";
+import { UserFactoryOptions, UserOptions, UserDeposit } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
 import { createZkpKeysFromMnemonic } from "../nightfall";
 import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
+import { createOptions } from "./validations";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-class User {
-  // Set by constructor
-  web3Websocket;
-  client;
+class UserFactory {
+  static async create(options: UserFactoryOptions) {
+    logger.debug("UserFactory :: create");
+    createOptions.validate(options);
 
-  // Set by init
-  shieldContractAddress: null | string = null;
-  ethPrivateKey: null | string = null;
-  ethAddress: null | string = null;
-  nightfallMnemonic: null | string = null;
-  zkpKeys: any = null;
+    // Instantiate Client and Web3Websocket
+    const client = new Client(options.clientApiUrl.toLowerCase());
+    const web3Websocket = new Web3Websocket(
+      options.blockchainWsUrl.toLowerCase(),
+    );
 
-  constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
-    logger.debug({ env }, "new User connected to");
-
-    const blockchainWsUrl = env.blockchainWsUrl.toLowerCase();
-    this.web3Websocket = new Web3Websocket(blockchainWsUrl);
-
-    const clientApiUrl = env.clientApiUrl.toLowerCase();
-    this.client = new Client(clientApiUrl);
-  }
-
-  // TODO improve return type
-  async init(config: UserConfig) {
-    logger.debug({ config }, "User :: init");
-
-    // Set this.shieldContractAddress
-    logger.debug("User :: setShieldContractAddress");
-    this.shieldContractAddress = await this.client.getContractAddress(
+    // Get Shield contract address
+    const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
+    if (!shieldContractAddress) return null;
 
-    // Set this.ethPrivateKey, this.ethAddress if valid private key
+    // Get ethAddress from private key if it's a valid key
     const ethAddress = getEthAddressFromPrivateKey(
-      config.ethereumPrivateKey,
-      this.web3Websocket.web3,
+      options.ethereumPrivateKey,
+      web3Websocket.web3,
     );
     if (!ethAddress) return null;
-    this.ethPrivateKey = config.ethereumPrivateKey;
-    this.ethAddress = ethAddress;
 
-    // Set this.nightfallMnemonic, this.zkpKeys,
-    // subscribe to incoming viewing keys if valid mnemonic,
-    // or creates one if no mnemonic was given
+    // Create Zero-knowledge proof keys from a valid mnemonic
+    // or from a new mnemonic if none was provided,
+    // subscribe to incoming viewing keys
     const nightfallKeys = await createZkpKeysFromMnemonic(
-      config.nightfallMnemonic,
-      this.client,
+      options.nightfallMnemonic,
+      client,
     );
     if (!nightfallKeys) return null;
-    const { nightfallMnemonic, zkpKeys } = nightfallKeys;
-    this.nightfallMnemonic = nightfallMnemonic;
-    this.zkpKeys = zkpKeys;
 
-    return { User: this };
+    return new User({
+      client,
+      web3Websocket,
+      shieldContractAddress,
+      ethPrivateKey: options.ethereumPrivateKey,
+      ethAddress,
+      nightfallMnemonic: nightfallKeys.nightfallMnemonic,
+      zkpKeys: nightfallKeys.zkpKeys,
+    });
+  }
+}
+
+class User {
+  client: Client;
+  web3Websocket: Web3Websocket;
+  shieldContractAddress: string;
+  ethPrivateKey: string;
+  ethAddress: string;
+  nightfallMnemonic: string;
+  zkpKeys: any;
+
+  constructor(options: UserOptions) {
+    logger.debug("new User");
+    let key: keyof UserOptions;
+    for (key in options) {
+      this[key] = options[key];
+    }
   }
 
   // TODO needs massive refactor
@@ -103,4 +106,4 @@ class User {
   }
 }
 
-export default User;
+export default UserFactory;
