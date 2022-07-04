@@ -120,7 +120,7 @@ export async function createDeposit(
           web3,
         );
         logger.info({ receipt2 }, "Proof from tx 2");
-        resolve(receipt2);
+        resolve({ ...receipt2, transactionHashL2: resData.transaction.transactionHash });
       } catch (err) {
         logger.error(err);
         reject(err);
