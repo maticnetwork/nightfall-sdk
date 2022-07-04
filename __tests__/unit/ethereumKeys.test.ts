@@ -1,0 +1,48 @@
+import { getEthAddressFromPrivateKey } from "../../libs/ethereum";
+
+describe("Ethereum Keys", () => {
+  describe("Get Ethereum address from private key", () => {
+    const mockedWeb3 = {
+      eth: { accounts: { privateKeyToAccount: jest.fn() } },
+    };
+
+    test("when given a valid eth private key returns an ethereum address", () => {
+      // Arrange
+      const address = "0x02f979a781260955ee760E92E893938aD1AB8A5E";
+      const account = { address };
+      mockedWeb3.eth.accounts.privateKeyToAccount.mockReturnValue(account);
+
+      // Act
+      const ethPrivateKey =
+        "0xc8aecafe1670d0cf314ca53c97332314e867ab9042b7f3f7a64528521111bbaf";
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const result = getEthAddressFromPrivateKey(ethPrivateKey, mockedWeb3);
+
+      // Assert
+      expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalledWith(
+        ethPrivateKey,
+      );
+      expect(result).toBe(address);
+    });
+
+    test("when given an invalid eth private key returns null", () => {
+      // Arrange
+      mockedWeb3.eth.accounts.privateKeyToAccount.mockImplementation(() => {
+        throw new Error("invalid eth private key");
+      });
+
+      // Act
+      const ethPrivateKey = "0xc8aec";
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const result = getEthAddressFromPrivateKey(ethPrivateKey, mockedWeb3);
+
+      // Assert
+      expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalledWith(
+        ethPrivateKey,
+      );
+      expect(result).toBeNull();
+    });
+  });
+});

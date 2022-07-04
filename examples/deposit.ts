@@ -6,8 +6,8 @@ import {
 import * as dotenv from "dotenv";
 import path from "path";
 
-const _rootPath = path.resolve();
-dotenv.config({ path: path.join(_rootPath, ".env") });
+const rootPath = path.resolve();
+dotenv.config({ path: path.join(rootPath, ".env") });
 
 // Script config for ganache
 // const ETHEREUM_PRIVATE_KEY =
