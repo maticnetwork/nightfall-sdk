@@ -6,7 +6,7 @@ describe("Ethereum Keys", () => {
       eth: { accounts: { privateKeyToAccount: jest.fn() } },
     };
 
-    test("when given a valid eth private key returns an ethereum address", () => {
+    test("Should return an ethereum address when given a valid eth private key", () => {
       // Arrange
       const address = "0x02f979a781260955ee760E92E893938aD1AB8A5E";
       const account = { address };
@@ -26,7 +26,7 @@ describe("Ethereum Keys", () => {
       expect(result).toBe(address);
     });
 
-    test("when given an invalid eth private key returns null", () => {
+    test("Should return null when given an invalid eth private key", () => {
       // Arrange
       mockedWeb3.eth.accounts.privateKeyToAccount.mockImplementation(() => {
         throw new Error("invalid eth private key");
@@ -39,9 +39,7 @@ describe("Ethereum Keys", () => {
       const result = getEthAddressFromPrivateKey(ethPrivateKey, mockedWeb3);
 
       // Assert
-      expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalledWith(
-        ethPrivateKey,
-      );
+      expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalled();
       expect(result).toBeNull();
     });
   });

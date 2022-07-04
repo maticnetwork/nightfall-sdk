@@ -6,7 +6,6 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO review/improve error handling, types
 class Client {
   apiUrl: string;
 
