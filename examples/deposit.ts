@@ -18,18 +18,20 @@ const environment = {
 };
 const ethereumPrivateKey = process.env.SDK_ETH_PRIVATE_KEY;
 const tokenAddress = process.env.SDK_ETH_TOKEN_ADDRESS; // MATIC contract address in goerli
+const nightfallMnemonic = process.env.SDK_NIGHTFALL_MNEMONIC;
 
 // Script
 const main = async () => {
   try {
     const user = new User(environment); // now goerli
+
     const status = await user.checkStatus();
     console.log(status);
 
     const configUser = await user.init({
       ethereumPrivateKey: ethereumPrivateKey,
+      nightfallMnemonic: nightfallMnemonic,
     });
-    console.log(configUser);
 
     const tokenStandard = "ERC20";
     const value = "0.0014";

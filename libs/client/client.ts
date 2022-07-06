@@ -130,12 +130,28 @@ class Client {
     return res.data;
   }
 
-  async getAllCommitments() {
-    const response = await axios.get(
-      `${this.apiUrl}/commitment/commitments`,
-    );
+  /**
+   *
+   * @function getAllCommitments does the communication with the nightfall client
+   * endpoint to get all commitments by compressed pkd or all commitments based
+   * in the parameter value.
+   * @param compressedPkd - optional - The compressed pkd derivated from the user
+   * mnemonic.
+   * @returns if the paramenter is different of undefined, returns all the
+   * commitments existent for this compressed pkd. Else returns all the commitments
+   * in the database.
+   * @author luizoamorim
+   */
+  async getAllCommitments(compressedPkd?: string) {
+    if (compressedPkd) {
+      const response = await axios.get(
+        `${this.apiUrl}/commitment/all?compressedPkd=${compressedPkd}`,
+      );
+      return response;
+    }
+    const response = await axios.get(`${this.apiUrl}/commitment/all`);
     return response;
-  };  
+  }
 }
 
 export default Client;

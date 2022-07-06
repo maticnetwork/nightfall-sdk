@@ -99,11 +99,24 @@ class User {
     return { isWeb3WsAlive, isClientAlive };
   }
 
-  async exportCommitments(pathFileName: string) {
-    const client = new Client(process.env.SDK_ENV_API_URL)
-    const commitments = await client.getAllCommitments();        
-
-    await exportFile(pathFileName, convertObjectToString(commitments.data));
+  /**
+   *
+   * @function exportCommitments get the commitments from the client instance and
+   * export a file to some path based in the env variables that set the path and
+   * the filename.
+   * @param compressedPkd - optional - The compressed pkd derivated from the user
+   * mnemonic.
+   * @returns void - export the file with the commitments got from the client.
+   * @author luizoamorim
+   */
+  async exportCommitments(compressedPkd?: string) {
+    const commitments = await this.client.getAllCommitments(compressedPkd);
+    const pathToExport = process.env.SDK_PATH_TO_EXPORT_COMMITMENTS;
+    const fileName = process.env.SDK_FILE_NAME_TO_EXPORT_COMMITMENTS;
+    await exportFile(
+      `${pathToExport}${fileName}`,
+      convertObjectToString(commitments.data.commitments),
+    );
   }
 
   close() {
