@@ -1,3 +1,3 @@
-import { createZkpKeysFromMnemonic } from "./keys";
+import { validateOrCreateNfMnemonic, createZkpKeysFromMnemonic } from "./keys";
 
-export { createZkpKeysFromMnemonic };
+export { validateOrCreateNfMnemonic, createZkpKeysFromMnemonic };

@@ -1,24 +1,12 @@
-import { generateMnemonic, validateMnemonic } from "bip39";
 import path from "path";
 import { parentLogger } from "../utils";
+import { createMnemonic, validateNfMnemonic } from "./helpers";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-function createMnemonic(): string {
-  logger.debug("createMnemonic");
-  return generateMnemonic(); // Uses bip39
-}
-
-// DOCS can throw errors, use within try/catch
-function validateNfMnemonic(mnemonic: string): void {
-  logger.debug("validateNfMnemonic");
-  const isMnemonic = validateMnemonic(mnemonic); // Uses bip39
-  if (!isMnemonic) throw new Error("Invalid mnemonic");
-}
-
-function validateOrCreateNfMnemonic(
+export function validateOrCreateNfMnemonic(
   mnemonic: undefined | string,
 ): null | string {
   logger.debug("validateOrCreateNfMnemonic");
