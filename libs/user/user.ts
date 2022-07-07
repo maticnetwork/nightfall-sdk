@@ -8,6 +8,7 @@ import { createZkpKeysFromMnemonic } from "../nightfall";
 import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
 import { createOptions } from "./validations";
+import type { NightfallZkpKeys } from "../nightfall/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -65,7 +66,7 @@ class User {
   ethPrivateKey: string;
   ethAddress: string;
   nightfallMnemonic: string;
-  zkpKeys: any;
+  zkpKeys: NightfallZkpKeys;
 
   constructor(options: UserOptions) {
     logger.debug("new User");

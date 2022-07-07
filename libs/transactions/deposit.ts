@@ -5,6 +5,8 @@ import { parentLogger } from "../utils";
 import { Token } from "../tokens";
 import { submitTransaction } from "./transactions";
 import { toBaseUnit } from "./units";
+import { Client } from "../client";
+import type { NightfallZkpKeys } from "../nightfall/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -46,9 +48,9 @@ export async function createDeposit(
   shieldContractAddress: string,
   ethPrivateKey: string,
   ethAddress: string,
-  zkpKeys: any,
+  zkpKeys: NightfallZkpKeys,
   web3: Web3,
-  client: any,
+  client: Client,
 ): Promise<any> {
   logger.debug({ tokenAddress }, "createDeposit"); // TODO review
 

@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import path from "path";
 import { parentLogger } from "../utils";
+import type { NightfallZkpKeys } from "../nightfall/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -53,11 +54,10 @@ class Client {
     return res.data.address;
   }
 
-  // TODO double-check that return is coherent with API response
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
-  ) {
+  ): Promise<null | NightfallZkpKeys> {
     const logInput = { validMnemonic, addressIndex };
     logger.debug(logInput, "Calling client at generate-keys");
     let res: AxiosResponse;
@@ -77,8 +77,9 @@ class Client {
     return res.data;
   }
 
-  // TODO double-check that return is coherent with API response
-  async subscribeToIncomingViewingKeys(zkpKeys: any) {
+  async subscribeToIncomingViewingKeys(
+    zkpKeys: NightfallZkpKeys,
+  ): Promise<null | string> {
     logger.debug({ zkpKeys }, "Calling client at incoming-viewing-key");
     let res: AxiosResponse;
     try {

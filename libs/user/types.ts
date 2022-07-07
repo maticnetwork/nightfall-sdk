@@ -1,5 +1,6 @@
-import { Client } from "../client";
-import { Web3Websocket } from "../ethereum";
+import type { Client } from "../client";
+import type { Web3Websocket } from "../ethereum";
+import type { NightfallZkpKeys } from "../nightfall/types";
 
 export interface UserFactoryOptions {
   blockchainWsUrl: string;
@@ -15,7 +16,7 @@ export interface UserOptions {
   ethPrivateKey: string;
   ethAddress: string;
   nightfallMnemonic: string;
-  zkpKeys: any; // TODO improve
+  zkpKeys: NightfallZkpKeys;
 }
 
 export interface UserDeposit {
