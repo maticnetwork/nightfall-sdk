@@ -25,7 +25,6 @@ const main = async () => {
       ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
       nightfallMnemonic: nightfallMnemonic,
     });
-
     await user.exportCommitments(configUser.User.zkpKeys.compressedPkd);
   } catch (error) {
     console.log(error);
