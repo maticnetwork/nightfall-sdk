@@ -16,7 +16,7 @@ export interface UserOptions {
   ethPrivateKey: string;
   ethAddress: string;
   nightfallMnemonic: string;
-  zkpKeys: NightfallZkpKeys;
+  zkpKeys: any; // NightfallZkpKeys might have to be declared as class??;
 }
 
 export interface UserDeposit {

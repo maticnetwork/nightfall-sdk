@@ -1,6 +1,8 @@
 import path from "path";
 import { parentLogger } from "../utils";
 import { createMnemonic, validateNfMnemonic } from "./helpers";
+import type { Client } from "../client";
+import type { NightfallKeys } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -25,11 +27,10 @@ export function validateOrCreateNfMnemonic(
   return mnemonic;
 }
 
-// TODO improve client, return types
 export async function createZkpKeysFromMnemonic(
   mnemonic: undefined | string,
-  client: any,
-): Promise<any> {
+  client: Client,
+): Promise<null | NightfallKeys> {
   logger.debug("createZkpKeysFromMnemonic");
 
   const nightfallMnemonic = validateOrCreateNfMnemonic(mnemonic);

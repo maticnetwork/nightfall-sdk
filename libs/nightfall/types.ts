@@ -2,6 +2,11 @@ export interface NightfallZkpKeys {
   ask: string;
   nsk: string;
   ivk: string;
-  pkd: []; // TODO string[] fails at deposit.js L107
+  pkd: string[];
   compressedPkd: string;
+}
+
+export interface NightfallKeys {
+  nightfallMnemonic: string;
+  zkpKeys: NightfallZkpKeys;
 }
