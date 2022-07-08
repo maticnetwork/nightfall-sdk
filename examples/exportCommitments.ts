@@ -12,8 +12,6 @@ const environment = {
   clientApiUrl: process.env.SDK_ENV_CLIENT_API_URL,
 };
 
-const nightfallMnemonic = process.env.SDK_NIGHTFALL_MNEMONIC;
-
 /**
  * @description script to test the export commitments flow
  * @author luizoamorim
@@ -21,11 +19,11 @@ const nightfallMnemonic = process.env.SDK_NIGHTFALL_MNEMONIC;
 const main = async () => {
   try {
     const user = new User(environment);
-    const configUser = await user.init({
+    await user.init({
       ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
-      nightfallMnemonic: nightfallMnemonic,
+      nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
     });
-    await user.exportCommitments(configUser.User.zkpKeys.compressedPkd);
+    await user.exportCommitments(user.zkpKeys.compressedPkd);
   } catch (error) {
     console.log(error);
     process.exit(1);

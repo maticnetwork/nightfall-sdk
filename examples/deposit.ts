@@ -28,14 +28,13 @@ const main = async () => {
     const status = await user.checkStatus();
     console.log(status);
 
-    const configUser = await user.init({
+    await user.init({
       ethereumPrivateKey: ethereumPrivateKey,
-      nightfallMnemonic: nightfallMnemonic,
     });
 
     const tokenStandard = "ERC20";
     const value = "0.0014";
-    const deposit = await user.makeDeposit({
+    await user.makeDeposit({
       tokenAddress,
       tokenStandard,
       value,

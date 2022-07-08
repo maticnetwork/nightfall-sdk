@@ -1,4 +1,3 @@
-import Queue from "queue";
 import path from "path";
 import {
   CONTRACT_SHIELD,
@@ -113,9 +112,8 @@ class User {
     const commitments = await this.client.getAllCommitmentsByCompressedPkd(
       compressedPkd,
     );
-    console.log("COMMITMENTS:::::::::::::::::: ", commitments.data.commitments);
     const pathToExport = process.env.SDK_PATH_TO_EXPORT_COMMITMENTS;
-    const fileName = process.env.SDK_FILE_NAME_TO_EXPORT_COMMITMENTS;
+    const fileName = "commitmentsBackup.json";
     await exportFile(
       `${pathToExport}${fileName}`,
       convertObjectToString(commitments.data.commitments),

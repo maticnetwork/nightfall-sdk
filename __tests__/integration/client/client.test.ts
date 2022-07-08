@@ -4,7 +4,7 @@ import fs from "fs";
 import convertObjectToString from "../../../libs/utils/convertObjectToString";
 import exportFile from "../../../libs/utils/exportFile";
 import { Client } from "../../../libs/client/index";
-const mockCommitments: Array<object> = [{ table: "commitments", rows: [] }];
+import mockCommitments from "../../../__mocks__/commitments";
 
 describe("Suit of integration tests user functionalities", () => {
   const mockedAxios = axios as unknown as jest.Mocked<typeof axios>;
@@ -13,11 +13,12 @@ describe("Suit of integration tests user functionalities", () => {
   };
 
   test("Should test the integration of the unit functions for export commitments flow", async () => {
-    
     mockedAxios.get.mockResolvedValue(mockCommitments);
 
-    const client = new Client(environment.apiUrl)
-    const commitments = await client.getAllCommitments();  
+    const client = new Client(environment.apiUrl);
+    const commitments = await client.getAllCommitmentsByCompressedPkd(
+      "compressedPkd",
+    );
 
     const FILE_PATH = "./__tests__/file.json";
     exportFile(FILE_PATH, convertObjectToString(commitments));
