@@ -13,7 +13,7 @@ const environment = {
 };
 
 /**
- * @description script to test the export commitments flow
+ * @function main a script to test the export commitments flow
  * @author luizoamorim
  */
 const main = async () => {
