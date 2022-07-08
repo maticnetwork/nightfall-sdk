@@ -102,7 +102,7 @@ class Client {
     tokenAddress: string,
     tokenStandard: string,
     value: string,
-    pkd: [],
+    pkd: string[],
     nsk: string,
     fee: number,
   ) {
