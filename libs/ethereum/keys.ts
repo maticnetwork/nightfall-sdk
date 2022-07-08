@@ -7,12 +7,12 @@ const logger = parentLogger.child({
 });
 
 /**
- * Attempt to generate an ethereum address from a given private key
+ * Generate an ethereum address from a given private key
  *
  * @function getEthAddressFromPrivateKey
  * @param {string} ethereumPrivateKey
  * @param {Web3} web3
- * @returns {null|string} if the private key is valid return address, else return null
+ * @returns {null|string} address <string> if the private key is valid, else return null
  */
 export function getEthAddressFromPrivateKey(
   ethereumPrivateKey: string,

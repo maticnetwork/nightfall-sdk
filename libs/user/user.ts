@@ -4,7 +4,7 @@ import { CONTRACT_SHIELD, TX_FEE_DEFAULT } from "./constants";
 import { UserFactoryOptions, UserOptions, UserDeposit } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
-import { createZkpKeysFromMnemonic } from "../nightfall";
+import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
 import { createOptions } from "./validations";
@@ -38,10 +38,10 @@ class UserFactory {
     );
     if (!ethAddress) return null;
 
-    // Create Zero-knowledge proof keys from a valid mnemonic
+    // Create a set of Zero-knowledge proof keys from a valid mnemonic
     // or from a new mnemonic if none was provided,
     // subscribe to incoming viewing keys
-    const nightfallKeys = await createZkpKeysFromMnemonic(
+    const nightfallKeys = await createZkpKeysAndSubscribeToIncomingKeys(
       options.nightfallMnemonic,
       client,
     );

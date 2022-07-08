@@ -8,6 +8,13 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
+/**
+ * Validate given mnemonic or create a mnemonic
+ *
+ * @function validateOrCreateNfMnemonic
+ * @param {string} mnemonic
+ * @returns {null|string} mnemonic <string> if the mnemonic is new or given one is valid, else return null
+ */
 export function validateOrCreateNfMnemonic(
   mnemonic: undefined | string,
 ): null | string {
@@ -27,11 +34,19 @@ export function validateOrCreateNfMnemonic(
   return mnemonic;
 }
 
-export async function createZkpKeysFromMnemonic(
+/**
+ * Create a set of Zero-knowledge proof keys from given/new mnemonic, then subscribe to incoming viewing keys
+ *
+ * @function createZkpKeysAndSubscribeToIncomingKeys
+ * @param {string} mnemonic
+ * @param {Client} client
+ * @returns {null|NightfallKeys} NightfallKeys if the mnemonic is new or given one is valid, else return null
+ */
+export async function createZkpKeysAndSubscribeToIncomingKeys(
   mnemonic: undefined | string,
   client: Client,
 ): Promise<null | NightfallKeys> {
-  logger.debug("createZkpKeysFromMnemonic");
+  logger.debug("createZkpKeysAndSubscribeToIncomingKeys");
 
   const nightfallMnemonic = validateOrCreateNfMnemonic(mnemonic);
   if (nightfallMnemonic === null) return null;
