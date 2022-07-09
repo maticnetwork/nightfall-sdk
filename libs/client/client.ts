@@ -105,7 +105,7 @@ class Client {
     value: string,
     fee: number,
   ) {
-    logger.debug({ token, value }, "Calling client at deposit");
+    logger.debug("Calling client at deposit");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/deposit`, {

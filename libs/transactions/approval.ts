@@ -27,7 +27,7 @@ export async function createAndSubmitApproval(
   );
   // unsignedTx null signals that the approval is not required
   // hence we can resolve the promise
-  if (unsignedTx === null) return Promise.resolve();
+  if (unsignedTx === null) return Promise.resolve("pepe");
   logger.info("Tx approved");
 
   return submitTransaction(

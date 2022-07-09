@@ -18,6 +18,7 @@ import { setToken } from "../tokens/helpers";
 import { toBaseUnit } from "../transactions/helpers/units";
 import { submitTransaction } from "../transactions/helpers/submit";
 import { createAndSubmitApproval } from "../transactions/approval";
+import { func } from "joi";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -115,37 +116,49 @@ class User {
       this.token.decimals,
       this.web3Websocket.web3,
     );
-    logger.info({ value }, "Value in wei is"); // rm
+    logger.info({ value }, "Value in wei is");
 
-    this.txsQueue.push(() => {
-      return createAndSubmitApproval(
-        this.token,
-        this.ethAddress,
-        this.ethPrivateKey,
-        this.shieldContractAddress,
-        value,
-        options.fee || TX_FEE_DEFAULT,
-        this.web3Websocket.web3,
-      );
-    });
-    console.log("*************QUEUE_2", this.txsQueue);
-    logger.info("Approval completed");
+    // this.txsQueue.push(() => {
+    //   return createAndSubmitApproval(
+    //     this.token,
+    //     this.ethAddress,
+    //     this.ethPrivateKey,
+    //     this.shieldContractAddress,
+    //     value,
+    //     options.fee || TX_FEE_DEFAULT,
+    //     this.web3Websocket.web3,
+    //   );
+    // });
+    // console.log("*************QUEUE_2", this.txsQueue);
+    // logger.info("Approval completed");
 
-    this.txsQueue.push(() => {
-      return createAndSubmitDeposit(
-        this.token,
-        this.ethAddress,
-        this.ethPrivateKey,
-        this.zkpKeys,
-        this.shieldContractAddress,
-        value,
-        options.fee || TX_FEE_DEFAULT,
-        this.web3Websocket.web3,
-        this.client,
-      );
-    });
-    console.log("*************QUEUE_3", this.txsQueue);
-    logger.info("Deposit completed");
+    return createAndSubmitDeposit(
+      this.token,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      this.shieldContractAddress,
+      value,
+      options.fee || TX_FEE_DEFAULT,
+      this.web3Websocket.web3,
+      this.client,
+    );
+
+    // this.txsQueue.push(() => {
+    //   return createAndSubmitDeposit(
+    //     this.token,
+    //     this.ethAddress,
+    //     this.ethPrivateKey,
+    //     this.zkpKeys,
+    //     this.shieldContractAddress,
+    //     value,
+    //     options.fee || TX_FEE_DEFAULT,
+    //     this.web3Websocket.web3,
+    //     this.client,
+    //   );
+    // });
+    // console.log("*************QUEUE_3", this.txsQueue);
+    // logger.info("Deposit completed");
   }
 
   async checkStatus() {
