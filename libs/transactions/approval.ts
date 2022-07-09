@@ -3,12 +3,12 @@ import path from "path";
 import { parentLogger } from "../utils";
 import { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
+import type { TransactionReceipt } from "web3-core";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO improve return type
 export async function createAndSubmitApproval(
   token: Token,
   ownerAddress: string,
@@ -17,7 +17,7 @@ export async function createAndSubmitApproval(
   value: string,
   fee: number,
   web3: Web3,
-) {
+): Promise<void | null | TransactionReceipt> {
   logger.debug("createAndSubmitApproval");
 
   const unsignedTx = await token.approveTransaction(
@@ -25,17 +25,23 @@ export async function createAndSubmitApproval(
     spenderAddress,
     value,
   );
-  // unsignedTx null signals that the approval is not required
-  // hence we can resolve the promise
-  if (unsignedTx === null) return Promise.resolve("pepe");
-  logger.info("Tx approved");
+  // unsignedTx `null` signals that the approval is not required
+  if (unsignedTx === null) return;
+  logger.info({ unsignedTx }, "Approval tx, unsigned");
 
-  return submitTransaction(
-    ownerAddress,
-    ownerPrivateKey,
-    token.contractAddress,
-    unsignedTx,
-    fee,
-    web3,
-  );
+  let txReceipt: TransactionReceipt;
+  try {
+    txReceipt = await submitTransaction(
+      ownerAddress,
+      ownerPrivateKey,
+      token.contractAddress,
+      unsignedTx,
+      fee,
+      web3,
+    );
+  } catch (err) {
+    logger.child({ unsignedTx }).error(err);
+    return null;
+  }
+  return txReceipt;
 }

@@ -1,4 +1,3 @@
-import Queue from "queue";
 import path from "path";
 import { CONTRACT_SHIELD, TX_FEE_DEFAULT } from "./constants";
 import {
@@ -81,7 +80,6 @@ class User {
   zkpKeys: NightfallZkpKeys;
 
   // Set when transacting
-  txsQueue: Queue;
   token: Token;
 
   constructor(options: UserOptions) {
@@ -91,9 +89,6 @@ class User {
     for (key in options) {
       this[key] = options[key];
     }
-
-    this.txsQueue = new Queue({ autostart: true, concurrency: 1, results: [] });
-    console.log("*************QUEUE_1", this.txsQueue);
   }
 
   async makeDeposit(options: UserMakeDepositOptions) {
@@ -118,21 +113,19 @@ class User {
     );
     logger.info({ value }, "Value in wei is");
 
-    // this.txsQueue.push(() => {
-    //   return createAndSubmitApproval(
-    //     this.token,
-    //     this.ethAddress,
-    //     this.ethPrivateKey,
-    //     this.shieldContractAddress,
-    //     value,
-    //     options.fee || TX_FEE_DEFAULT,
-    //     this.web3Websocket.web3,
-    //   );
-    // });
-    // console.log("*************QUEUE_2", this.txsQueue);
-    // logger.info("Approval completed");
+    let txReceipt = await createAndSubmitApproval(
+      this.token,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.shieldContractAddress,
+      value,
+      options.fee || TX_FEE_DEFAULT,
+      this.web3Websocket.web3,
+    );
+    if (txReceipt === null) return null;
+    logger.info({ txReceipt }, "Approval completed");
 
-    return createAndSubmitDeposit(
+    txReceipt = await createAndSubmitDeposit(
       this.token,
       this.ethAddress,
       this.ethPrivateKey,
@@ -143,22 +136,10 @@ class User {
       this.web3Websocket.web3,
       this.client,
     );
+    if (txReceipt === null) return null;
+    logger.info({ txReceipt }, "Deposit completed");
 
-    // this.txsQueue.push(() => {
-    //   return createAndSubmitDeposit(
-    //     this.token,
-    //     this.ethAddress,
-    //     this.ethPrivateKey,
-    //     this.zkpKeys,
-    //     this.shieldContractAddress,
-    //     value,
-    //     options.fee || TX_FEE_DEFAULT,
-    //     this.web3Websocket.web3,
-    //     this.client,
-    //   );
-    // });
-    // console.log("*************QUEUE_3", this.txsQueue);
-    // logger.info("Deposit completed");
+    return txReceipt;
   }
 
   async checkStatus() {

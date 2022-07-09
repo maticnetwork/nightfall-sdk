@@ -1,4 +1,3 @@
-import axios from "axios";
 import Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../../utils";
@@ -20,29 +19,26 @@ export async function submitTransaction(
   senderAddress: string,
   senderPrivateKey: string,
   receiverAddress: string,
-  unsignedTx: any,
+  unsignedTx: any, // TODO improve
   fee: number,
   web3: Web3,
-): Promise<any> {
+) {
   const logInput = {
     from: senderAddress,
     to: receiverAddress,
     unsignedTx,
     fee,
   };
-  logger.debug({ logInput }, "X :: submitTransaction");
+  logger.debug({ logInput }, "submitTransaction");
 
-  // estimate the gasPrice
-  const gasPrice = Math.ceil(Number(GAS_PRICE) * GAS_PRICE_MULTIPLIER); // ISSUE #28
-  // Estimate the gasLimit
+  // Estimate gas
   const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // ISSUE #28
+  const gasPrice = Math.ceil(Number(GAS_PRICE) * GAS_PRICE_MULTIPLIER); // ISSUE #28
   logger.debug(
     `Transaction gasPrice was set at ${Math.ceil(
       gasPrice / 10 ** 9,
     )} GWei, gas limit was set at ${gas}`,
   );
-
-  // const nonce = await web3.eth.getTransactionCount(senderAddress, "pending");
 
   const tx = {
     from: senderAddress,

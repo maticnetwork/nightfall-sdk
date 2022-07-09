@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import { WebsocketProvider } from "web3-core";
+import type { WebsocketProvider } from "web3-core";
 import logger from "../utils/logger";
 
 const WEB3_PROVIDER_OPTIONS = {

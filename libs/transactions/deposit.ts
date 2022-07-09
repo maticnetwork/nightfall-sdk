@@ -1,12 +1,11 @@
-import Queue from "queue";
 import Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../utils";
 import { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
-import { toBaseUnit } from "./helpers/units";
 import { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
+import type { TransactionReceipt } from "web3-core";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -23,21 +22,29 @@ export async function createAndSubmitDeposit(
   fee: number,
   web3: Web3,
   client: Client,
-) {
+): Promise<void | null | TransactionReceipt> {
   logger.debug("createAndSubmitDeposit");
 
   const resData = await client.deposit(token, ownerZkpKeys, value, fee);
   // resData null signals that something went wrong in the Client
-  // hence we must reject the promise
-  if (resData === null) return Promise.reject();
-  logger.debug("***SOMETHING SOMETHING***"); // TODO update (:
+  if (resData === null) return;
 
-  return submitTransaction(
-    ownerAddress,
-    ownerPrivateKey,
-    shieldContractAddress,
-    resData.txDataToSign,
-    fee,
-    web3,
-  );
+  const unsignedTx = resData.txDataToSign;
+  logger.debug({ unsignedTx }, "Deposit tx, unsigned");
+
+  let txReceipt: TransactionReceipt;
+  try {
+    txReceipt = await submitTransaction(
+      ownerAddress,
+      ownerPrivateKey,
+      shieldContractAddress,
+      unsignedTx,
+      fee,
+      web3,
+    );
+  } catch (err) {
+    logger.child({ unsignedTx }).error(err);
+    return null;
+  }
+  return txReceipt;
 }
