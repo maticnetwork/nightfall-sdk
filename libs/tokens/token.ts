@@ -15,7 +15,7 @@ class Token {
   // Set by constructor
   web3: Web3;
   contractAddress: string;
-  standard: string;
+  ercStandard: string;
   contract: Contract;
 
   // Set by init
@@ -27,63 +27,67 @@ class Token {
 
     this.web3 = options.web3;
     this.contractAddress = options.address;
-    this.standard = options.standard.toUpperCase();
+    this.ercStandard = options.ercStandard.toUpperCase();
+    logger.info(
+      {
+        address: this.contractAddress,
+        ercStandard: this.ercStandard,
+      },
+      "Token is",
+    );
 
     this.setTokenContract();
   }
 
-  async init() {
-    logger.debug("Token :: init");
-    await this.setTokenDecimals();
-  }
-
   setTokenContract() {
     logger.debug("Token :: setTokenContract");
-    const _abi = this.getContractAbi();
-    this.contract = new this.web3.eth.Contract(_abi, this.contractAddress);
+    const abi = this.getContractAbi();
+    this.contract = new this.web3.eth.Contract(abi, this.contractAddress);
     logger.info("Token Contract ready");
   }
 
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
 
-    const _rootPath = path.resolve();
-    const _abiFile = TOKEN_STANDARDS[this.standard];
-    const _abiPath = path.join(_rootPath, ABIS_PATH, _abiFile);
-    logger.info({ path: _abiPath }, "Read contract file at");
+    const rootPath = path.resolve();
+    const abiFile = TOKEN_STANDARDS[this.ercStandard];
+    const abiPath = path.join(rootPath, ABIS_PATH, abiFile);
+    logger.info({ path: abiPath }, "Read contract file at");
 
-    const _abi = fs.readFileSync(_abiPath, { encoding: "utf8" });
-    return JSON.parse(_abi);
+    const abi = fs.readFileSync(abiPath, { encoding: "utf8" });
+    return JSON.parse(abi);
   }
 
-  // ISSUE #32
-  // CHECK that ERC165 is deployed to ganache
+  // ISSUE #32 && ISSUE #58
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
     this.decimals = Number(await this.contract.methods.decimals().call());
     logger.info({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
-  // ISSUE #32
-  // TODO can this throw Errors?
+  // ISSUE #32 && ISSUE #58
+  // DOCS can throw Errors
   async approveTransaction(owner: string, spender: string, value: string) {
-    const _logInput = { owner, spender, value };
-    logger.debug({ _logInput }, "Token :: approveTransaction");
+    const logInput = { owner, spender, value };
+    logger.debug({ logInput }, "Token :: approveTransaction");
 
-    const _allowance = await this.contract.methods
+    const allowance = await this.contract.methods
       .allowance(owner, spender)
       .call();
-    logger.debug({ _allowance }, "Token allowance is");
+    logger.debug({ allowance }, "Token allowance is");
 
-    const _allowanceBN = this.web3.utils.toBN(_allowance);
-    const _valueBN = this.web3.utils.toBN(value);
-    logger.info({ _allowanceBN, _valueBN }, "ERC allowance vs tx value");
+    const allowanceBN = this.web3.utils.toBN(allowance);
+    const valueBN = this.web3.utils.toBN(value);
+    logger.debug({ allowanceBN, valueBN }, "ERC allowance vs tx value");
 
-    // When tx value is bigger than the spender allowance, will require approval
-    if (_allowanceBN.lt(_valueBN)) {
-      return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI(); // CHECK const
+    // When the spender allowance is lesser than the tx value, the tx will require approval
+    // That means calling the `approve` method,
+    // which creates and unsigned tx that has to be signed and submitted
+    if (allowanceBN.lt(valueBN)) {
+      return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI(); // CHECK
     }
 
+    logger.info("Allowance bigger than tx value, approval not required");
     return null;
   }
 }

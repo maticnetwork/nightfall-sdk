@@ -1,14 +1,23 @@
 import Queue from "queue";
 import path from "path";
 import { CONTRACT_SHIELD, TX_FEE_DEFAULT } from "./constants";
-import { UserFactoryOptions, UserOptions, UserDeposit } from "./types";
+import {
+  UserFactoryOptions,
+  UserOptions,
+  UserMakeDepositOptions,
+} from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
 import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
-import { createDeposit } from "../transactions/deposit";
+import { createAndSubmitDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
 import { createOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
+import { Token } from "../tokens";
+import { setToken } from "../tokens/helpers";
+import { toBaseUnit } from "../transactions/helpers/units";
+import { submitTransaction } from "../transactions/helpers/submit";
+import { createAndSubmitApproval } from "../transactions/approval";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -29,14 +38,15 @@ class UserFactory {
     const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
-    if (!shieldContractAddress) return null;
+    if (!shieldContractAddress)
+      throw new Error("Unable to get Shield contract address");
 
     // Get ethAddress from private key if it's a valid key
     const ethAddress = getEthAddressFromPrivateKey(
       options.ethereumPrivateKey,
       web3Websocket.web3,
     );
-    if (!ethAddress) return null;
+    if (!ethAddress) throw new Error("Unable to get an Eth address");
 
     // Create a set of Zero-knowledge proof keys from a valid mnemonic
     // or from a new mnemonic if none was provided,
@@ -45,7 +55,7 @@ class UserFactory {
       options.nightfallMnemonic,
       client,
     );
-    if (!nightfallKeys) return null;
+    if (!nightfallKeys) throw new Error("Unable to generate Nightfall keys");
 
     return new User({
       client,
@@ -60,6 +70,7 @@ class UserFactory {
 }
 
 class User {
+  // Set by constructor
   client: Client;
   web3Websocket: Web3Websocket;
   shieldContractAddress: string;
@@ -68,30 +79,73 @@ class User {
   nightfallMnemonic: string;
   zkpKeys: NightfallZkpKeys;
 
+  // Set when transacting
+  txsQueue: Queue;
+  token: Token;
+
   constructor(options: UserOptions) {
     logger.debug("new User");
+
     let key: keyof UserOptions;
     for (key in options) {
       this[key] = options[key];
     }
+
+    this.txsQueue = new Queue({ autostart: true, concurrency: 1, results: [] });
+    console.log("*************QUEUE_1", this.txsQueue);
   }
 
-  // TODO needs massive refactor
-  async makeDeposit(options: UserDeposit): Promise<any> {
+  async makeDeposit(options: UserMakeDepositOptions) {
     logger.debug({ options }, "User :: makeDeposit");
+    // TODO Missing Joi validation
+    // Mind special vals for tokenAddress, tokenStandard
+    // Mind libs/tokens/validations.ts
 
-    return createDeposit(
-      options.tokenAddress,
-      options.tokenStandard,
-      options.value,
-      options.fee || TX_FEE_DEFAULT,
-      this.shieldContractAddress,
-      this.ethPrivateKey,
-      this.ethAddress,
-      this.zkpKeys,
+    // Set token only if it's not set or is different
+    if (!this.token || options.tokenAddress !== this.token.contractAddress)
+      this.token = await setToken(
+        options.tokenAddress,
+        options.tokenStandard,
+        this.web3Websocket.web3,
+      );
+    if (this.token === null) throw new Error("Unable to set token");
+
+    const value = toBaseUnit(
+      options.value.toString(),
+      this.token.decimals,
       this.web3Websocket.web3,
-      this.client,
     );
+    logger.info({ value }, "Value in wei is"); // rm
+
+    this.txsQueue.push(() => {
+      return createAndSubmitApproval(
+        this.token,
+        this.ethAddress,
+        this.ethPrivateKey,
+        this.shieldContractAddress,
+        value,
+        options.fee || TX_FEE_DEFAULT,
+        this.web3Websocket.web3,
+      );
+    });
+    console.log("*************QUEUE_2", this.txsQueue);
+    logger.info("Approval completed");
+
+    this.txsQueue.push(() => {
+      return createAndSubmitDeposit(
+        this.token,
+        this.ethAddress,
+        this.ethPrivateKey,
+        this.zkpKeys,
+        this.shieldContractAddress,
+        value,
+        options.fee || TX_FEE_DEFAULT,
+        this.web3Websocket.web3,
+        this.client,
+      );
+    });
+    console.log("*************QUEUE_3", this.txsQueue);
+    logger.info("Deposit completed");
   }
 
   async checkStatus() {

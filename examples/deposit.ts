@@ -33,13 +33,15 @@ const main = async () => {
     const status = await user.checkStatus();
     console.log(status);
 
-    // const tokenStandard = "ERC20";
-    // const value = "0.0014";
-    // const deposit = await user.makeDeposit({
-    //   tokenAddress,
-    //   tokenStandard,
-    //   value,
-    // }); // wei 20000000000000000
+    const tokenAddress = TOKEN_ADDRESS;
+    const tokenStandard = "ERC20";
+    const value = "0.001";
+    const deposit = await user.makeDeposit({
+      tokenAddress,
+      tokenStandard,
+      value,
+    });
+    console.log(deposit);
 
     user.close();
     console.log("Bye bye");

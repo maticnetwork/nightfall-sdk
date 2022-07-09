@@ -19,7 +19,7 @@ export interface UserOptions {
   zkpKeys: any; // NightfallZkpKeys might have to be declared as class??;
 }
 
-export interface UserDeposit {
+export interface UserMakeDepositOptions {
   tokenAddress: string;
   tokenStandard: string;
   value: string;

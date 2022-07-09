@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
+import { Token } from "../tokens";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -99,24 +100,21 @@ class Client {
   }
 
   async deposit(
-    tokenAddress: string,
-    tokenStandard: string,
+    token: Token,
+    zkpKeys: NightfallZkpKeys,
     value: string,
-    pkd: string[],
-    nsk: string,
     fee: number,
   ) {
-    const logInput = { tokenAddress, tokenStandard, value, pkd, nsk, fee };
-    logger.debug(logInput, "Calling client at deposit");
+    logger.debug({ token, value }, "Calling client at deposit");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/deposit`, {
-        ercAddress: tokenAddress,
-        tokenType: tokenStandard,
-        tokenId: "0x00", // ISSUE #32
+        ercAddress: token.contractAddress,
+        tokenType: token.ercStandard,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
         value,
-        pkd,
-        nsk,
+        pkd: zkpKeys.pkd,
+        nsk: zkpKeys.nsk,
         fee,
       });
       logger.info(
@@ -124,7 +122,7 @@ class Client {
         "Client at deposit responded",
       );
     } catch (err) {
-      logger.child({ logInput }).error(err);
+      logger.error(err);
       return null;
     }
     return res.data;

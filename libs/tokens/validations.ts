@@ -5,7 +5,7 @@ import { TOKEN_STANDARDS } from "./constants";
 export const constructorOptions = Joi.object({
   web3: Joi.object().required(),
   address: Joi.string().required(),
-  standard: Joi.string()
+  ercStandard: Joi.string()
     .uppercase()
     .valid(...Object.keys(TOKEN_STANDARDS))
     .required(),
