@@ -49,7 +49,7 @@ describe("Client", () => {
       const result = await client.healthCheck();
 
       // Assert
-      expect(axios.get).toHaveBeenCalled();
+      expect(axios.get).toHaveBeenCalledTimes(1);
       expect(result).toBeFalsy();
     });
 
@@ -61,7 +61,7 @@ describe("Client", () => {
       const result = await client.healthCheck();
 
       // Assert
-      expect(axios.get).toHaveBeenCalled();
+      expect(axios.get).toHaveBeenCalledTimes(1);
       expect(result).toBeFalsy();
     });
   });
@@ -93,7 +93,7 @@ describe("Client", () => {
       const result = await client.getContractAddress(contractName);
 
       // Assert
-      expect(axios.get).toHaveBeenCalled();
+      expect(axios.get).toHaveBeenCalledTimes(1);
       expect(result).toBeNull();
     });
   });
@@ -132,7 +132,7 @@ describe("Client", () => {
       );
 
       // Assert
-      expect(axios.post).toHaveBeenCalled();
+      expect(axios.post).toHaveBeenCalledTimes(1);
       expect(result).toBeNull();
     });
   });
@@ -165,7 +165,55 @@ describe("Client", () => {
       const result = await client.subscribeToIncomingViewingKeys(zkpKeys);
 
       // Assert
-      expect(axios.post).toHaveBeenCalled();
+      expect(axios.post).toHaveBeenCalledTimes(1);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("Method deposit", () => {
+    const url = dummyUrl + "/deposit";
+    const token = {
+      contractAddress: "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae",
+      ercStandard: "ERC20",
+    };
+    const value = "0.01";
+    const fee = 10;
+
+    test("Should return object if client app responds successfully", async () => {
+      // Arrange
+      const data = {};
+      const res = { data };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const result = await client.deposit(token, zkpKeys, value, fee);
+
+      // Assert
+      expect(axios.post).toHaveBeenCalledWith(url, {
+        ercAddress: token.contractAddress,
+        tokenType: token.ercStandard,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        value,
+        pkd: zkpKeys.pkd,
+        nsk: zkpKeys.nsk,
+        fee,
+      });
+      expect(result).toBe(data);
+    });
+
+    test("Should return null if client app responds with status outside the successful range", async () => {
+      // Arrange
+      (axios.post as jest.Mock).mockRejectedValue(new Error("Axios error"));
+
+      // Act
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const result = await client.deposit(token, zkpKeys, value, fee);
+
+      // Assert
+      expect(axios.post).toHaveBeenCalledTimes(1);
       expect(result).toBeNull();
     });
   });
