@@ -1,11 +1,10 @@
 import fs from "fs";
 import path from "path";
 import Web3 from "web3";
-import { Contract } from "web3-eth-contract";
+import type { Contract } from "web3-eth-contract";
 import { parentLogger } from "../utils";
 import { TOKEN_STANDARDS, ABIS_PATH, APPROVE_AMOUNT } from "./constants";
-import { TokenOptions } from "./types";
-import { constructorOptions } from "./validations";
+import type { TokenOptions } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -18,12 +17,11 @@ class Token {
   ercStandard: string;
   contract: Contract;
 
-  // Set by init
+  // Set by setTokenDecimals
   decimals: number;
 
   constructor(options: TokenOptions) {
     logger.debug("new Token");
-    constructorOptions.validate(options);
 
     this.web3 = options.web3;
     this.contractAddress = options.address;

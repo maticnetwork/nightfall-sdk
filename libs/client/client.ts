@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { Token } from "../tokens";
+import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
