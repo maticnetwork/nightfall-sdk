@@ -55,7 +55,9 @@ describe("Client", () => {
 
     test("Should return false if client app responds with status outside the successful range", async () => {
       // Arrange
-      (axios.get as jest.Mock).mockRejectedValue(new Error("Axios error"));
+      (axios.get as jest.Mock).mockRejectedValue(
+        new Error("Axios error at healthcheck"),
+      );
 
       // Act
       const result = await client.healthCheck();
@@ -87,7 +89,9 @@ describe("Client", () => {
 
     test("Should return null if client app responds with status outside the successful range", async () => {
       // Arrange
-      (axios.get as jest.Mock).mockRejectedValue(new Error("Axios error"));
+      (axios.get as jest.Mock).mockRejectedValue(
+        new Error("Axios error at contract-address"),
+      );
 
       // Act
       const result = await client.getContractAddress(contractName);
@@ -123,7 +127,9 @@ describe("Client", () => {
 
     test("Should return null if client app responds with status outside the successful range", async () => {
       // Arrange
-      (axios.post as jest.Mock).mockRejectedValue(new Error("Axios error"));
+      (axios.post as jest.Mock).mockRejectedValue(
+        new Error("Axios error at generate-keys"),
+      );
 
       // Act
       const result = await client.generateZkpKeysFromMnemonic(
@@ -159,7 +165,9 @@ describe("Client", () => {
 
     test("Should return null if client app responds with status outside the successful range", async () => {
       // Arrange
-      (axios.post as jest.Mock).mockRejectedValue(new Error("Axios error"));
+      (axios.post as jest.Mock).mockRejectedValue(
+        new Error("Axios error at incoming-viewing-key"),
+      );
 
       // Act
       const result = await client.subscribeToIncomingViewingKeys(zkpKeys);
@@ -205,7 +213,9 @@ describe("Client", () => {
 
     test("Should return null if client app responds with status outside the successful range", async () => {
       // Arrange
-      (axios.post as jest.Mock).mockRejectedValue(new Error("Axios error"));
+      (axios.post as jest.Mock).mockRejectedValue(
+        new Error("Axios error at deposit"),
+      );
 
       // Act
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment

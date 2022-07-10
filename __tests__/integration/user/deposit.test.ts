@@ -7,10 +7,10 @@ dotenv.config({ path: path.join(rootPath, ".env") });
 
 // Script config for goerli
 const BLOCKCHAIN_WEBSOCKET_URL = process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL;
-const SDK_CLIENT_API_URL = process.env.SDK_CLIENT_API_URL;
+const CLIENT_API_URL = process.env.SDK_CLIENT_API_URL;
 const ETHEREUM_PRIVATE_KEY = process.env.SDK_ETH_PRIVATE_KEY;
 
-// jest.setTimeout(50000);
+// CHECK jest.setTimeout(50000);
 
 describe("Suit for tests deposits", () => {
   let user: any; // TODO type
@@ -18,7 +18,7 @@ describe("Suit for tests deposits", () => {
   beforeAll(async () => {
     user = await UserFactory.create({
       blockchainWsUrl: BLOCKCHAIN_WEBSOCKET_URL,
-      clientApiUrl: SDK_CLIENT_API_URL,
+      clientApiUrl: CLIENT_API_URL,
       ethereumPrivateKey: ETHEREUM_PRIVATE_KEY,
     });
   });

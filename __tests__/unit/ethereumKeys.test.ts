@@ -39,7 +39,9 @@ describe("Ethereum Keys", () => {
       const result = getEthAddressFromPrivateKey(ethPrivateKey, mockedWeb3);
 
       // Assert
-      expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalled();
+      expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalledTimes(
+        1,
+      );
       expect(result).toBeNull();
     });
   });
