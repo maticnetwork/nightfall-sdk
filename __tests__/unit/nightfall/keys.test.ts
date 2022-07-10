@@ -1,11 +1,11 @@
 import {
   createMnemonic,
   validateNfMnemonic,
-} from "../../libs/nightfall/helpers";
-import { validateOrCreateNfMnemonic } from "../../libs/nightfall";
+} from "../../../libs/nightfall/helpers";
+import { validateOrCreateNfMnemonic } from "../../../libs/nightfall";
 
-jest.mock("../../libs/nightfall/helpers", () => {
-  const originalModule = jest.requireActual("../../libs/nightfall/helpers");
+jest.mock("../../../libs/nightfall/helpers", () => {
+  const originalModule = jest.requireActual("../../../libs/nightfall/helpers");
   const mockedCreateMnemonic = jest.fn();
   const mockedValidateMnemonic = jest.fn();
 

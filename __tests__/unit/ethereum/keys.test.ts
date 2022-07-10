@@ -1,4 +1,4 @@
-import { getEthAddressFromPrivateKey } from "../../libs/ethereum";
+import { getEthAddressFromPrivateKey } from "../../../libs/ethereum";
 
 describe("Ethereum Keys", () => {
   describe("Get Ethereum address from private key", () => {
