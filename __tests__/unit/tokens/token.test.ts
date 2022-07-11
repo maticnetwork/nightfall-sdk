@@ -11,6 +11,7 @@ describe("Token", () => {
       approve: (c: unknown, d: unknown) => encodeABI.mockReturnValueOnce(true),
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     constructor(a: unknown, b: unknown) {}
   }
   const mockedWeb3 = {

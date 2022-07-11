@@ -10,7 +10,7 @@ import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
 import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import { createAndSubmitDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
-import { createOptions } from "./validations";
+import { createOptions, makeDepositOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { Token, setToken } from "../tokens";
 import { toBaseUnit } from "../transactions/helpers/units";
@@ -27,11 +27,15 @@ class UserFactory {
     logger.debug("UserFactory :: create");
     createOptions.validate(options);
 
+    // Format options
+    const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
+    const blockchainWsUrl = options.blockchainWsUrl.trim().toLowerCase();
+    const ethPrivateKey = options.ethereumPrivateKey.trim();
+    const nightfallMnemonic = options.nightfallMnemonic?.trim(); // else keep as undefined
+
     // Instantiate Client and Web3Websocket
-    const client = new Client(options.clientApiUrl.toLowerCase());
-    const web3Websocket = new Web3Websocket(
-      options.blockchainWsUrl.toLowerCase(),
-    );
+    const client = new Client(clientApiUrl);
+    const web3Websocket = new Web3Websocket(blockchainWsUrl);
 
     // Get Shield contract address
     const shieldContractAddress = await client.getContractAddress(
@@ -42,7 +46,7 @@ class UserFactory {
 
     // Get ethAddress from private key if it's a valid key
     const ethAddress = getEthAddressFromPrivateKey(
-      options.ethereumPrivateKey,
+      ethPrivateKey,
       web3Websocket.web3,
     );
     if (!ethAddress) throw new Error("Unable to get an Eth address");
@@ -51,7 +55,7 @@ class UserFactory {
     // or from a new mnemonic if none was provided,
     // subscribe to incoming viewing keys
     const nightfallKeys = await createZkpKeysAndSubscribeToIncomingKeys(
-      options.nightfallMnemonic,
+      nightfallMnemonic,
       client,
     );
     if (!nightfallKeys) throw new Error("Unable to generate Nightfall keys");
@@ -92,26 +96,29 @@ class User {
 
   async makeDeposit(options: UserMakeDepositOptions) {
     logger.debug({ options }, "User :: makeDeposit");
-    // TODO Missing Joi validation
-    // Mind special vals for tokenAddress, tokenStandard
-    // Mind libs/tokens/validations.ts
+    makeDepositOptions.validate(options);
+
+    // Format options
+    let value = options.value.trim();
+    const tokenAddress = options.tokenAddress.trim();
+    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    // TODO add fee, set default
 
     // Set token only if it's not set or is different
-    if (!this.token || options.tokenAddress !== this.token.contractAddress)
+    if (!this.token || tokenAddress !== this.token.contractAddress)
       this.token = await setToken(
-        options.tokenAddress,
-        options.tokenStandard,
+        tokenAddress,
+        tokenStandard,
         this.web3Websocket.web3,
       );
     if (this.token === null) throw new Error("Unable to set token");
 
-    const value = toBaseUnit(
-      options.value.toString(),
-      this.token.decimals,
-      this.web3Websocket.web3,
-    );
+    // Transform value to wei
+    value = toBaseUnit(value, this.token.decimals, this.web3Websocket.web3);
     logger.info({ value }, "Value in wei is");
+    // TODO add fee
 
+    // Deposit tx might need approval
     let txReceipt = await createAndSubmitApproval(
       this.token,
       this.ethAddress,
@@ -124,6 +131,7 @@ class User {
     if (txReceipt === null) return null;
     logger.info({ txReceipt }, "Approval completed");
 
+    // Deposit
     txReceipt = await createAndSubmitDeposit(
       this.token,
       this.ethAddress,
