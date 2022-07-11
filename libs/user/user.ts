@@ -108,12 +108,15 @@ class User {
    * @returns void - export the file with the commitments got from the client.
    * @author luizoamorim
    */
-  async exportCommitments(compressedPkd: string) {
+  async exportCommitments(
+    compressedPkd: string,
+    pathToExport: string,
+    fileName: string,
+  ) {
     const commitments = await this.client.getAllCommitmentsByCompressedPkd(
       compressedPkd,
     );
-    const pathToExport = process.env.SDK_PATH_TO_EXPORT_COMMITMENTS;
-    const fileName = "commitmentsBackup.json";
+
     await exportFile(
       `${pathToExport}${fileName}`,
       convertObjectToString(commitments.data.commitments),

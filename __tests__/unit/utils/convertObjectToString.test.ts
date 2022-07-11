@@ -1,18 +1,17 @@
+import mockCommitments from "../../../__mocks__/mockCommitments";
 import convertObjectToString from "../../../libs/utils/convertObjectToString";
 
 describe("Suit of tests for convert object in string function", () => {
-  const OBJECT: Array<object> = [
-    { table: "commitments", rows: [] },
-    { table: "transactions", rows: [] },
-  ];
+  const commitments: Array<object> = mockCommitments.data.commitments;
+
   test("should pass an Object and receive a JSON stringfy", async () => {
-    const objectStringfy = convertObjectToString(OBJECT);
-    expect(objectStringfy).toBe(JSON.stringify(OBJECT));
+    const objectStringfy = convertObjectToString(commitments);
+    expect(objectStringfy).toBe(JSON.stringify(commitments));
   });
 
   test("should pass a paramenter different of an Object and receive an error", async () => {
     expect(() =>
-      convertObjectToString("OBJECT" as unknown as object),
+      convertObjectToString("commitments" as unknown as object),
     ).toThrowError("The parameter passed is not an object!");
   });
 });
