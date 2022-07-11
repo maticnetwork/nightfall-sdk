@@ -116,7 +116,6 @@ class User {
     const commitments = await this.client.getAllCommitmentsByCompressedPkd(
       compressedPkd,
     );
-
     await exportFile(
       `${pathToExport}${fileName}`,
       convertObjectToString(commitments.data.commitments),
