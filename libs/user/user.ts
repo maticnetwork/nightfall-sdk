@@ -149,6 +149,10 @@ class User {
     return txReceipt;
   }
 
+  async fetchPendingDeposits() {
+    return this.client.getPendingDeposits(this.zkpKeys);
+  }
+
   async checkStatus() {
     logger.debug("User :: checkStatus");
     const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());

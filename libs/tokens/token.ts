@@ -82,7 +82,7 @@ class Token {
     // That means calling the `approve` method,
     // which creates and unsigned tx that has to be signed and submitted
     if (allowanceBN.lt(valueBN)) {
-      return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI(); // CHECK
+      return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI();
     }
 
     logger.info("Allowance bigger than tx value, approval not required");

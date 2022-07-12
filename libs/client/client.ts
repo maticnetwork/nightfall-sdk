@@ -127,6 +127,26 @@ class Client {
     }
     return res.data;
   }
+
+  async getPendingDeposits(zkpKeys: NightfallZkpKeys) {
+    logger.debug("Calling client at commitment/pending-deposit");
+    let res: AxiosResponse;
+    try {
+      res = await axios.get(`${this.apiUrl}/commitment/pending-deposit`, {
+        params: {
+          compressedPkd: zkpKeys.compressedPkd,
+        },
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at commitment/pending-deposit responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
 }
 
 export default Client;
