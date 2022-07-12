@@ -12,6 +12,7 @@ import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
+import ICommitments from "libs/models/commitment";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -101,29 +102,40 @@ class User {
   /**
    *
    * @function exportCommitments get the commitments from the client instance and
-   * export a file to some path based in the env variables that set the path and
-   * the filename.
-   * @param compressedPkd the compressed pkd derivated from the user
-   * mnemonic.
-   * @returns void - export the file with the commitments got from the client.
+   * export a file with this commitments to some path based in the env variables
+   * that set the path and the filename.
+   * @param compressedZkpPublicKey the compressed zkp public key derivated from
+   * the user mnemonic.
    * @author luizoamorim
    */
   async exportCommitments(
-    compressedPkd: string,
+    compressedZkpPublicKey: string,
     pathToExport: string,
     fileName: string,
-  ) {
-    const commitments = await this.client.getAllCommitmentsByCompressedPkd(
-      compressedPkd,
-    );
-    console.log(
-      "COMMITMENTS: ",
-      commitments.data.allCommitmentsByCompressedPkd,
-    );
-    await exportFile(
-      `${pathToExport}${fileName}`,
-      convertObjectToString(commitments.data.allCommitmentsByCompressedPkd),
-    );
+  ): Promise<void | null> {
+    try {
+      const allCommitmentsByCompressedZkpPublicKey: ICommitments[] =
+        await this.client.getAllCommitmentsByCompressedZkpPublicKey(
+          compressedZkpPublicKey,
+        );
+      if (
+        allCommitmentsByCompressedZkpPublicKey !== null &&
+        allCommitmentsByCompressedZkpPublicKey.length > 0
+      ) {
+        await exportFile(
+          `${pathToExport}${fileName}`,
+          convertObjectToString(allCommitmentsByCompressedZkpPublicKey),
+        );
+        return;
+      }
+      logger.warn(
+        "Either you don't have any commitments for this compressedZkpPublicKey or this one is invalid!",
+      );
+      return null;
+    } catch (err) {
+      logger.child({ compressedZkpPublicKey }).error(err);
+      return null;
+    }
   }
 
   close() {

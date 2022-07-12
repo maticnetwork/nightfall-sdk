@@ -1,6 +1,6 @@
 const mockCommitments = {
   data: {
-    commitments: [
+    allCommitmentsByCompressedPkd: [
       {
         _id: "0x002bd7dd80ca6b327de94b8a1db2b1650737fef3d42db049fea65affbf53bbcb",
         preimage: {
@@ -11,7 +11,7 @@ const mockCommitments = {
           value:
             "0x0000000000000000000000000000000000000000000000000004f94ae6af8000",
           pkd: [] as string[],
-          compressedPkd:
+          compressedZkpPublicKey:
             "0x9b95fab23c3445b14f3a48b70298541bf77420d8e14644fd4242442a61a67c38",
           salt: "0xa1f3bc68d43de39f39532e9fa46511e7ab5ba6946eb8917790f407d0d464efe5",
         },

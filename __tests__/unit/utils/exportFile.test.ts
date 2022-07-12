@@ -6,10 +6,13 @@ describe("Suit fo tests for export file function", () => {
   test("should export a file for the path informated", async () => {
     const FILE_PATH = "./__tests__/file.json";
 
-    exportFile(FILE_PATH, JSON.stringify(mockCommitments.data.commitments));
+    exportFile(
+      FILE_PATH,
+      JSON.stringify(mockCommitments.data.allCommitmentsByCompressedPkd),
+    );
     const data = fs.readFileSync(FILE_PATH);
     expect(data.toString("utf8")).toBe(
-      JSON.stringify(mockCommitments.data.commitments),
+      JSON.stringify(mockCommitments.data.allCommitmentsByCompressedPkd),
     );
 
     // remove the file created

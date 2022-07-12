@@ -2,7 +2,8 @@ import mockCommitments from "../../../__mocks__/mockCommitments";
 import convertObjectToString from "../../../libs/utils/convertObjectToString";
 
 describe("Suit of tests for convert object in string function", () => {
-  const commitments: Array<object> = mockCommitments.data.commitments;
+  const commitments: Array<object> =
+    mockCommitments.data.allCommitmentsByCompressedPkd;
 
   test("should pass an Object and receive a JSON stringfy", async () => {
     const objectStringfy = convertObjectToString(commitments);

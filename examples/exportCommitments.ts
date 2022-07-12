@@ -25,10 +25,12 @@ const main = async () => {
     });
 
     await user.exportCommitments(
-      user.zkpKeys.compressedPkd,
+      user.zkpKeys.compressedZkpPublicKey,
       "./",
       "commitmentsBackup.json",
     );
+
+    user.close();
   } catch (error) {
     console.log(error);
     process.exit(1);

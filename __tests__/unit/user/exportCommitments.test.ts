@@ -5,11 +5,11 @@ const DUMMY_COMPRESSED_PKD = "dummyCompressedPkd";
 jest.mock("../../../libs/client/client");
 import getAllCommitmentsByCompressedPkdStub from "../../../__mocks__/__stubs__/client";
 
-describe("Suit of integration tests user functionalities", () => {
+describe("Suit of tests for user class", () => {
   beforeAll(() => {
     getAllCommitmentsByCompressedPkdStub;
   });
-  test("Should test the integration of the unit functions for export commitments flow", async () => {
+  test("Verify if the file is created with the commitments by this compressedPkd", async () => {
     const user = new User();
     await user.exportCommitments(
       DUMMY_COMPRESSED_PKD,
@@ -19,7 +19,7 @@ describe("Suit of integration tests user functionalities", () => {
     const FILE_PATH = "./commitmentsBackup.json";
     const data = fs.readFileSync(FILE_PATH);
     expect(data.toString("utf8")).toBe(
-      JSON.stringify(mockCommitments.data.commitments),
+      JSON.stringify(mockCommitments.data.allCommitmentsByCompressedPkd),
     );
 
     // removing the file

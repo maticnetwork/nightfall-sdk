@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import ICommitments from "libs/models/commitment";
 import path from "path";
 import { parentLogger } from "../utils";
 
@@ -132,20 +133,28 @@ class Client {
 
   /**
    *
-   * @function getAllCommitmentsByCompressedPkd does the communication with the nightfall client
+   * @function getAllCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
    * endpoint to get all commitments by compressed pkd or all commitments based
    * in the parameter value.
-   * @param compressedPkd the compressed pkd derivated from the user
+   * @param compressedZkpPublicKey the compressed pkd derivated from the user
    * mnemonic.
    * @returns all the commitments existent for this compressed pkd.
    * @author luizoamorim
    */
-  async getAllCommitmentsByCompressedPkd(compressedPkd: string) {
-    if (compressedPkd) {
-      const response = await axios.get(
-        `${this.apiUrl}/commitment/all?compressedPkd=${compressedPkd}`,
-      );
-      return response;
+  async getAllCommitmentsByCompressedZkpPublicKey(
+    compressedZkpPublicKey: string,
+  ): Promise<ICommitments[]> {
+    try {
+      if (compressedZkpPublicKey) {
+        const response = await axios.get(
+          `${this.apiUrl}/commitment/all?compressedZkpPublicKey=${compressedZkpPublicKey}`,
+        );
+        return response.data.allCommitmentsByCompressedPkd;
+      }
+      throw new Error("You should pass a compressedZkpPublicKey");
+    } catch (err) {
+      logger.child({ compressedZkpPublicKey }).error(err);
+      return null;
     }
   }
 }
