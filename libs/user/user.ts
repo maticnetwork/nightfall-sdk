@@ -149,8 +149,12 @@ class User {
     return txReceipt;
   }
 
-  async fetchPendingDeposits() {
+  async checkPendingDeposits() {
     return this.client.getPendingDeposits(this.zkpKeys);
+  }
+
+  async checkNightfallBalances() {
+    return this.client.getNightfallBalances(this.zkpKeys);
   }
 
   async checkStatus() {

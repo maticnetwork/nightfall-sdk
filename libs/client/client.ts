@@ -147,6 +147,26 @@ class Client {
     }
     return res.data;
   }
+
+  async getNightfallBalances(zkpKeys: NightfallZkpKeys) {
+    logger.debug("Calling client at commitment/balance");
+    let res: AxiosResponse;
+    try {
+      res = await axios.get(`${this.apiUrl}/commitment/balance`, {
+        params: {
+          compressedPkd: zkpKeys.compressedPkd,
+        },
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at commitment/balance responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
 }
 
 export default Client;
