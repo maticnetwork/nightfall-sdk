@@ -7,8 +7,6 @@ const commitments: Array<object> =
   mockCommitments.data.allCommitmentsByCompressedPkd;
 const DUMMY_COMPRESSED_PKD = "";
 
-jest.mock("axios");
-
 describe("Suit of tests for get commitmens from some endpoint", () => {
   beforeAll(() => {
     getAllCommitmentsByCompressedPkdStub;
