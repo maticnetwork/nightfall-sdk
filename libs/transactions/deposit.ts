@@ -102,8 +102,8 @@ export async function createDeposit(
     token.contractAddress,
     token.standard,
     _value,
-    zkpKeys.pkd,
-    zkpKeys.nsk,
+    zkpKeys.compressedZkpPublicKey,
+    zkpKeys.nullifierKey,
     fee,
   );
   if (resData === null) return null;
