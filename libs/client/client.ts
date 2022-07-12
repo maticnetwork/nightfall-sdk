@@ -60,16 +60,16 @@ class Client {
     addressIndex: number,
   ) {
     const logInput = { validMnemonic, addressIndex };
-    logger.debug(logInput, "Calling client at generate-keys");
+    logger.debug(logInput, "Calling client at generate-zkp-keys");
     let res: AxiosResponse;
     try {
-      res = await axios.post(`${this.apiUrl}/generate-keys`, {
+      res = await axios.post(`${this.apiUrl}/generate-zkp-keys`, {
         mnemonic: validMnemonic,
-        path: `m/44'/60'/0'/${addressIndex}`,
+        addressIndex,
       });
       logger.info(
         { status: res.status, data: res.data },
-        "Client at generate-keys responded",
+        "Client at generate-zkp-keys responded",
       );
     } catch (err) {
       logger.child(logInput).error(err);
@@ -84,8 +84,8 @@ class Client {
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/incoming-viewing-key`, {
-        ivks: [zkpKeys.ivk],
-        nsks: [zkpKeys.nsk],
+        zkpPrivateKeys: [zkpKeys.zkpPrivateKey],
+        nullifierKeys: [zkpKeys.nullifierKey],
       });
       logger.info(
         { status: res.status, data: res.data },
@@ -102,11 +102,11 @@ class Client {
     tokenAddress: string,
     tokenStandard: string,
     value: string,
-    pkd: [],
-    nsk: string,
+    compressedZkpPublicKey: string,
+    nullifierKey: string,
     fee: number,
   ) {
-    const logInput = { tokenAddress, tokenStandard, value, pkd, nsk, fee };
+    const logInput = { tokenAddress, tokenStandard, value, fee };
     logger.debug(logInput, "Calling client at deposit");
     let res: AxiosResponse;
     try {
@@ -115,8 +115,8 @@ class Client {
         tokenType: tokenStandard,
         tokenId: "0x00", // ISSUE #32
         value,
-        pkd,
-        nsk,
+        compressedZkpPublicKey,
+        nullifierKey,
         fee,
       });
       logger.info(
