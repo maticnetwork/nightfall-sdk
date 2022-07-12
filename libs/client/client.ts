@@ -60,16 +60,16 @@ class Client {
     addressIndex: number,
   ): Promise<null | NightfallZkpKeys> {
     const logInput = { validMnemonic, addressIndex };
-    logger.debug(logInput, "Calling client at generate-keys");
+    logger.debug(logInput, "Calling client at generate-zkp-keys");
     let res: AxiosResponse;
     try {
-      res = await axios.post(`${this.apiUrl}/generate-keys`, {
+      res = await axios.post(`${this.apiUrl}/generate-zkp-keys`, {
         mnemonic: validMnemonic,
-        path: `m/44'/60'/0'/${addressIndex}`,
+        addressIndex,
       });
       logger.info(
         { status: res.status, data: res.data },
-        "Client at generate-keys responded",
+        "Client at generate-zkp-keys responded",
       );
     } catch (err) {
       logger.child(logInput).error(err);
@@ -85,8 +85,8 @@ class Client {
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/incoming-viewing-key`, {
-        ivks: [zkpKeys.ivk],
-        nsks: [zkpKeys.nsk],
+        zkpPrivateKeys: [zkpKeys.zkpPrivateKey],
+        nullifierKeys: [zkpKeys.nullifierKey],
       });
       logger.info(
         { status: res.status, data: res.data },
@@ -113,8 +113,8 @@ class Client {
         tokenType: token.ercStandard,
         tokenId: "0x00", // ISSUE #32 && ISSUE #58
         value,
-        pkd: zkpKeys.pkd,
-        nsk: zkpKeys.nsk,
+        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        nullifierKey: zkpKeys.nullifierKey,
         fee,
       });
       logger.info(
@@ -134,7 +134,7 @@ class Client {
     try {
       res = await axios.get(`${this.apiUrl}/commitment/pending-deposit`, {
         params: {
-          compressedPkd: zkpKeys.compressedPkd,
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
         },
       });
       logger.info(
@@ -154,7 +154,7 @@ class Client {
     try {
       res = await axios.get(`${this.apiUrl}/commitment/balance`, {
         params: {
-          compressedPkd: zkpKeys.compressedPkd,
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
         },
       });
       logger.info(

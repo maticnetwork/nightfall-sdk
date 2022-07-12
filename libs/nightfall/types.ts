@@ -1,9 +1,9 @@
 export interface NightfallZkpKeys {
-  ask: string;
-  nsk: string;
-  ivk: string;
-  pkd: string[];
-  compressedPkd: string;
+  rootKey: string; // Previously ask
+  nullifierKey: string; // nsk
+  zkpPrivateKey: string; // ivk
+  zkpPublicKey: string[]; // pkd
+  compressedZkpPublicKey: string; // compressedPkd
 }
 
 export interface NightfallKeys {

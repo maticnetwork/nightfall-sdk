@@ -32,15 +32,18 @@ describe("Create Zero-knowledge proof keys and subscribe to incoming keys", () =
     const knownNightfallKeys = {
       nightfallMnemonic: mnemonic,
       zkpKeys: {
-        ask: "0x14837799d8eb23da87c723f6e4f29b7e80dc0cdda8ab45a8430b133cdd997f25",
-        nsk: "0x225647796f7294cfef66c65bbabaf0b975d8b285fa23c161c25205370ef870b",
-        ivk: "0x2d7248800b1b39c0a8163a23ca854f11cfdfa10c369b945d24b2145339212d26",
-        pkd: [
-          "0x19d3001a494d5a46d7ac4a10e4aef6481728bbc6ba1b0338ff075e038aab55ba",
-          "0x2d7beff14d72a14bfb8a3cd1b7c3ed694bf4ecb1eb34e2c538f82ae20e96d18c",
+        compressedZkpPublicKey:
+          "0x300adad07dedfff59e930711c8ba5324ac7d22a15ea454ebca7eaba0fae7f9a4",
+        nullifierKey:
+          "0x1ff0e5c9bb59a8e2c2edbcaf9a19bd17721f74998a8c5b4961db8ac4000cb6c6",
+        rootKey:
+          "0x14837799d8eb23da87c723f6e4f29b7e80dc0cdda8ab45a8430b133cdd997f25",
+        zkpPrivateKey:
+          "0xd98adbc9dfc82f3e268cc30de5ca172c2c5d9f0ba677d1914fd5244b211a125",
+        zkpPublicKey: [
+          "0x28ff35250fe2d316277f150b12c08e965e623871c5cc50020993381f9f54d816",
+          "0x300adad07dedfff59e930711c8ba5324ac7d22a15ea454ebca7eaba0fae7f9a4",
         ],
-        compressedPkd:
-          "0x2d7beff14d72a14bfb8a3cd1b7c3ed694bf4ecb1eb34e2c538f82ae20e96d18c",
       },
     };
     expect(result).toStrictEqual(knownNightfallKeys);
