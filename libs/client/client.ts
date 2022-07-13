@@ -8,14 +8,33 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
+/**
+ * Creates a new Client
+ *
+ * @class Client
+ */
 class Client {
+  /**
+   * @property {string} apiUrl client address
+   */
   apiUrl: string;
 
+  /**
+   * Client constructor
+   *
+   * @param  {string} apiUrl client address
+   */
   constructor(apiUrl: string) {
     logger.debug({ apiUrl }, "new Client at");
     this.apiUrl = apiUrl;
   }
 
+  /**
+   * Perform a GET request at healthcheck to check that API is alive
+   *
+   * @method healthCheck
+   * @return {Promise<boolean>} True if API is alive, else false
+   */
   async healthCheck(): Promise<boolean> {
     logger.debug("Calling client at healthcheck");
     let res: AxiosResponse;
@@ -39,6 +58,13 @@ class Client {
     return true;
   }
 
+  /**
+   * Perform a GET request at contract-address to get this data for a given contract name
+   *
+   * @method getContractAddress
+   * @param {string} contractName The name of the contract for which we need the address
+   * @return {Promise<null | string>} Address if request is successful, else null
+   */
   async getContractAddress(contractName: string): Promise<null | string> {
     logger.debug({ contractName }, "Calling client at contract-address");
     let res: AxiosResponse;
@@ -55,6 +81,15 @@ class Client {
     return res.data.address;
   }
 
+  /**
+   * Perform a POST request at generate-zkp-keys to get a set of Zero-knowledge proof keys
+   * given a valid mnemonic, and the addressIndex
+   *
+   * @method generateZkpKeysFromMnemonic
+   * @param {string} validMnemonic A valid bip39 mnemonic
+   * @param {number} addressIndex 0
+   * @return {Promise<null | NightfallZkpKeys>} A set of keys if request is successful, else null
+   */
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
@@ -78,6 +113,13 @@ class Client {
     return res.data;
   }
 
+  /**
+   * Perform a POST request to subscribe to incoming viewing keys
+   *
+   * @method subscribeToIncomingViewingKeys
+   * @param {NightfallZkpKeys} zkpKeys A set of Zero-knowledge proof keys
+   * @return {Promise<null | string>} Status "success" if request is successful, else null
+   */
   async subscribeToIncomingViewingKeys(
     zkpKeys: NightfallZkpKeys,
   ): Promise<null | string> {
