@@ -1,6 +1,3 @@
-import {
-  validateOrCreateNfMnemonic,
-  createZkpKeysAndSubscribeToIncomingKeys,
-} from "./keys";
+import { createZkpKeysAndSubscribeToIncomingKeys } from "./keys";
 
-export { validateOrCreateNfMnemonic, createZkpKeysAndSubscribeToIncomingKeys };
+export { createZkpKeysAndSubscribeToIncomingKeys };

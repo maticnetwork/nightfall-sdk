@@ -2,7 +2,7 @@ import {
   createMnemonic,
   validateNfMnemonic,
 } from "../../../libs/nightfall/helpers";
-import { validateOrCreateNfMnemonic } from "../../../libs/nightfall";
+import { validateOrCreateNfMnemonic } from "../../../libs/nightfall/keys";
 
 jest.mock("../../../libs/nightfall/helpers", () => {
   const originalModule = jest.requireActual("../../../libs/nightfall/helpers");

@@ -11,12 +11,12 @@ import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
+  toBaseUnit,
 } from "../transactions";
 import { parentLogger } from "../utils";
 import { createOptions, makeDepositOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { Token, setToken } from "../tokens";
-import { toBaseUnit } from "../transactions/helpers/units";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -111,7 +111,7 @@ class User {
     if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei
-    value = toBaseUnit(value, this.token.decimals, this.web3Websocket.web3);
+    value = toBaseUnit(value, this.token.decimals);
     fee = fee + "000000000";
     logger.info({ value, fee }, "Value and fee in wei");
 
