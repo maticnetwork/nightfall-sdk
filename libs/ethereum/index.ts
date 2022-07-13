@@ -1,4 +1,4 @@
 import Web3Websocket from "./web3Websocket";
-import { getEthAddressFromPrivateKey } from "./keys";
+import { getEthAccountAddress } from "./keys";
 
-export { Web3Websocket, getEthAddressFromPrivateKey };
+export { Web3Websocket, getEthAccountAddress };

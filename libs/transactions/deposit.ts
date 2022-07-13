@@ -1,9 +1,9 @@
-import Web3 from "web3";
+import type Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../utils";
-import { Token } from "../tokens";
+import type { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
-import { Client } from "../client";
+import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
 

@@ -9,16 +9,16 @@ const logger = parentLogger.child({
 /**
  * Generate an ethereum address from a given private key
  *
- * @function getEthAddressFromPrivateKey
+ * @function getEthAccountAddress
  * @param {string} ethereumPrivateKey
  * @param {Web3} web3
  * @returns {null|string} address <string> if the private key is valid, else return null
  */
-export function getEthAddressFromPrivateKey(
+export function getEthAccountAddress(
   ethereumPrivateKey: string,
   web3: Web3,
 ): null | string {
-  logger.debug("getEthAddressFromPrivateKey");
+  logger.debug("getEthAccountAddress");
   let ethAccount;
   try {
     // privateKeyToAccount https://github.com/ChainSafe/web3.js/blob/555aa0d212e4738ba7a943bbdb34335518486950/packages/web3-eth-accounts/src/index.js#L133

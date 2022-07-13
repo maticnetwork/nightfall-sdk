@@ -6,17 +6,17 @@ import {
   UserMakeDepositOptions,
 } from "./types";
 import { Client } from "../client";
-import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
+import { Web3Websocket, getEthAccountAddress } from "../ethereum";
 import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
-import { createAndSubmitDeposit } from "../transactions/deposit";
+import {
+  createAndSubmitApproval,
+  createAndSubmitDeposit,
+} from "../transactions";
 import { parentLogger } from "../utils";
 import { createOptions, makeDepositOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { Token, setToken } from "../tokens";
 import { toBaseUnit } from "../transactions/helpers/units";
-import { submitTransaction } from "../transactions/helpers/submit";
-import { createAndSubmitApproval } from "../transactions/approval";
-import { func } from "joi";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -44,11 +44,8 @@ class UserFactory {
     if (!shieldContractAddress)
       throw new Error("Unable to get Shield contract address");
 
-    // Get ethAddress from private key if it's a valid key
-    const ethAddress = getEthAddressFromPrivateKey(
-      ethPrivateKey,
-      web3Websocket.web3,
-    );
+    // Get the Eth account address from private key if it's a valid key
+    const ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
     if (!ethAddress) throw new Error("Unable to get an Eth address");
 
     // Create a set of Zero-knowledge proof keys from a valid mnemonic
@@ -64,7 +61,7 @@ class UserFactory {
       client,
       web3Websocket,
       shieldContractAddress,
-      ethPrivateKey: options.ethereumPrivateKey,
+      ethPrivateKey: ethPrivateKey,
       ethAddress,
       nightfallMnemonic: nightfallKeys.nightfallMnemonic,
       zkpKeys: nightfallKeys.zkpKeys,

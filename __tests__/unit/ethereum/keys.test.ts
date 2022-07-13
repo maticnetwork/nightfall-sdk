@@ -1,4 +1,4 @@
-import { getEthAddressFromPrivateKey } from "../../../libs/ethereum";
+import { getEthAccountAddress } from "../../../libs/ethereum";
 
 describe("Ethereum Keys", () => {
   describe("Get Ethereum address from private key", () => {
@@ -17,7 +17,7 @@ describe("Ethereum Keys", () => {
         "0xc8aecafe1670d0cf314ca53c97332314e867ab9042b7f3f7a64528521111bbaf";
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const result = getEthAddressFromPrivateKey(ethPrivateKey, mockedWeb3);
+      const result = getEthAccountAddress(ethPrivateKey, mockedWeb3);
 
       // Assert
       expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalledWith(
@@ -36,7 +36,7 @@ describe("Ethereum Keys", () => {
       const ethPrivateKey = "0xc8aec";
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const result = getEthAddressFromPrivateKey(ethPrivateKey, mockedWeb3);
+      const result = getEthAccountAddress(ethPrivateKey, mockedWeb3);
 
       // Assert
       expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalledTimes(
