@@ -19,7 +19,7 @@ export async function submitTransaction(
   senderAddress: string,
   senderPrivateKey: string,
   receiverAddress: string,
-  unsignedTx: any, // TODO improve
+  unsignedTx: string,
   fee: string,
   web3: Web3,
 ) {

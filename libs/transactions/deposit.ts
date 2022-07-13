@@ -11,7 +11,6 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO improve return type
 export async function createAndSubmitDeposit(
   token: Token,
   ownerAddress: string,
@@ -22,7 +21,7 @@ export async function createAndSubmitDeposit(
   fee: string,
   web3: Web3,
   client: Client,
-): Promise<void | null | TransactionReceipt> {
+) {
   logger.debug("createAndSubmitDeposit");
 
   const resData = await client.deposit(token, ownerZkpKeys, value, fee);
@@ -46,5 +45,5 @@ export async function createAndSubmitDeposit(
     logger.child({ unsignedTx }).error(err);
     return null;
   }
-  return txReceipt;
+  return { txL1: txReceipt, txL2: resData.transaction };
 }

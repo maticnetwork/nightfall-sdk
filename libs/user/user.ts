@@ -81,6 +81,7 @@ class User {
 
   // Set when transacting
   token: Token;
+  nightfallTxHashes: string[] = [];
 
   constructor(options: UserOptions) {
     logger.debug("new User");
@@ -116,7 +117,7 @@ class User {
     logger.info({ value, fee }, "Value and fee in wei");
 
     // Deposit tx might need approval
-    let txReceipt = await createAndSubmitApproval(
+    const approvalReceipt = await createAndSubmitApproval(
       this.token,
       this.ethAddress,
       this.ethPrivateKey,
@@ -125,11 +126,11 @@ class User {
       fee,
       this.web3Websocket.web3,
     );
-    if (txReceipt === null) return null;
-    logger.info({ txReceipt }, "Approval completed");
+    if (approvalReceipt === null) return null;
+    logger.info({ approvalReceipt }, "Approval completed");
 
     // Deposit
-    txReceipt = await createAndSubmitDeposit(
+    const depositReceipts = await createAndSubmitDeposit(
       this.token,
       this.ethAddress,
       this.ethPrivateKey,
@@ -140,10 +141,12 @@ class User {
       this.web3Websocket.web3,
       this.client,
     );
-    if (txReceipt === null) return null;
-    logger.info({ txReceipt }, "Deposit completed");
+    if (depositReceipts === null) return null;
+    logger.info({ depositReceipts }, "Deposit completed");
 
-    return txReceipt;
+    this.nightfallTxHashes.push(depositReceipts.txL2?.transactionHash);
+
+    return depositReceipts;
   }
 
   async checkPendingDeposits() {

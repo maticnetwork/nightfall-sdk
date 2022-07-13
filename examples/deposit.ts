@@ -44,6 +44,7 @@ const main = async () => {
       value,
     });
     console.log(deposit);
+    console.log("Nightfall tx hashes ::", user.nightfallTxHashes);
 
     const balances = await user.checkPendingDeposits();
     console.log(balances);
