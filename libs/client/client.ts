@@ -103,7 +103,7 @@ class Client {
     token: Token,
     zkpKeys: NightfallZkpKeys,
     value: string,
-    fee: number,
+    fee: string,
   ) {
     logger.debug("Calling client at deposit");
     let res: AxiosResponse;

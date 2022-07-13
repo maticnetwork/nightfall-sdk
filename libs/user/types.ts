@@ -23,5 +23,5 @@ export interface UserMakeDepositOptions {
   tokenAddress: string;
   tokenStandard: string;
   value: string;
-  fee?: number;
+  feeGwei?: string;
 }

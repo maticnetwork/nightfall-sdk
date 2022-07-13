@@ -19,7 +19,7 @@ export async function createAndSubmitDeposit(
   ownerZkpKeys: NightfallZkpKeys,
   shieldContractAddress: string,
   value: string,
-  fee: number,
+  fee: string,
   web3: Web3,
   client: Client,
 ): Promise<void | null | TransactionReceipt> {

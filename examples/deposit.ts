@@ -25,7 +25,7 @@ const options = {
   blockchainWsUrl: BLOCKCHAIN_WEBSOCKET_URL || BLOCKCHAIN_WS_URL_DEFAULT,
   clientApiUrl: CLIENT_API_URL || CLIENT_API_URL_DEFAULT,
   ethereumPrivateKey: ETHEREUM_PRIVATE_KEY,
-  // nightfallMnemonic: NIGHTFALL_MNEMONIC, // custom turtle track rabbit raccoon year youth snake female utility help traffic
+  nightfallMnemonic: NIGHTFALL_MNEMONIC, // custom turtle track rabbit raccoon year youth snake female utility help traffic
 };
 
 // Script
@@ -37,7 +37,7 @@ const main = async () => {
 
     const tokenAddress = TOKEN_ADDRESS;
     const tokenStandard = "ERC20";
-    const value = "0.0002";
+    const value = "0.0001";
     const deposit = await user.makeDeposit({
       tokenAddress,
       tokenStandard,

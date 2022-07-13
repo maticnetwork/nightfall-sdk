@@ -1,5 +1,5 @@
 import path from "path";
-import { CONTRACT_SHIELD, TX_FEE_DEFAULT } from "./constants";
+import { CONTRACT_SHIELD, TX_FEE_GWEI_DEFAULT } from "./constants";
 import {
   UserFactoryOptions,
   UserOptions,
@@ -97,9 +97,9 @@ class User {
 
     // Format options
     let value = options.value.trim();
+    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
-    // TODO add fee, set default
 
     // Set token only if it's not set or is different
     if (!this.token || tokenAddress !== this.token.contractAddress)
@@ -110,10 +110,10 @@ class User {
       );
     if (this.token === null) throw new Error("Unable to set token");
 
-    // Transform value to wei
+    // Convert value and fee to wei
     value = toBaseUnit(value, this.token.decimals, this.web3Websocket.web3);
-    logger.info({ value }, "Value in wei is");
-    // TODO add fee
+    fee = fee + "000000000";
+    logger.info({ value, fee }, "Value and fee in wei");
 
     // Deposit tx might need approval
     let txReceipt = await createAndSubmitApproval(
@@ -122,7 +122,7 @@ class User {
       this.ethPrivateKey,
       this.shieldContractAddress,
       value,
-      options.fee || TX_FEE_DEFAULT,
+      fee,
       this.web3Websocket.web3,
     );
     if (txReceipt === null) return null;
@@ -136,7 +136,7 @@ class User {
       this.zkpKeys,
       this.shieldContractAddress,
       value,
-      options.fee || TX_FEE_DEFAULT,
+      fee,
       this.web3Websocket.web3,
       this.client,
     );

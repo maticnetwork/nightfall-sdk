@@ -20,7 +20,7 @@ export async function submitTransaction(
   senderPrivateKey: string,
   receiverAddress: string,
   unsignedTx: any, // TODO improve
-  fee: number,
+  fee: string,
   web3: Web3,
 ) {
   const logInput = {

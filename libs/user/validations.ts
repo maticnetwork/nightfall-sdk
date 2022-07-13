@@ -30,4 +30,5 @@ export const makeDepositOptions = Joi.object({
     .valid(...Object.keys(TOKEN_STANDARDS))
     .required(),
   value: Joi.string().required(),
-}); // TODO add fee, can set default (?)
+  feeGwei: Joi.string(),
+});

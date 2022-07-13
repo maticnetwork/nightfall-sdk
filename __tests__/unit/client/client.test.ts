@@ -187,7 +187,7 @@ describe("Client", () => {
       ercStandard: "ERC20",
     };
     const value = "0.01";
-    const fee = 10;
+    const fee = "11000000000";
 
     test("Should return object if client app responds successfully", async () => {
       // Arrange
