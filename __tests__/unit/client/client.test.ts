@@ -229,4 +229,76 @@ describe("Client", () => {
       expect(result).toBeNull();
     });
   });
+
+  describe("Method getPendingDeposits", () => {
+    const url = dummyUrl + "/commitment/pending-deposit";
+
+    test("Should return object if client app responds successfully", async () => {
+      // Arrange
+      const data = {};
+      const res = { data };
+      (axios.get as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      const result = await client.getPendingDeposits(zkpKeys);
+
+      // Assert
+      expect(axios.get).toHaveBeenCalledWith(url, {
+        params: {
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        },
+      });
+      expect(result).toBe(data);
+    });
+
+    test("Should return null if client app responds with status outside the successful range", async () => {
+      // Arrange
+      (axios.get as jest.Mock).mockRejectedValue(
+        new Error("Axios error at commitment/pending-deposit"),
+      );
+
+      // Act
+      const result = await client.getPendingDeposits(zkpKeys);
+
+      // Assert
+      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("Method getNightfallBalances", () => {
+    const url = dummyUrl + "/commitment/balance";
+
+    test("Should return object if client app responds successfully", async () => {
+      // Arrange
+      const data = {};
+      const res = { data };
+      (axios.get as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      const result = await client.getNightfallBalances(zkpKeys);
+
+      // Assert
+      expect(axios.get).toHaveBeenCalledWith(url, {
+        params: {
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        },
+      });
+      expect(result).toBe(data);
+    });
+
+    test("Should return null if client app responds with status outside the successful range", async () => {
+      // Arrange
+      (axios.get as jest.Mock).mockRejectedValue(
+        new Error("Axios error at commitment/pending-deposit"),
+      );
+
+      // Act
+      const result = await client.getNightfallBalances(zkpKeys);
+
+      // Assert
+      expect(axios.get).toHaveBeenCalledTimes(1);
+      expect(result).toBeNull();
+    });
+  });
 });
