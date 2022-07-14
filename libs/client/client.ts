@@ -142,18 +142,26 @@ class Client {
    * @author luizoamorim
    */
   async getAllCommitmentsByCompressedZkpPublicKey(
-    compressedZkpPublicKey: string,
+    listOfCompressedZkpPublicKey: string[],
   ): Promise<ICommitments[]> {
     try {
-      if (compressedZkpPublicKey) {
-        const response = await axios.get(
-          `${this.apiUrl}/commitment/all?compressedZkpPublicKey=${compressedZkpPublicKey}`,
+      if (
+        listOfCompressedZkpPublicKey &&
+        listOfCompressedZkpPublicKey.length > 0
+      ) {
+        const response = await axios.post(
+          `${this.apiUrl}/commitment/all`,
+          listOfCompressedZkpPublicKey,
         );
-        return response.data.allCommitmentsByCompressedPkd;
+        console.log(
+          "COMMITMENTS::::::::::::::::::::::::::::::::::::::::::::::::::::: ",
+          response.data.allCommitmentsByListOfCompressedZkpPublicKey,
+        );
+        return response.data.allCommitmentsByListOfCompressedZkpPublicKey;
       }
-      throw new Error("You should pass a compressedZkpPublicKey");
+      throw new Error("You should pass at least one compressedZkpPublicKey");
     } catch (err) {
-      logger.child({ compressedZkpPublicKey }).error(err);
+      logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
   }

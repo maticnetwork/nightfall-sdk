@@ -6,7 +6,8 @@ const getAllCommitmentsByCompressedPkdStub = jest
   .spyOn(Client.prototype, "getAllCommitmentsByCompressedZkpPublicKey")
   .mockImplementation(
     () =>
-      mockCommitments.data.allCommitmentsByCompressedPkd as unknown as Promise<
+      mockCommitments.data
+        .allCommitmentsByListOfCompressedZkpPublicKey as unknown as Promise<
         ICommitments[]
       >,
   );

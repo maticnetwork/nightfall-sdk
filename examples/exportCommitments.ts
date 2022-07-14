@@ -25,7 +25,7 @@ const main = async () => {
     });
 
     await user.exportCommitments(
-      user.zkpKeys.compressedZkpPublicKey,
+      [user.zkpKeys.compressedZkpPublicKey],
       "./",
       "commitmentsBackup.json",
     );

@@ -28,14 +28,14 @@ describe("Suit of integration tests for export commitments use case", () => {
       ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
       nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
     });
-    commitmens = await client.getAllCommitmentsByCompressedZkpPublicKey(
+    commitmens = await client.getAllCommitmentsByCompressedZkpPublicKey([
       user.zkpKeys.compressedZkpPublicKey,
-    );
+    ]);
   });
 
   test("Verify if the file is created with the commitments by this compressedPkd", async () => {
     await user.exportCommitments(
-      user.zkpKeys.compressedZkpPublicKey,
+      [user.zkpKeys.compressedZkpPublicKey],
       "./",
       "commitmentsBackup.json",
     );
@@ -52,9 +52,9 @@ describe("Suit of integration tests for export commitments use case", () => {
     );
   });
 
-  test("Should pass an invalid compressedZkpPublicKey and receive null", async () => {
+  test("Should pass an invalid list of compressedZkpPublicKey and receive null", async () => {
     const response = await user.exportCommitments(
-      "user.zkpKeys.compressedZkpPublicKey",
+      ["teste"],
       "./",
       "commitmentsBackup.json",
     );
@@ -62,9 +62,9 @@ describe("Suit of integration tests for export commitments use case", () => {
     expect(response).toBe(null);
   });
 
-  test("Should pass an empty string and receive null", async () => {
+  test("Should pass an empty aarray and receive null", async () => {
     const response = await user.exportCommitments(
-      "",
+      [],
       "./",
       "commitmentsBackup.json",
     );

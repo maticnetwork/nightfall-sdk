@@ -3,7 +3,7 @@ import convertObjectToString from "../../../libs/utils/convertObjectToString";
 
 describe("Suit of tests for convert object in string function", () => {
   const commitments: Array<object> =
-    mockCommitments.data.allCommitmentsByCompressedPkd;
+    mockCommitments.data.allCommitmentsByListOfCompressedZkpPublicKey;
 
   test("should pass an Object and receive a JSON stringfy", async () => {
     const objectStringfy = convertObjectToString(commitments);

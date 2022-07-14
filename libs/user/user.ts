@@ -104,22 +104,24 @@ class User {
    * @function exportCommitments get the commitments from the client instance and
    * export a file with this commitments to some path based in the env variables
    * that set the path and the filename.
-   * @param compressedZkpPublicKey the compressed zkp public key derivated from
-   * the user mnemonic.
+   * @param listOfCompressedZkpPublicKey a list of compressed zkp public key derivated
+   * from the user mnemonic.
+   * @param pathToExport the path to export the file.
+   * @param fileName the name of the file.
    * @author luizoamorim
    */
   async exportCommitments(
-    compressedZkpPublicKey: string,
+    listOfCompressedZkpPublicKey: string[],
     pathToExport: string,
     fileName: string,
   ): Promise<void | null> {
     try {
       const allCommitmentsByCompressedZkpPublicKey: ICommitments[] =
         await this.client.getAllCommitmentsByCompressedZkpPublicKey(
-          compressedZkpPublicKey,
+          listOfCompressedZkpPublicKey,
         );
       if (
-        allCommitmentsByCompressedZkpPublicKey !== null &&
+        allCommitmentsByCompressedZkpPublicKey &&
         allCommitmentsByCompressedZkpPublicKey.length > 0
       ) {
         await exportFile(
@@ -128,12 +130,15 @@ class User {
         );
         return;
       }
+      if (allCommitmentsByCompressedZkpPublicKey === null) {
+        return null;
+      }
       logger.warn(
-        "Either you don't have any commitments for this compressedZkpPublicKey or this one is invalid!",
+        "Either you don't have any commitments for this listOfCompressedZkpPublicKey or this one is invalid!",
       );
       return null;
     } catch (err) {
-      logger.child({ compressedZkpPublicKey }).error(err);
+      logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
   }

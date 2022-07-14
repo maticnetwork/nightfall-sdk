@@ -8,11 +8,15 @@ describe("Suit fo tests for export file function", () => {
 
     exportFile(
       FILE_PATH,
-      JSON.stringify(mockCommitments.data.allCommitmentsByCompressedPkd),
+      JSON.stringify(
+        mockCommitments.data.allCommitmentsByListOfCompressedZkpPublicKey,
+      ),
     );
     const data = fs.readFileSync(FILE_PATH);
     expect(data.toString("utf8")).toBe(
-      JSON.stringify(mockCommitments.data.allCommitmentsByCompressedPkd),
+      JSON.stringify(
+        mockCommitments.data.allCommitmentsByListOfCompressedZkpPublicKey,
+      ),
     );
 
     // remove the file created
