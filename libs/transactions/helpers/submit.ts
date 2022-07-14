@@ -18,14 +18,14 @@ const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
 export async function submitTransaction(
   senderAddress: string,
   senderPrivateKey: string,
-  receiverAddress: string,
+  recipientAddress: string,
   unsignedTx: string,
   fee: string,
   web3: Web3,
 ) {
   const logInput = {
     from: senderAddress,
-    to: receiverAddress,
+    to: recipientAddress,
     unsignedTx,
     fee,
   };
@@ -42,7 +42,7 @@ export async function submitTransaction(
 
   const tx = {
     from: senderAddress,
-    to: receiverAddress,
+    to: recipientAddress,
     data: unsignedTx,
     value: fee,
     gas,
