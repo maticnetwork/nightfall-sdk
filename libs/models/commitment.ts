@@ -1,10 +1,10 @@
-export default interface ICommitments {
+type ICommitments = {
   _id: string;
   preimage: {
     ercAddress: string;
     tokenId: string;
     value: string;
-    zkpPublicKey: [];
+    zkpPublicKey: string[];
     compressedZkpPublicKey: string;
     salt: string;
   };
@@ -15,4 +15,6 @@ export default interface ICommitments {
   isNullifiedOnChain: number;
   nullifier: string;
   blockNumber: number;
-}
+};
+
+export default ICommitments;

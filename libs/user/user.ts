@@ -12,7 +12,10 @@ import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
-import ICommitments from "libs/models/commitment";
+import ICommitments from "../../libs/models/commitment";
+import importCommitments from "../utils/importCommitments";
+import isCommitmentsFromMnemonic from "../../libs/utils/isCommitmentsFromMnemonic";
+import { ERROR_COMMITMENT_NOT_MATCH_MNEMONIC } from "../../libs/messages/commitments";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -120,6 +123,7 @@ class User {
         await this.client.getAllCommitmentsByCompressedZkpPublicKey(
           listOfCompressedZkpPublicKey,
         );
+
       if (
         allCommitmentsByCompressedZkpPublicKey &&
         allCommitmentsByCompressedZkpPublicKey.length > 0
@@ -141,6 +145,46 @@ class User {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
+  }
+
+  /**
+   * @function importAndSaveCommitments should coverage the import commitments flow.
+   * - Should import a file with commitments.
+   * - Verify if all the commitments in the list of imported commitments are of the
+   * ICommitment type (This verification is within importCommitments function).
+   * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
+   * - If all verifications pass, should send the commitments to the client to be saved
+   *  in the database.
+   * @param pathToExport the path to export the file.
+   * @param fileName the name of the file.
+   * @param compressedZkpPublicKey the key derivated from user mnemonic.
+   * @author luizoamorim
+   */
+  async importAndSaveCommitments(
+    pathToExport: string,
+    fileName: string,
+    compressedZkpPublicKey: string,
+  ) {
+    const listOfCommitments: ICommitments[] | Error = await importCommitments(
+      `${pathToExport}${fileName}`,
+    );
+
+    if (listOfCommitments instanceof Error) {
+      logger.error(listOfCommitments);
+      return;
+    }
+
+    const isCommitmentsFromMnemonicReturn = await isCommitmentsFromMnemonic(
+      listOfCommitments,
+      compressedZkpPublicKey,
+    );
+
+    if (!isCommitmentsFromMnemonicReturn) {
+      logger.error(ERROR_COMMITMENT_NOT_MATCH_MNEMONIC);
+      return;
+    }
+
+    this.client.saveAllCommitments(listOfCommitments);
   }
 
   close() {

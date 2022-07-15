@@ -13,7 +13,7 @@ const environment = {
 };
 
 /**
- * @function main a script to test the export commitments flow
+ * @function main a script to test the import commitments flow
  * @author luizoamorim
  */
 const main = async () => {
@@ -24,10 +24,10 @@ const main = async () => {
       nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
     });
 
-    await user.exportCommitments(
-      [user.zkpKeys.compressedZkpPublicKey],
+    await user.importAndSaveCommitments(
       "./",
-      "commitmentsBackupTeste.json",
+      "commitmentsBackup.json",
+      user.zkpKeys.compressedZkpPublicKey,
     );
 
     user.close();
