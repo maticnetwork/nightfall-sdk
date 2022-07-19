@@ -29,7 +29,7 @@ describe("Suit of tests for get commitmens from some endpoint", () => {
   });
 
   test("Should get a json from getCommitmentsOnChain endpoint", async () => {
-    commitmens = await client.getAllCommitmentsByCompressedZkpPublicKey([
+    commitmens = await client.getCommitmentsByCompressedZkpPublicKey([
       user.zkpKeys.compressedZkpPublicKey,
     ]);
     expect(commitmens).toBeInstanceOf(Object as unknown as ICommitment[]);
@@ -39,14 +39,12 @@ describe("Suit of tests for get commitmens from some endpoint", () => {
   });
 
   test("Should passs a empty array of strings and receive null", async () => {
-    commitmens = await client.getAllCommitmentsByCompressedZkpPublicKey([]);
+    commitmens = await client.getCommitmentsByCompressedZkpPublicKey([]);
     expect(commitmens).toBe(null);
   });
 
   test("Should passs an invalid list of compreesedZkpPublicKey and receive an empty array", async () => {
-    commitmens = await client.getAllCommitmentsByCompressedZkpPublicKey([
-      "teste",
-    ]);
+    commitmens = await client.getCommitmentsByCompressedZkpPublicKey(["teste"]);
 
     expect(commitmens.length).toBe(0);
     expect(commitmens).toStrictEqual([]);

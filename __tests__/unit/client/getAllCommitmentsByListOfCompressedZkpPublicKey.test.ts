@@ -4,7 +4,7 @@ import ICommitment from "../../../libs/models/commitment";
 import getAllCommitmentsByCompressedPkdStub from "../../../__mocks__/__stubs__/client";
 
 const commitments: Array<object> =
-  mockCommitments.data.allCommitmentsByListOfCompressedZkpPublicKey;
+  mockCommitments.data.commitmentsByListOfCompressedZkpPublicKey;
 const DUMMY_LIST_OF_COMPRESSED_ZKP_PK: string[] = [];
 
 describe("Suit of tests for get commitmens from some endpoint", () => {
@@ -13,7 +13,7 @@ describe("Suit of tests for get commitmens from some endpoint", () => {
   });
   test("Should get a json from getCommitmentsOnChain endpoint", async () => {
     const client = new Client(process.env.SDK_ENV_API_URL);
-    const response = await client.getAllCommitmentsByCompressedZkpPublicKey(
+    const response = await client.getCommitmentsByCompressedZkpPublicKey(
       DUMMY_LIST_OF_COMPRESSED_ZKP_PK,
     );
     expect(response).toBeInstanceOf(Object as unknown as ICommitment[]);

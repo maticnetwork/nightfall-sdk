@@ -13,7 +13,7 @@ describe("Suit fo tests for import commitments function", () => {
     exportFile(
       FILE_PATH_VALID_COMMITMETS,
       JSON.stringify(
-        mockCommitments.data.allCommitmentsByListOfCompressedZkpPublicKey,
+        mockCommitments.data.commitmentsByListOfCompressedZkpPublicKey,
       ),
     );
   });
@@ -21,8 +21,9 @@ describe("Suit fo tests for import commitments function", () => {
     exportFile(
       FILE_PATH_INVALID_COMMITMETS,
       JSON.stringify([
-        mockInvalidCommitments.data
-          .allCommitmentsByListOfCompressedZkpPublicKey[index],
+        mockInvalidCommitments.data.commitmentsByListOfCompressedZkpPublicKey[
+          index
+        ],
       ]),
     );
     index++;

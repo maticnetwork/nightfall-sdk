@@ -133,14 +133,14 @@ class Client {
 
   /**
    *
-   * @function getAllCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
+   * @function getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
    * endpoint to get all commitments by compressed pkd.
    * @param listOfCompressedZkpPublicKey a list of compressed zkp publick keys derivated from
    * the user mnemonic.
    * @returns all the commitments existent for this compressed pkds.
    * @author luizoamorim
    */
-  async getAllCommitmentsByCompressedZkpPublicKey(
+  async getCommitmentsByCompressedZkpPublicKey(
     listOfCompressedZkpPublicKey: string[],
   ): Promise<ICommitments[]> {
     try {
@@ -149,11 +149,11 @@ class Client {
         listOfCompressedZkpPublicKey.length > 0
       ) {
         const response = await axios.post(
-          `${this.apiUrl}/commitment/allByCompressedZkpPublicKey`,
+          `${this.apiUrl}/commitment/byCompressedZkpPublicKey`,
           listOfCompressedZkpPublicKey,
         );
 
-        return response.data.allCommitmentsByListOfCompressedZkpPublicKey;
+        return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");
     } catch (err) {
@@ -164,12 +164,12 @@ class Client {
 
   /**
    *
-   * @function saveAllCommitments do the communications with commitments/saveAll
+   * @function saveCommitments do the communications with commitments/saveAll
    * endpoint
    * @param listOfCommitments a list of commitments to be saved in the database.
    * @author luizoamorim
    */
-  async saveAllCommitments(listOfCommitments: ICommitments[]) {
+  async saveCommitments(listOfCommitments: ICommitments[]) {
     try {
       await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
       logger.info("Commitments imported successfully");

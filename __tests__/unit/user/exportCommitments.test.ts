@@ -20,7 +20,7 @@ describe("Suit of tests for user class", () => {
     const data = fs.readFileSync(FILE_PATH);
     expect(data.toString("utf8")).toBe(
       JSON.stringify(
-        mockCommitments.data.allCommitmentsByListOfCompressedZkpPublicKey,
+        mockCommitments.data.commitmentsByListOfCompressedZkpPublicKey,
       ),
     );
 

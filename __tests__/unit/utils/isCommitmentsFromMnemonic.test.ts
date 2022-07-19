@@ -14,7 +14,7 @@ describe("Suit fo tests for isCommitmentsFromMnemonic.test function", () => {
 
   test("should pass a list of commitments with different compressedPkd and receive false", async () => {
     const isCommitmentsFromMnemonicReturn = await isCommitmentsFromMnemonic(
-      mockCommitments.data.allCommitmentsByListOfCompressedZkpPublicKey,
+      mockCommitments.data.commitmentsByListOfCompressedZkpPublicKey,
       mockCompressedZkpPublicKey,
     );
     expect(isCommitmentsFromMnemonicReturn).toBeFalsy();

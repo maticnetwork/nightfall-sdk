@@ -28,7 +28,7 @@ describe("Suit of integration tests for export commitments use case", () => {
       ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
       nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
     });
-    commitmens = await client.getAllCommitmentsByCompressedZkpPublicKey([
+    commitmens = await client.getCommitmentsByCompressedZkpPublicKey([
       user.zkpKeys.compressedZkpPublicKey,
     ]);
   });

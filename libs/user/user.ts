@@ -120,7 +120,7 @@ class User {
   ): Promise<void | null> {
     try {
       const allCommitmentsByCompressedZkpPublicKey: ICommitments[] =
-        await this.client.getAllCommitmentsByCompressedZkpPublicKey(
+        await this.client.getCommitmentsByCompressedZkpPublicKey(
           listOfCompressedZkpPublicKey,
         );
 
@@ -184,7 +184,7 @@ class User {
       return;
     }
 
-    this.client.saveAllCommitments(listOfCommitments);
+    this.client.saveCommitments(listOfCommitments);
   }
 
   close() {

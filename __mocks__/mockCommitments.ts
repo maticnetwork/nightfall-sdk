@@ -1,6 +1,6 @@
 const mockCommitments = {
   data: {
-    allCommitmentsByListOfCompressedZkpPublicKey: [
+    commitmentsByListOfCompressedZkpPublicKey: [
       {
         _id: "0x003824b26c5126915390a8dec87792b68c5e21109811cc28a43dc5fa1dea6194",
         preimage: {
