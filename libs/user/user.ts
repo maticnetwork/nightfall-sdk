@@ -11,7 +11,7 @@ import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
-  toBaseUnit,
+  stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
 import { createOptions, makeDepositOptions } from "./validations";
@@ -112,7 +112,7 @@ class User {
     if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei
-    value = toBaseUnit(value, this.token.decimals);
+    value = stringValueToWei(value, this.token.decimals);
     fee = fee + "000000000";
     logger.info({ value, fee }, "Value and fee in wei");
 

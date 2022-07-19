@@ -8,7 +8,7 @@ import type BN from "bn.js";
  * @param {unknown} value transaction value
  * @returns {boolean}
  */
-export function isString(s: unknown): boolean {
+function isString(s: unknown): boolean {
   return typeof s === "string" || s instanceof String;
 }
 
@@ -19,19 +19,19 @@ export function isString(s: unknown): boolean {
  * @param {string} value transaction value
  * @returns {boolean}
  */
-export function isPositive(value: string): boolean {
+function isPositive(value: string): boolean {
   return value.substring(0, 1) !== "-";
 }
 
 /**
- * Validates that given value is not just `.`
+ * Validates against empty string and `.`
  *
- * @function isValueValid
+ * @function isValidString
  * @param {string} value transaction value
  * @returns {boolean}
  */
-export function isValueValid(value: string): boolean {
-  return value !== ".";
+function isValidString(value: string): boolean {
+  return value.length > 0 && value !== ".";
 }
 
 /**
@@ -41,7 +41,7 @@ export function isValueValid(value: string): boolean {
  * @param {string} value transaction value
  * @returns {boolean}
  */
-export function isDecimalPartValid(value: string): boolean {
+function isDecimalPartValid(value: string): boolean {
   const parts = value.split(".");
   return parts.length <= 2;
 }
@@ -49,23 +49,23 @@ export function isDecimalPartValid(value: string): boolean {
 /**
  * Convert transaction value to wei based on token decimals
  *
- * @function toBaseUnit CHECK Not sure I like this name
+ * @function stringValueToWei
  * @param {string} value transaction value
  * @param {number} tokenDecimals specified in token contract when calling decimals
  * @throws {Error} Performs a number of validations that can throw different errors
  * @returns {string} value in wei
  */
-export function toBaseUnit(value: string, tokenDecimals: number): string {
+export function stringValueToWei(value: string, tokenDecimals: number): string {
   if (!isString(value)) {
     throw new Error("Pass strings to prevent floating point precision issues");
   }
 
-  if (!isPositive(value)) {
-    throw new Error("Value can not be negative");
+  if (!isValidString(value)) {
+    throw new Error("Empty string or `.` are not valid");
   }
 
-  if (!isValueValid(value)) {
-    throw new Error("Value `.` is not valid");
+  if (!isPositive(value)) {
+    throw new Error("Value can not be negative");
   }
 
   if (!isDecimalPartValid(value)) {

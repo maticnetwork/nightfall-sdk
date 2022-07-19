@@ -1,5 +1,5 @@
 import { createAndSubmitApproval } from "./approval";
 import { createAndSubmitDeposit } from "./deposit";
-import { toBaseUnit } from "./helpers/units";
+import { stringValueToWei } from "./helpers/units";
 
-export { createAndSubmitApproval, createAndSubmitDeposit, toBaseUnit };
+export { createAndSubmitApproval, createAndSubmitDeposit, stringValueToWei };
