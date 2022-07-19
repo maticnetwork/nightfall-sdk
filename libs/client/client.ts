@@ -153,8 +153,6 @@ class Client {
           listOfCompressedZkpPublicKey,
         );
 
-        console.log("RESPONSE: ", response);
-
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");
