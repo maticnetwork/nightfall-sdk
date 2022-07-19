@@ -153,34 +153,14 @@ class Client {
           listOfCompressedZkpPublicKey,
         );
 
+        console.log("RESPONSE: ", response);
+
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");
     } catch (err) {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
-    }
-  }
-
-  /**
-   *
-   * @function saveCommitments do the communications with commitments/saveAll
-   * endpoint
-   * @param listOfCommitments a list of commitments to be saved in the database.
-   * @author luizoamorim
-   */
-  async saveCommitments(listOfCommitments: ICommitments[]) {
-    try {
-      await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
-      logger.info("Commitments imported successfully");
-    } catch (err) {
-      if (err.response.status == 500) {
-        logger.error(
-          "Some of these commitments already existis in the database!",
-        );
-      } else {
-        logger.error(err);
-      }
     }
   }
 }

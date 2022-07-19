@@ -7,7 +7,7 @@ dotenv.config({ path: path.join(_rootPath, ".env") });
 
 // Script config for goerli
 const environment = {
-  blockchainNetwork: process.env.SDK_ENV_BLOCKCHAIN_NETWORK,
+  blockchainNetwork: "test",
   blockchainWsUrl: process.env.SDK_ENV_BLOCKCHAIN_WEBSOCKET_URL,
   clientApiUrl: process.env.SDK_ENV_CLIENT_API_URL,
 };
@@ -18,6 +18,7 @@ const environment = {
  */
 const main = async () => {
   try {
+    console.log("ENV: ", process.env);
     const user = new User(environment);
     await user.init({
       ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
@@ -27,7 +28,7 @@ const main = async () => {
     await user.exportCommitments(
       [user.zkpKeys.compressedZkpPublicKey],
       "./",
-      "commitmentsBackupTeste.json",
+      "commitmentsBackup.json",
     );
 
     user.close();
