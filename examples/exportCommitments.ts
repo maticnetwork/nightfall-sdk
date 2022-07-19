@@ -17,9 +17,9 @@ const environment = {
  * @author luizoamorim
  */
 const main = async () => {
+  let user;
   try {
-    console.log("ENV: ", process.env);
-    const user = new User(environment);
+    user = new User(environment);
     await user.init({
       ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
       nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
@@ -30,11 +30,11 @@ const main = async () => {
       "./",
       "commitmentsBackup.json",
     );
-
-    user.close();
   } catch (error) {
     console.log(error);
     process.exit(1);
+  } finally {
+    user.close();
   }
 };
 
