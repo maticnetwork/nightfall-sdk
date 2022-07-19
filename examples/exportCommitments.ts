@@ -25,11 +25,11 @@ const main = async () => {
       nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
     });
 
-    await user.exportCommitments(
-      [user.zkpKeys.compressedZkpPublicKey],
-      "./",
-      "commitmentsBackup.json",
-    );
+    await user.exportCommitments({
+      listOfCompressedZkpPublicKey: [user.zkpKeys.compressedZkpPublicKey],
+      pathToExport: "./",
+      fileName: "commitmentsBackup.json",
+    });
   } catch (error) {
     console.log(error);
     process.exit(1);

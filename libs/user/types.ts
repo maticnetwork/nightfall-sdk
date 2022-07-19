@@ -15,3 +15,9 @@ export interface UserDeposit {
   value: string;
   fee?: number;
 }
+
+export interface UserExportCommitments {
+  listOfCompressedZkpPublicKey: string[];
+  pathToExport: string;
+  fileName: string;
+}

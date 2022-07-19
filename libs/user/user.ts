@@ -4,7 +4,7 @@ import {
   NIGHTFALL_DEFAULT_CONFIG,
   TX_FEE_DEFAULT,
 } from "./constants";
-import { UserConfig, UserDeposit } from "./types";
+import { UserConfig, UserDeposit, UserExportCommitments } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
 import { createZkpKeysFromMnemonic } from "../nightfall";
@@ -111,14 +111,12 @@ class User {
    * @author luizoamorim
    */
   async exportCommitments(
-    listOfCompressedZkpPublicKey: string[],
-    pathToExport: string,
-    fileName: string,
+    options: UserExportCommitments,
   ): Promise<void | null> {
     try {
       const allCommitmentsByCompressedZkpPublicKey: Commitment[] =
         await this.client.getCommitmentsByCompressedZkpPublicKey(
-          listOfCompressedZkpPublicKey,
+          options.listOfCompressedZkpPublicKey,
         );
 
       if (
@@ -126,7 +124,7 @@ class User {
         allCommitmentsByCompressedZkpPublicKey.length > 0
       ) {
         await exportFile(
-          `${pathToExport}${fileName}`,
+          `${options.pathToExport}${options.fileName}`,
           convertObjectToString(allCommitmentsByCompressedZkpPublicKey),
         );
         return;
@@ -136,7 +134,7 @@ class User {
       );
       return null;
     } catch (err) {
-      logger.child({ listOfCompressedZkpPublicKey }).error(err);
+      logger.child({ options }).error(err);
       return null;
     }
   }
