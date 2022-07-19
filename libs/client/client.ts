@@ -149,7 +149,7 @@ class Client {
         listOfCompressedZkpPublicKey.length > 0
       ) {
         const response = await axios.post(
-          `${this.apiUrl}/commitment/byCompressedZkpPublicKey`,
+          `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
         );
 
