@@ -101,7 +101,7 @@ class User {
 
   /**
    *
-   * @function exportCommitments get the commitments from the client instance and
+   * @method exportCommitments get the commitments from the client instance and
    * export a file with this commitments to some path based in the env variables
    * that set the path and the filename.
    * @param listOfCompressedZkpPublicKey a list of compressed zkp public key derivated

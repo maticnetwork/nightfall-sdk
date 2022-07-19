@@ -133,7 +133,7 @@ class Client {
 
   /**
    *
-   * @function getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
+   * @method getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
    * endpoint to get all commitments by compressed pkd.
    * @param listOfCompressedZkpPublicKey a list of compressed zkp publick keys derivated from
    * the user mnemonic.
