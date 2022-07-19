@@ -131,9 +131,6 @@ class User {
         );
         return;
       }
-      if (allCommitmentsByCompressedZkpPublicKey === null) {
-        return null;
-      }
       logger.warn(
         "Either you don't have any commitments for this listOfCompressedZkpPublicKey or this one is invalid!",
       );
