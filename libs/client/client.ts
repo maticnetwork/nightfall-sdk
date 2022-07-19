@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import ICommitments from "libs/models/commitment";
+import Commitment from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 
@@ -142,7 +142,7 @@ class Client {
    */
   async getCommitmentsByCompressedZkpPublicKey(
     listOfCompressedZkpPublicKey: string[],
-  ): Promise<ICommitments[]> {
+  ): Promise<Commitment[]> {
     try {
       if (
         listOfCompressedZkpPublicKey &&

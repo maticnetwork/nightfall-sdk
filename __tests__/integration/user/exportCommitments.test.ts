@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 import path from "path";
 import { Client } from "../../../libs/client";
 import { NIGHTFALL_DEFAULT_CONFIG } from "../../../libs/user/constants";
-import ICommitment from "../../../libs/models/commitment";
+import Commitment from "../../../libs/types";
 
 const _rootPath = path.resolve();
 dotenv.config({ path: path.join(_rootPath, ".env") });
@@ -20,7 +20,7 @@ describe("Suit of integration tests for export commitments use case", () => {
   const FILE_PATH = "./commitmentsBackup.json";
   let user: User;
   let client: Client;
-  let commitmens: ICommitment[];
+  let commitmens: Commitment[];
   beforeAll(async () => {
     client = new Client(NIGHTFALL_DEFAULT_CONFIG.clientApiUrl);
     user = new User(environment); // now goerli
@@ -46,7 +46,7 @@ describe("Suit of integration tests for export commitments use case", () => {
 
   test("Verify if the commitments match with the compressedZkpPublicKey", async () => {
     const data = fs.readFileSync(FILE_PATH);
-    const jsonData: ICommitment[] = JSON.parse(data.toString("utf8"));
+    const jsonData: Commitment[] = JSON.parse(data.toString("utf8"));
     expect(jsonData[0].preimage.compressedZkpPublicKey).toBe(
       user.zkpKeys.compressedZkpPublicKey,
     );

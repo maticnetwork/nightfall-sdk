@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import path from "path";
 import { Client } from "../../../libs/client/index";
-import ICommitment from "../../../libs/models/commitment";
+import Commitment from "../../../libs/types";
 import { User } from "../../../libs/user";
 import { NIGHTFALL_DEFAULT_CONFIG } from "../../../libs/user/constants";
 
@@ -17,7 +17,7 @@ const environment = {
 describe("Suit of tests for get commitmens from some endpoint", () => {
   let user: User;
   let client: Client;
-  let commitmens: ICommitment[];
+  let commitmens: Commitment[];
 
   beforeAll(async () => {
     client = new Client(NIGHTFALL_DEFAULT_CONFIG.clientApiUrl);
@@ -32,7 +32,7 @@ describe("Suit of tests for get commitmens from some endpoint", () => {
     commitmens = await client.getCommitmentsByCompressedZkpPublicKey([
       user.zkpKeys.compressedZkpPublicKey,
     ]);
-    expect(commitmens).toBeInstanceOf(Object as unknown as ICommitment[]);
+    expect(commitmens).toBeInstanceOf(Object as unknown as Commitment[]);
     expect(commitmens[0].preimage.compressedZkpPublicKey).toEqual(
       user.zkpKeys.compressedZkpPublicKey,
     );

@@ -1,4 +1,4 @@
-type ICommitments = {
+interface Commitment {
   _id: string;
   preimage: {
     ercAddress: string;
@@ -15,6 +15,6 @@ type ICommitments = {
   isNullifiedOnChain: number;
   nullifier: string;
   blockNumber: number;
-};
+}
 
-export default ICommitments;
+export default Commitment;

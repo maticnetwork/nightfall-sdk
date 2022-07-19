@@ -12,7 +12,7 @@ import { createDeposit } from "../transactions/deposit";
 import { parentLogger } from "../utils";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
-import ICommitments from "../../libs/models/commitment";
+import Commitment from "../../libs/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -116,7 +116,7 @@ class User {
     fileName: string,
   ): Promise<void | null> {
     try {
-      const allCommitmentsByCompressedZkpPublicKey: ICommitments[] =
+      const allCommitmentsByCompressedZkpPublicKey: Commitment[] =
         await this.client.getCommitmentsByCompressedZkpPublicKey(
           listOfCompressedZkpPublicKey,
         );
