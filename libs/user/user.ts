@@ -103,12 +103,13 @@ class User {
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress)
+    if (!this.token || tokenAddress !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
         address: tokenAddress,
         ercStandard: tokenStandard,
         web3: this.web3Websocket.web3,
       });
+    }
     if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei
