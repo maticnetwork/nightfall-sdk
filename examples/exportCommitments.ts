@@ -1,15 +1,15 @@
 import * as dotenv from "dotenv";
 import path from "path";
-import { User } from "../libs/user";
+import { UserFactory } from "../libs/user";
 
 const _rootPath = path.resolve();
 dotenv.config({ path: path.join(_rootPath, ".env") });
 
-// Script config for goerli
-const environment = {
-  blockchainNetwork: "test",
-  blockchainWsUrl: process.env.SDK_ENV_BLOCKCHAIN_WEBSOCKET_URL,
-  clientApiUrl: process.env.SDK_ENV_CLIENT_API_URL,
+const options = {
+  blockchainWsUrl: process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL,
+  clientApiUrl: process.env.SDK_CLIENT_API_URL,
+  ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
+  nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
 };
 
 /**
@@ -19,11 +19,7 @@ const environment = {
 const main = async () => {
   let user;
   try {
-    user = new User(environment);
-    await user.init({
-      ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
-      nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
-    });
+    user = await UserFactory.create(options);
 
     await user.exportCommitments({
       listOfCompressedZkpPublicKey: [user.zkpKeys.compressedZkpPublicKey],
