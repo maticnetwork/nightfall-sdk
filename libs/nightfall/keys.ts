@@ -1,24 +1,21 @@
-import { generateMnemonic, validateMnemonic } from "bip39";
 import path from "path";
 import { parentLogger } from "../utils";
+import { createMnemonic, validateNfMnemonic } from "./helpers";
+import type { Client } from "../client";
+import type { NightfallKeys } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-function createMnemonic(): string {
-  logger.debug("createMnemonic");
-  return generateMnemonic(); // Uses bip39
-}
-
-// DOCS can throw errors, use within try/catch
-function validateNfMnemonic(mnemonic: string): void {
-  logger.debug("validateNfMnemonic");
-  const isMnemonic = validateMnemonic(mnemonic); // Uses bip39
-  if (!isMnemonic) throw new Error("Invalid mnemonic");
-}
-
-function validateOrCreateNfMnemonic(
+/**
+ * Validate given mnemonic or create a mnemonic
+ *
+ * @function validateOrCreateNfMnemonic
+ * @param {string} mnemonic
+ * @returns {null|string} mnemonic <string> if the mnemonic is new or given one is valid, else return null
+ */
+export function validateOrCreateNfMnemonic(
   mnemonic: undefined | string,
 ): null | string {
   logger.debug("validateOrCreateNfMnemonic");
@@ -37,12 +34,19 @@ function validateOrCreateNfMnemonic(
   return mnemonic;
 }
 
-// TODO improve client, return types
-export async function createZkpKeysFromMnemonic(
+/**
+ * Create a set of Zero-knowledge proof keys from given/new mnemonic, then subscribe to incoming viewing keys
+ *
+ * @function createZkpKeysAndSubscribeToIncomingKeys
+ * @param {string} mnemonic
+ * @param {Client} client
+ * @returns {null|NightfallKeys} NightfallKeys if the mnemonic is new or given one is valid, else return null
+ */
+export async function createZkpKeysAndSubscribeToIncomingKeys(
   mnemonic: undefined | string,
-  client: any,
-): Promise<any> {
-  logger.debug("createZkpKeysFromMnemonic");
+  client: Client,
+): Promise<null | NightfallKeys> {
+  logger.debug("createZkpKeysAndSubscribeToIncomingKeys");
 
   const nightfallMnemonic = validateOrCreateNfMnemonic(mnemonic);
   if (nightfallMnemonic === null) return null;

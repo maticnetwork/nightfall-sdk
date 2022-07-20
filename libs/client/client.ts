@@ -2,20 +2,40 @@ import axios, { AxiosResponse } from "axios";
 import Commitment from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
+import type { NightfallZkpKeys } from "../nightfall/types";
+// import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO review/improve error handling, types
+/**
+ * Creates a new Client
+ *
+ * @class Client
+ */
 class Client {
+  /**
+   * @property {string} apiUrl client address
+   */
   apiUrl: string;
 
+  /**
+   * Client constructor
+   *
+   * @param  {string} apiUrl client address
+   */
   constructor(apiUrl: string) {
     logger.debug({ apiUrl }, "new Client at");
     this.apiUrl = apiUrl;
   }
 
+  /**
+   * Perform a GET request at healthcheck to check that API is alive
+   *
+   * @method healthCheck
+   * @return {Promise<boolean>} True if API is alive, else false
+   */
   async healthCheck(): Promise<boolean> {
     logger.debug("Calling client at healthcheck");
     let res: AxiosResponse;
@@ -39,6 +59,13 @@ class Client {
     return true;
   }
 
+  /**
+   * Perform a GET request at contract-address to get this data for a given contract name
+   *
+   * @method getContractAddress
+   * @param {string} contractName The name of the contract for which we need the address
+   * @return {Promise<null | string>} Address if request is successful, else null
+   */
   async getContractAddress(contractName: string): Promise<null | string> {
     logger.debug({ contractName }, "Calling client at contract-address");
     let res: AxiosResponse;
@@ -55,11 +82,19 @@ class Client {
     return res.data.address;
   }
 
-  // TODO double-check that return is coherent with API response
+  /**
+   * Perform a POST request at generate-zkp-keys to get a set of Zero-knowledge proof keys
+   * given a valid mnemonic, and the addressIndex
+   *
+   * @method generateZkpKeysFromMnemonic
+   * @param {string} validMnemonic A valid bip39 mnemonic
+   * @param {number} addressIndex 0
+   * @return {Promise<null | NightfallZkpKeys>} A set of keys if request is successful, else null
+   */
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
-  ) {
+  ): Promise<null | NightfallZkpKeys> {
     const logInput = { validMnemonic, addressIndex };
     logger.debug(logInput, "Calling client at generate-zkp-keys");
     let res: AxiosResponse;
@@ -79,8 +114,16 @@ class Client {
     return res.data;
   }
 
-  // TODO double-check that return is coherent with API response
-  async subscribeToIncomingViewingKeys(zkpKeys: any) {
+  /**
+   * Perform a POST request to subscribe to incoming viewing keys
+   *
+   * @method subscribeToIncomingViewingKeys
+   * @param {NightfallZkpKeys} zkpKeys A set of Zero-knowledge proof keys
+   * @return {Promise<null | string>} Status "success" if request is successful, else null
+   */
+  async subscribeToIncomingViewingKeys(
+    zkpKeys: NightfallZkpKeys,
+  ): Promise<null | string> {
     logger.debug({ zkpKeys }, "Calling client at incoming-viewing-key");
     let res: AxiosResponse;
     try {
@@ -100,24 +143,21 @@ class Client {
   }
 
   async deposit(
-    tokenAddress: string,
-    tokenStandard: string,
+    token: any, // Token,
+    zkpKeys: NightfallZkpKeys,
     value: string,
-    compressedZkpPublicKey: string,
-    nullifierKey: string,
-    fee: number,
+    fee: string,
   ) {
-    const logInput = { tokenAddress, tokenStandard, value, fee };
-    logger.debug(logInput, "Calling client at deposit");
+    logger.debug("Calling client at deposit");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/deposit`, {
-        ercAddress: tokenAddress,
-        tokenType: tokenStandard,
-        tokenId: "0x00", // ISSUE #32
+        ercAddress: token.contractAddress,
+        tokenType: token.ercStandard,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
         value,
-        compressedZkpPublicKey,
-        nullifierKey,
+        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        nullifierKey: zkpKeys.nullifierKey,
         fee,
       });
       logger.info(
@@ -125,7 +165,47 @@ class Client {
         "Client at deposit responded",
       );
     } catch (err) {
-      logger.child({ logInput }).error(err);
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
+
+  async getPendingDeposits(zkpKeys: NightfallZkpKeys) {
+    logger.debug("Calling client at commitment/pending-deposit");
+    let res: AxiosResponse;
+    try {
+      res = await axios.get(`${this.apiUrl}/commitment/pending-deposit`, {
+        params: {
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        },
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at commitment/pending-deposit responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
+
+  async getNightfallBalances(zkpKeys: NightfallZkpKeys) {
+    logger.debug("Calling client at commitment/balance");
+    let res: AxiosResponse;
+    try {
+      res = await axios.get(`${this.apiUrl}/commitment/balance`, {
+        params: {
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        },
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at commitment/balance responded",
+      );
+    } catch (err) {
+      logger.error(err);
       return null;
     }
     return res.data;

@@ -1,15 +1,23 @@
 import path from "path";
+import { CONTRACT_SHIELD, TX_FEE_GWEI_DEFAULT } from "./constants";
 import {
-  CONTRACT_SHIELD,
-  NIGHTFALL_DEFAULT_CONFIG,
-  TX_FEE_DEFAULT,
-} from "./constants";
-import { UserConfig, UserDeposit, UserExportCommitments } from "./types";
+  UserFactoryOptions,
+  UserOptions,
+  UserMakeDepositOptions,
+  UserExportCommitments
+} from "./types";
 import { Client } from "../client";
-import { Web3Websocket, getEthAddressFromPrivateKey } from "../ethereum";
-import { createZkpKeysFromMnemonic } from "../nightfall";
-import { createDeposit } from "../transactions/deposit";
+import { Web3Websocket, getEthAccountAddress } from "../ethereum";
+import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
+import {
+  createAndSubmitApproval,
+  createAndSubmitDeposit,
+  stringValueToWei,
+} from "../transactions";
 import { parentLogger } from "../utils";
+import { createOptions, makeDepositOptions } from "./validations";
+import type { NightfallZkpKeys } from "../nightfall/types";
+import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
 import Commitment from "../../libs/types";
@@ -18,85 +26,140 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-class User {
-  // Set by constructor
-  web3Websocket;
-  client;
+class UserFactory {
+  static async create(options: UserFactoryOptions) {
+    logger.debug("UserFactory :: create");
+    createOptions.validate(options);
 
-  // Set by init
-  shieldContractAddress: null | string = null;
-  ethPrivateKey: null | string = null;
-  ethAddress: null | string = null;
-  nightfallMnemonic: null | string = null;
-  zkpKeys: any = null;
+    // Format options
+    const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
+    const blockchainWsUrl = options.blockchainWsUrl.trim().toLowerCase();
+    const ethPrivateKey = options.ethereumPrivateKey.trim();
+    const nightfallMnemonic = options.nightfallMnemonic?.trim(); // else keep as undefined
 
-  constructor(env = NIGHTFALL_DEFAULT_CONFIG) {
-    logger.debug({ env }, "new User connected to");
+    // Instantiate Client and Web3Websocket
+    const client = new Client(clientApiUrl);
+    const web3Websocket = new Web3Websocket(blockchainWsUrl);
 
-    const blockchainWsUrl = env.blockchainWsUrl.toLowerCase();
-    this.web3Websocket = new Web3Websocket(blockchainWsUrl);
-
-    const clientApiUrl = env.clientApiUrl.toLowerCase();
-    this.client = new Client(clientApiUrl);
-  }
-
-  // TODO improve return type
-  async init(config: UserConfig) {
-    logger.debug({ config }, "User :: init");
-
-    // Set this.shieldContractAddress
-    logger.debug("User :: setShieldContractAddress");
-    this.shieldContractAddress = await this.client.getContractAddress(
+    // Get Shield contract address
+    const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
+    if (!shieldContractAddress)
+      throw new Error("Unable to get Shield contract address");
 
-    // Set this.ethPrivateKey, this.ethAddress if valid private key
-    const ethAddress = getEthAddressFromPrivateKey(
-      config.ethereumPrivateKey,
-      this.web3Websocket.web3,
+    // Get the Eth account address from private key if it's a valid key
+    const ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
+    if (!ethAddress) throw new Error("Unable to get an Eth address");
+
+    // Create a set of Zero-knowledge proof keys from a valid mnemonic
+    // or from a new mnemonic if none was provided,
+    // subscribe to incoming viewing keys
+    const nightfallKeys = await createZkpKeysAndSubscribeToIncomingKeys(
+      nightfallMnemonic,
+      client,
     );
-    if (!ethAddress) return null;
-    this.ethPrivateKey = config.ethereumPrivateKey;
-    this.ethAddress = ethAddress;
+    if (!nightfallKeys) throw new Error("Unable to generate Nightfall keys");
 
-    // Set this.nightfallMnemonic, this.zkpKeys,
-    // subscribe to incoming viewing keys if valid mnemonic,
-    // or creates one if no mnemonic was given
-    const nightfallKeys = await createZkpKeysFromMnemonic(
-      config.nightfallMnemonic,
-      this.client,
-    );
-    if (!nightfallKeys) return null;
-    const { nightfallMnemonic, zkpKeys } = nightfallKeys;
-    this.nightfallMnemonic = nightfallMnemonic;
-    this.zkpKeys = zkpKeys;
+    return new User({
+      client,
+      web3Websocket,
+      shieldContractAddress,
+      ethPrivateKey: ethPrivateKey,
+      ethAddress,
+      nightfallMnemonic: nightfallKeys.nightfallMnemonic,
+      zkpKeys: nightfallKeys.zkpKeys,
+    });
+  }
+}
 
-    return { User: this };
+class User {
+  // Set by constructor
+  client: Client;
+  web3Websocket: Web3Websocket;
+  shieldContractAddress: string;
+  ethPrivateKey: string;
+  ethAddress: string;
+  nightfallMnemonic: string;
+  zkpKeys: NightfallZkpKeys;
+
+  // Set when transacting
+  token: any;
+  nightfallTxHashes: string[] = [];
+
+  constructor(options: UserOptions) {
+    logger.debug("new User");
+
+    let key: keyof UserOptions;
+    for (key in options) {
+      this[key] = options[key];
+    }
   }
 
-  // TODO needs massive refactor
-  async makeDeposit(options: UserDeposit): Promise<any> {
+  async makeDeposit(options: UserMakeDepositOptions) {
     logger.debug({ options }, "User :: makeDeposit");
+    makeDepositOptions.validate(options);
 
-    return createDeposit(
-      options.tokenAddress,
-      options.tokenStandard,
-      options.value,
-      options.fee || TX_FEE_DEFAULT,
-      this.shieldContractAddress,
-      this.ethPrivateKey,
+    // Format options
+    let value = options.value.trim();
+    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddress = options.tokenAddress.trim();
+    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddress !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddress,
+        ercStandard: tokenStandard,
+        web3: this.web3Websocket.web3,
+      });
+    }
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert value and fee to wei
+    value = stringValueToWei(value, this.token.decimals);
+    fee = fee + "000000000";
+    logger.info({ value, fee }, "Value and fee in wei");
+
+    // Deposit tx might need approval
+    const approvalReceipt = await createAndSubmitApproval(
+      this.token,
       this.ethAddress,
+      this.ethPrivateKey,
+      this.shieldContractAddress,
+      value,
+      fee,
+      this.web3Websocket.web3,
+    );
+    if (approvalReceipt === null) return null;
+    logger.info({ approvalReceipt }, "Approval completed");
+
+    // Deposit
+    const depositReceipts = await createAndSubmitDeposit(
+      this.token,
+      this.ethAddress,
+      this.ethPrivateKey,
       this.zkpKeys,
+      this.shieldContractAddress,
+      value,
+      fee,
       this.web3Websocket.web3,
       this.client,
     );
+    if (depositReceipts === null) return null;
+    logger.info({ depositReceipts }, "Deposit completed");
+
+    this.nightfallTxHashes.push(depositReceipts.txL2?.transactionHash);
+
+    return depositReceipts;
   }
 
-  async checkStatus() {
-    logger.debug("User :: checkStatus");
-    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
-    const isClientAlive = await this.client.healthCheck();
-    return { isWeb3WsAlive, isClientAlive };
+  async checkPendingDeposits() {
+    return this.client.getPendingDeposits(this.zkpKeys);
+  }
+
+  async checkNightfallBalances() {
+    return this.client.getNightfallBalances(this.zkpKeys);
   }
 
   /**
@@ -139,10 +202,17 @@ class User {
     }
   }
 
+  async checkStatus() {
+    logger.debug("User :: checkStatus");
+    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
+    const isClientAlive = await this.client.healthCheck();
+    return { isWeb3WsAlive, isClientAlive };
+  }
+
   close() {
     logger.debug("User :: close");
     this.web3Websocket.close();
   }
 }
 
-export default User;
+export default UserFactory;

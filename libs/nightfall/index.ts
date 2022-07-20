@@ -1,3 +1,3 @@
-import { createZkpKeysFromMnemonic } from "./keys";
+import { createZkpKeysAndSubscribeToIncomingKeys } from "./keys";
 
-export { createZkpKeysFromMnemonic };
+export { createZkpKeysAndSubscribeToIncomingKeys };

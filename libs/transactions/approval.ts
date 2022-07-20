@@ -3,40 +3,38 @@ import path from "path";
 import { parentLogger } from "../utils";
 // import type { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
-import type { Client } from "../client";
-import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-export async function createAndSubmitDeposit(
+export async function createAndSubmitApproval(
   token: any, // Token,
   ownerAddress: string,
   ownerPrivateKey: string,
-  ownerZkpKeys: NightfallZkpKeys,
-  shieldContractAddress: string,
+  spenderAddress: string,
   value: string,
   fee: string,
   web3: Web3,
-  client: Client,
-) {
-  logger.debug("createAndSubmitDeposit");
+): Promise<void | null | TransactionReceipt> {
+  logger.debug("createAndSubmitApproval");
 
-  const resData = await client.deposit(token, ownerZkpKeys, value, fee);
-  // resData null signals that something went wrong in the Client
-  if (resData === null) return;
-
-  const unsignedTx = resData.txDataToSign;
-  logger.debug({ unsignedTx }, "Deposit tx, unsigned");
+  const unsignedTx = await token.approveTransaction(
+    ownerAddress,
+    spenderAddress,
+    value,
+  );
+  // unsignedTx `null` signals that the approval is not required (no tx to sign and submit)
+  if (unsignedTx === null) return;
+  logger.info({ unsignedTx }, "Approval tx, unsigned");
 
   let txReceipt: TransactionReceipt;
   try {
     txReceipt = await submitTransaction(
       ownerAddress,
       ownerPrivateKey,
-      shieldContractAddress,
+      token.contractAddress,
       unsignedTx,
       fee,
       web3,
@@ -45,5 +43,5 @@ export async function createAndSubmitDeposit(
     logger.child({ unsignedTx }).error(err);
     return null;
   }
-  return { txL1: txReceipt, txL2: resData.transaction };
+  return txReceipt;
 }

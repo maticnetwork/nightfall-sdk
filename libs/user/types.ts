@@ -1,19 +1,29 @@
-export interface Env {
-  blockchainNetwork: string;
+import type { Client } from "../client";
+import type { Web3Websocket } from "../ethereum";
+import type { NightfallZkpKeys } from "../nightfall/types";
+
+export interface UserFactoryOptions {
   blockchainWsUrl: string;
   clientApiUrl: string;
-}
-
-export interface UserConfig {
   ethereumPrivateKey: string;
   nightfallMnemonic?: string;
 }
 
-export interface UserDeposit {
+export interface UserOptions {
+  client: Client;
+  web3Websocket: Web3Websocket;
+  shieldContractAddress: string;
+  ethPrivateKey: string;
+  ethAddress: string;
+  nightfallMnemonic: string;
+  zkpKeys: any; // TODO NightfallZkpKeys might have to be declared as class??;
+}
+
+export interface UserMakeDepositOptions {
   tokenAddress: string;
   tokenStandard: string;
   value: string;
-  fee?: number;
+  feeGwei?: string;
 }
 
 export interface UserExportCommitments {

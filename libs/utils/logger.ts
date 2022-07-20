@@ -4,7 +4,7 @@ const LOGGER_DEFAULT_LEVEL = "debug";
 const LOGGER_TIME_STRING = "yyyy-mm-dd HH:MM:ss";
 
 const logger = pino({
-  level: LOGGER_DEFAULT_LEVEL, // TODO env var
+  level: LOGGER_DEFAULT_LEVEL, // ISSUE #33
   transport: {
     target: "pino-pretty",
     options: {
