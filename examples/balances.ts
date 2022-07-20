@@ -24,19 +24,20 @@ const options = {
 
 // Script
 const main = async () => {
+  let user;
   try {
-    const user = await UserFactory.create(options);
+    user = await UserFactory.create(options);
     const status = await user.checkStatus();
     console.log(status);
 
     const balances = await user.checkNightfallBalances();
     console.log(balances);
-
-    user.close();
-    console.log("Bye bye");
   } catch (error) {
     console.log(error);
     process.exit(1);
+  } finally {
+    user.close();
+    console.log("Bye bye");
   }
 };
 
