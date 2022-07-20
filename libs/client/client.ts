@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from "axios";
+import Commitment from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 
@@ -128,6 +129,37 @@ class Client {
       return null;
     }
     return res.data;
+  }
+
+  /**
+   *
+   * @method getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
+   * endpoint to get all commitments by compressed pkd.
+   * @param listOfCompressedZkpPublicKey a list of compressed zkp publick keys derivated from
+   * the user mnemonic.
+   * @returns all the commitments existent for this compressed pkds.
+   * @author luizoamorim
+   */
+  async getCommitmentsByCompressedZkpPublicKey(
+    listOfCompressedZkpPublicKey: string[],
+  ): Promise<Commitment[]> {
+    try {
+      if (
+        listOfCompressedZkpPublicKey &&
+        listOfCompressedZkpPublicKey.length > 0
+      ) {
+        const response = await axios.post(
+          `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
+          listOfCompressedZkpPublicKey,
+        );
+
+        return response.data.commitmentsByListOfCompressedZkpPublicKey;
+      }
+      throw new Error("You should pass at least one compressedZkpPublicKey");
+    } catch (err) {
+      logger.child({ listOfCompressedZkpPublicKey }).error(err);
+      return null;
+    }
   }
 }
 

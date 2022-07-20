@@ -23,17 +23,17 @@ const tokenAddress = process.env.SDK_ETH_TOKEN_ADDRESS; // MATIC contract addres
 const main = async () => {
   try {
     const user = new User(environment); // now goerli
+
     const status = await user.checkStatus();
     console.log(status);
 
-    const configUser = await user.init({
+    await user.init({
       ethereumPrivateKey: ethereumPrivateKey,
     });
-    console.log(configUser);
 
     const tokenStandard = "ERC20";
     const value = "0.0014";
-    const deposit = await user.makeDeposit({
+    await user.makeDeposit({
       tokenAddress,
       tokenStandard,
       value,

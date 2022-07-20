@@ -1,0 +1,3 @@
+const mockCompressedZkpPublicKey =
+  "0x9b95fab23c3445b14f3a48b70298541bf77420d8e14644fd4242442a61a67c38";
+export default mockCompressedZkpPublicKey;
