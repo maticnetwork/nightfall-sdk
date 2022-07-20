@@ -16,7 +16,7 @@ import {
 import { parentLogger } from "../utils";
 import { createOptions, makeDepositOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { Token, setToken } from "../tokens";
+import { TokenFactory } from "../tokens";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -80,7 +80,7 @@ class User {
   zkpKeys: NightfallZkpKeys;
 
   // Set when transacting
-  token: Token;
+  token: any;
   nightfallTxHashes: string[] = [];
 
   constructor(options: UserOptions) {
@@ -104,11 +104,11 @@ class User {
 
     // Set token only if it's not set or is different
     if (!this.token || tokenAddress !== this.token.contractAddress)
-      this.token = await setToken(
-        tokenAddress,
-        tokenStandard,
-        this.web3Websocket.web3,
-      );
+      this.token = await TokenFactory.create({
+        address: tokenAddress,
+        ercStandard: tokenStandard,
+        web3: this.web3Websocket.web3,
+      });
     if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei

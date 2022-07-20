@@ -10,6 +10,23 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
+class TokenFactory {
+  static async create(options: TokenOptions) {
+    logger.debug("TokenFactory :: create");
+
+    const token = new Token(options);
+
+    try {
+      await token.setTokenDecimals();
+    } catch (err) {
+      logger.child(options).error(err, "Unable to set token decimals");
+      return null;
+    }
+
+    return token;
+  }
+}
+
 class Token {
   // Set by constructor
   web3: Web3;
@@ -90,4 +107,4 @@ class Token {
   }
 }
 
-export default Token;
+export default TokenFactory;

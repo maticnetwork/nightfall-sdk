@@ -1,7 +1,7 @@
 import type Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../utils";
-import type { Token } from "../tokens";
+// import type { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
@@ -12,7 +12,7 @@ const logger = parentLogger.child({
 });
 
 export async function createAndSubmitDeposit(
-  token: Token,
+  token: any, // Token,
   ownerAddress: string,
   ownerPrivateKey: string,
   ownerZkpKeys: NightfallZkpKeys,

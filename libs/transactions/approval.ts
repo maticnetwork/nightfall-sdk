@@ -1,7 +1,7 @@
 import type Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../utils";
-import type { Token } from "../tokens";
+// import type { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
 import type { TransactionReceipt } from "web3-core";
 
@@ -10,7 +10,7 @@ const logger = parentLogger.child({
 });
 
 export async function createAndSubmitApproval(
-  token: Token,
+  token: any, // Token,
   ownerAddress: string,
   ownerPrivateKey: string,
   spenderAddress: string,

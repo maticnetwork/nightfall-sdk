@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import type { Token } from "../tokens";
+// import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -142,7 +142,7 @@ class Client {
   }
 
   async deposit(
-    token: Token,
+    token: any, // Token,
     zkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,

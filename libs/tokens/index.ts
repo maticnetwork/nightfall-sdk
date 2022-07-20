@@ -1,5 +1,4 @@
-import Token from "./token";
-import { setToken } from "./helpers";
+import TokenFactory from "./token";
 import { TOKEN_STANDARDS } from "./constants";
 
-export { Token, setToken, TOKEN_STANDARDS };
+export { TokenFactory, TOKEN_STANDARDS };
