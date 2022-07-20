@@ -25,3 +25,9 @@ export interface UserMakeDepositOptions {
   value: string;
   feeGwei?: string;
 }
+
+export interface UserExportCommitments {
+  listOfCompressedZkpPublicKey: string[];
+  pathToExport: string;
+  fileName: string;
+}

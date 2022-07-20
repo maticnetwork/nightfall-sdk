@@ -4,6 +4,7 @@ import {
   UserFactoryOptions,
   UserOptions,
   UserMakeDepositOptions,
+  UserExportCommitments
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -17,6 +18,9 @@ import { parentLogger } from "../utils";
 import { createOptions, makeDepositOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
+import convertObjectToString from "../utils/convertObjectToString";
+import exportFile from "../utils/exportFile";
+import Commitment from "../../libs/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -156,6 +160,46 @@ class User {
 
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
+  }
+
+  /**
+   *
+   * @method exportCommitments get the commitments from the client instance and
+   * export a file with this commitments to some path based in the env variables
+   * that set the path and the filename.
+   * @param listOfCompressedZkpPublicKey a list of compressed zkp public key derivated
+   * from the user mnemonic.
+   * @param pathToExport the path to export the file.
+   * @param fileName the name of the file.
+   * @author luizoamorim
+   */
+  async exportCommitments(
+    options: UserExportCommitments,
+  ): Promise<void | null> {
+    try {
+      const allCommitmentsByCompressedZkpPublicKey: Commitment[] =
+        await this.client.getCommitmentsByCompressedZkpPublicKey(
+          options.listOfCompressedZkpPublicKey,
+        );
+
+      if (
+        allCommitmentsByCompressedZkpPublicKey &&
+        allCommitmentsByCompressedZkpPublicKey.length > 0
+      ) {
+        await exportFile(
+          `${options.pathToExport}${options.fileName}`,
+          convertObjectToString(allCommitmentsByCompressedZkpPublicKey),
+        );
+        return;
+      }
+      logger.warn(
+        "Either you don't have any commitments for this listOfCompressedZkpPublicKey or this one is invalid!",
+      );
+      return null;
+    } catch (err) {
+      logger.child({ options }).error(err);
+      return null;
+    }
   }
 
   async checkStatus() {
