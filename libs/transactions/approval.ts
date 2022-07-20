@@ -25,7 +25,7 @@ export async function createAndSubmitApproval(
     spenderAddress,
     value,
   );
-  // unsignedTx `null` signals that the approval is not required
+  // unsignedTx `null` signals that the approval is not required (no tx to sign and submit)
   if (unsignedTx === null) return;
   logger.info({ unsignedTx }, "Approval tx, unsigned");
 
