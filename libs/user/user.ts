@@ -4,7 +4,9 @@ import {
   UserFactoryOptions,
   UserOptions,
   UserMakeDepositOptions,
-  UserExportCommitments
+  UserExportCommitments,
+  UserMakeTransfer,
+  UserMakeTransefrOptions,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -15,12 +17,17 @@ import {
   stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
-import { createOptions, makeDepositOptions } from "./validations";
+import {
+  createOptions,
+  makeDepositOptions,
+  makeTransefrOptions,
+} from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
 import Commitment from "../../libs/types";
+import { createAndSubmitTransfer } from "../../libs/transactions/transfer";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -31,6 +38,7 @@ class UserFactory {
     logger.debug("UserFactory :: create");
     createOptions.validate(options);
 
+    console.log("OPTIONS: ", options);
     // Format options
     const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
     const blockchainWsUrl = options.blockchainWsUrl.trim().toLowerCase();
@@ -98,7 +106,6 @@ class User {
 
   async makeDeposit(options: UserMakeDepositOptions) {
     logger.debug({ options }, "User :: makeDeposit");
-    makeDepositOptions.validate(options);
 
     // Format options
     let value = options.value.trim();
@@ -160,6 +167,61 @@ class User {
 
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
+  }
+
+  /**
+   *
+   * @method makeTransfer handle the flow to make a transfer in polygon nightfall network.
+   * @async
+   * @param {UserMakeDepositOptions} options
+   * @returns
+   * @author luizoamorim
+   */
+  async makeTransfer(options: UserMakeTransefrOptions) {
+    logger.debug({ options }, "User :: makeTransfer");
+    makeTransefrOptions.validate(options);
+
+    // Format options
+    let value = options.value.trim();
+    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddress = options.tokenAddress.trim();
+    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const recipientAddress = options.recipientAddress.trim();
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddress !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddress,
+        ercStandard: tokenStandard,
+        web3: this.web3Websocket.web3,
+      });
+    }
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert value and fee to wei
+    value = stringValueToWei(value, this.token.decimals);
+    fee = fee + "000000000";
+    logger.info({ value, fee }, "Value and fee in wei");
+
+    // Transfer
+    const transferReceipts = await createAndSubmitTransfer(
+      this.token.contractAddress,
+      this.token.ercStandard,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      this.shieldContractAddress,
+      value,
+      fee,
+      this.web3Websocket.web3,
+      this.client,
+      recipientAddress,
+    );
+
+    if (transferReceipts === null) return null;
+    logger.info({ transferReceipts }, "Transfer was completed!");
+
+    return transferReceipts;
   }
 
   /**

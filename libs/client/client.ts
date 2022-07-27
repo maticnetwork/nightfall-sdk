@@ -3,6 +3,7 @@ import Commitment from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
+import { RecipientData, UserMakeTransfer } from "libs/user/types";
 // import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
@@ -232,7 +233,7 @@ class Client {
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
         );
-
+        console.log("RESPONSE: ", response.data);
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");
@@ -240,6 +241,55 @@ class Client {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
+  }
+
+  /**
+    Transfers a token within Layer 2.
+    @method
+    @async
+    @param {string} ercAddress - The address of the ERCx contract from which the token
+    @param {number} fee - The amount (Wei) to pay a proposer for the transaction    
+    is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+    by the token's owner to be able to withdraw the token.
+    @param {RecipientData} recipientData - An object with an array of values and an array
+    of compressedZkpPublicKeys.        
+    @param {string} tokenId - The ID of an ERC721 or ERC1155 token.  In the case of
+    an 'ERC20' coin, this should be set to '0x00'.
+    @param {string} rootKey - The ID of an ERC721 or ERC1155 token.  In the case of
+    an 'ERC20' coin, this should be set to '0x00'.
+    @returns {Promise} Resolves into the Ethereum transaction receipt.
+    */
+  async transfer({
+    ercAddress,
+    fee,
+    offchain,
+    recipientData,
+    rootKey,
+    tokenId,
+  }: UserMakeTransfer) {
+    logger.debug("Calling client at deposit");
+    let res: AxiosResponse;
+
+    console.log("TRANSFER: ", ercAddress);
+
+    try {
+      res = await axios.post(`${this.apiUrl}/transfer`, {
+        offchain,
+        ercAddress,
+        tokenId,
+        recipientData,
+        rootKey,
+        fee,
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at transfer responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
   }
 }
 

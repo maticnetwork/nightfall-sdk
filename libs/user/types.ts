@@ -26,6 +26,29 @@ export interface UserMakeDepositOptions {
   feeGwei?: string;
 }
 
+export interface UserMakeTransefrOptions {
+  tokenAddress: string;
+  tokenStandard: string;
+  value: string;
+  feeGwei?: string;
+  recipientAddress: string;
+}
+
+export interface RecipientData {
+  recipientCompressedZkpPublicKeys: string[];
+  values: string[];
+}
+
+export interface UserMakeTransfer {
+  ercAddress: string;
+  tokenId: string;
+  tokenType: string;
+  recipientData: RecipientData;
+  rootKey: string;
+  fee: string;
+  offchain: boolean;
+}
+
 export interface UserExportCommitments {
   listOfCompressedZkpPublicKey: string[];
   pathToExport: string;
