@@ -171,6 +171,38 @@ class Client {
     return res.data;
   }
 
+  async withdraw(
+    isOffChain: boolean,
+    token: any, // Token,
+    zkpKeys: NightfallZkpKeys,
+    value: string,
+    fee: string,
+    recipientAddress: string,
+  ) {
+    logger.debug("Calling client at withdraw");
+    let res: AxiosResponse;
+    try {
+      res = await axios.post(`${this.apiUrl}/withdraw`, {
+        offchain: isOffChain,
+        ercAddress: token.contractAddress,
+        tokenType: token.ercStandard,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        value,
+        rootKey: zkpKeys.rootKey,
+        fee,
+        recipientAddress,
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at withdraw responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
+
   async getPendingDeposits(zkpKeys: NightfallZkpKeys) {
     logger.debug("Calling client at commitment/pending-deposit");
     let res: AxiosResponse;
