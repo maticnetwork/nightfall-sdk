@@ -6,6 +6,7 @@ import {
   UserMakeDepositOptions,
   UserExportCommitments,
   UserMakeWithdrawal,
+  UserFinaliseWithdrawal,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -14,6 +15,7 @@ import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
   createAndSubmitWithdrawal,
+  createAndSubmitFinalWithdrawal,
   stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
@@ -207,6 +209,33 @@ class User {
     );
 
     return withdrawalReceipts;
+  }
+
+  async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
+    // TODO options validation
+
+    // Format options
+    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    fee = fee + "000000000";
+
+    // If no withdrawTxHash was given, use the latest
+    const withdrawTxHash =
+      options.withdrawTxHash?.trim() ||
+      this.nightfallWithdrawalTxHashes[
+        this.nightfallWithdrawalTxHashes.length - 1
+      ]; // Will return undefined for [], TODO improve feedback
+
+    const receipt = await createAndSubmitFinalWithdrawal(
+      withdrawTxHash,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.shieldContractAddress,
+      fee,
+      this.web3Websocket.web3,
+      this.client,
+    );
+    // TODO review
+    return receipt;
   }
 
   async checkPendingDeposits() {

@@ -35,6 +35,11 @@ export interface UserMakeWithdrawal {
   isOffChain?: boolean;
 }
 
+export interface UserFinaliseWithdrawal {
+  withdrawTxHash?: string;
+  feeGwei?: string;
+}
+
 // TODO review names
 export interface UserExportCommitments {
   listOfCompressedZkpPublicKey: string[];
