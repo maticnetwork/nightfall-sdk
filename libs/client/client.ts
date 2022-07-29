@@ -203,6 +203,25 @@ class Client {
     return res.data;
   }
 
+  // DOCS find the L2 block containing the L2 transaction hash
+  async finaliseWithdrawal(withdrawTxHash: string) {
+    logger.debug("Calling client at finalise-withdrawal");
+    let res: AxiosResponse;
+    try {
+      res = await axios.post(`${this.apiUrl}/finalise-withdrawal`, {
+        transactionHash: withdrawTxHash,
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at withdraw responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
+
   async getPendingDeposits(zkpKeys: NightfallZkpKeys) {
     logger.debug("Calling client at commitment/pending-deposit");
     let res: AxiosResponse;
