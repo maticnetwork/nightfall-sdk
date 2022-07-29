@@ -4,7 +4,8 @@ import {
   UserFactoryOptions,
   UserOptions,
   UserMakeDepositOptions,
-  UserExportCommitments
+  UserExportCommitments,
+  UserMakeWithdrawal,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -12,6 +13,7 @@ import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
+  createAndSubmitWithdrawal,
   stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
@@ -85,7 +87,8 @@ class User {
 
   // Set when transacting
   token: any;
-  nightfallTxHashes: string[] = [];
+  nightfallDepositTxHashes: string[] = [];
+  nightfallWithdrawalTxHashes: string[] = [];
 
   constructor(options: UserOptions) {
     logger.debug("new User");
@@ -149,9 +152,61 @@ class User {
     if (depositReceipts === null) return null;
     logger.info({ depositReceipts }, "Deposit completed");
 
-    this.nightfallTxHashes.push(depositReceipts.txL2?.transactionHash);
+    this.nightfallDepositTxHashes.push(depositReceipts.txL2?.transactionHash);
 
     return depositReceipts;
+  }
+
+  async makeWithdrawal(options: UserMakeWithdrawal) {
+    logger.debug({ options }, "User :: makeWithdrawal");
+    // TODO makeDepositOptions.validate(options);
+
+    // Format options
+    let value = options.value.trim();
+    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddress = options.tokenAddress.trim();
+    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const recipientAddress = options.recipientAddress.trim(); // TODO validate Eth address
+    const isOffChain = options.isOffChain || false;
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddress !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddress,
+        ercStandard: tokenStandard,
+        web3: this.web3Websocket.web3,
+      });
+    }
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert value and fee to wei
+    value = stringValueToWei(value, this.token.decimals);
+    fee = fee + "000000000";
+    logger.info({ value, fee }, "Value and fee in wei");
+
+    // Withdrawal
+    const withdrawalReceipts = await createAndSubmitWithdrawal(
+      isOffChain,
+      this.token,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      this.shieldContractAddress,
+      value,
+      fee,
+      this.web3Websocket.web3,
+      this.client,
+      recipientAddress,
+    );
+
+    if (withdrawalReceipts === null) return null;
+    logger.info({ withdrawalReceipts }, "Withdrawal completed");
+
+    this.nightfallWithdrawalTxHashes.push(
+      withdrawalReceipts.txL2?.transactionHash,
+    );
+
+    return withdrawalReceipts;
   }
 
   async checkPendingDeposits() {

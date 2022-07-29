@@ -26,6 +26,16 @@ export interface UserMakeDepositOptions {
   feeGwei?: string;
 }
 
+export interface UserMakeWithdrawal {
+  tokenAddress: string;
+  tokenStandard: string;
+  value: string;
+  recipientAddress: string;
+  feeGwei?: string;
+  isOffChain?: boolean;
+}
+
+// TODO review names
 export interface UserExportCommitments {
   listOfCompressedZkpPublicKey: string[];
   pathToExport: string;
