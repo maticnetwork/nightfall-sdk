@@ -133,7 +133,7 @@ class User {
       this.ethPrivateKey,
       this.shieldContractAddress,
       value,
-      fee,
+      "0",
       this.web3Websocket.web3,
     );
     if (approvalReceipt === null) return null;
