@@ -17,7 +17,7 @@ const GAS_MULTIPLIER = Number(process.env.GAS_MULTIPLIER) || 2;
 const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
 
 /**
- * @function submitTransaction create, sign and send broadcast a transaction to the network
+ * @function submitTransaction create, sign and broadcast a transaction to the network
  * @param senderAddress - the address of who is doing the transfer
  * @param senderPrivateKey - the private key of the sender to sing the transaction
  * @param recipientAddress - the zkp public key of the recipient

@@ -14,7 +14,7 @@ const ETHEREUM_PRIVATE_KEY =
 const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
 const TOKEN_ADDRESS = "0x4f3c4F8D4575Cf73c2FAf9F36cc505e19E65B9C0";
 const TOKEN_STANDARD = "ERC20";
-const VALUE_TO_BE_TRANSFERED = "0.0002";
+const VALUE_TO_BE_TRANSFERED = "0.0202";
 
 const options = {
   blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
@@ -41,6 +41,7 @@ const main = async () => {
       tokenStandard: TOKEN_STANDARD,
       value: VALUE_TO_BE_TRANSFERED,
       recipientAddress: userRecipient.zkpKeys.compressedZkpPublicKey,
+      offchain: false,
     });
     console.log("transfer object: ", transfer);
     console.log("Nightfall tx hashes ::", userSender.nightfallTxHashes);

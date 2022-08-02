@@ -282,6 +282,13 @@ class Client {
         { status: axiosResponse.status, data: axiosResponse.data },
         "Client at transfer responded",
       );
+
+      if (
+        axiosResponse.data.error &&
+        axiosResponse.data.error === "No suitable commitments"
+      ) {
+        throw new Error("No suitable commitments were found");
+      }
     } catch (err) {
       logger.error(err);
       return null;

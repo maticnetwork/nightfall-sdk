@@ -184,6 +184,7 @@ class User {
     value,
     recipientAddress,
     feeGwei,
+    offchain = false,
   }: UserMakeTransefrOptions): Promise<TransferReceipts> {
     logger.debug(
       { tokenAddress, tokenStandard, value, recipientAddress, feeGwei },
@@ -234,11 +235,19 @@ class User {
       this.web3Websocket.web3,
       this.client,
       recipientAddressFormated,
+      offchain,
     );
 
-    if (transferReceipts === null) return null;
-    logger.info({ transferReceipts }, "Transfer was completed!");
+    console.log(
+      "TRANSFEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER: ",
+      transferReceipts,
+    );
+    if (transferReceipts === null) {
+      logger.error({ transferReceipts }, "Transfer was not completed!");
+      return null;
+    }
 
+    logger.info({ transferReceipts }, "Transfer was completed!");
     return transferReceipts;
   }
 

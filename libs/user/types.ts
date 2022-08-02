@@ -1,6 +1,7 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
 import type { TransactionReceipt } from "web3-core";
+import { Transaction } from "libs/types";
 
 export interface UserFactoryOptions {
   blockchainWsUrl: string;
@@ -32,6 +33,7 @@ export interface UserMakeTransefrOptions {
   value: string;
   feeGwei?: string;
   recipientAddress: string;
+  offchain: boolean;
 }
 
 export interface RecipientData {
@@ -57,5 +59,5 @@ export interface UserExportCommitments {
 
 export interface TransferReceipts {
   txL1: TransactionReceipt;
-  txL2: any;
+  txL2: Transaction;
 }
