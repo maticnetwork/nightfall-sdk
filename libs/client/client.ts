@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from "axios";
-import Commitment from "libs/types";
+import { Commitment, TransferReponseData } from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { RecipientData, UserMakeTransfer } from "libs/user/types";
+import { UserMakeTransfer } from "libs/user/types";
 // import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
@@ -233,7 +233,6 @@ class Client {
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
         );
-        console.log("RESPONSE: ", response.data);
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");
@@ -248,7 +247,7 @@ class Client {
     @method
     @async
     @param {string} ercAddress - The address of the ERCx contract from which the token
-    @param {number} fee - The amount (Wei) to pay a proposer for the transaction    
+    @param {string} fee - The amount (Wei) to pay a proposer for the transaction    
     is being taken.  Note that the Nightfall_3 State.sol contract must be approved
     by the token's owner to be able to withdraw the token.
     @param {RecipientData} recipientData - An object with an array of values and an array
@@ -266,14 +265,12 @@ class Client {
     recipientData,
     rootKey,
     tokenId,
-  }: UserMakeTransfer) {
+  }: UserMakeTransfer): Promise<TransferReponseData> {
     logger.debug("Calling client at deposit");
-    let res: AxiosResponse;
-
-    console.log("TRANSFER: ", ercAddress);
+    let axiosResponse: AxiosResponse;
 
     try {
-      res = await axios.post(`${this.apiUrl}/transfer`, {
+      axiosResponse = await axios.post(`${this.apiUrl}/transfer`, {
         offchain,
         ercAddress,
         tokenId,
@@ -282,14 +279,14 @@ class Client {
         fee,
       });
       logger.info(
-        { status: res.status, data: res.data },
+        { status: axiosResponse.status, data: axiosResponse.data },
         "Client at transfer responded",
       );
     } catch (err) {
       logger.error(err);
       return null;
     }
-    return res.data;
+    return axiosResponse.data;
   }
 }
 

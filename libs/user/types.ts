@@ -1,6 +1,6 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
-import type { NightfallZkpKeys } from "../nightfall/types";
+import type { TransactionReceipt } from "web3-core";
 
 export interface UserFactoryOptions {
   blockchainWsUrl: string;
@@ -53,4 +53,9 @@ export interface UserExportCommitments {
   listOfCompressedZkpPublicKey: string[];
   pathToExport: string;
   fileName: string;
+}
+
+export interface TransferReceipts {
+  txL1: TransactionReceipt;
+  txL2: any;
 }

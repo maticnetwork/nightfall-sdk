@@ -1,7 +1,6 @@
 import type Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../utils";
-// import type { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
@@ -11,7 +10,24 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-export async function createAndSubmitTransfer(
+/**
+ * @method handleTransfer handle the flow for transferences in layer2
+ * @param {string} ercAddress - the address of the smart contract created for this token
+ * @param {string} ercStandard - the erc standard
+ * @param {string} ownerAddress - the address of who is doing the transfer
+ * @param {string} ownerPrivateKey - the private key of the sender to sing the transaction
+ * @param {NightfallZkpKeys} ownerZkpKeys - the zkp keys for the sender
+ * @param {string} shieldContractAddress - the address of the Shield smart contract
+ * @param {string} value - the value to be transfered
+ * @param {string} fee - the amount (Wei) to pay a proposer for the transaction
+ * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+ * by the token's owner to be able to withdraw the token
+ * @param {Web3} web3 - web3js instance
+ * @param {Client} client -
+ * @param {string} recipientAddress - the zkp public key of the recipient
+ * @returns
+ */
+export async function handleTransfer(
   ercAddress: string,
   ercStandard: string,
   ownerAddress: string,
@@ -26,7 +42,7 @@ export async function createAndSubmitTransfer(
 ) {
   logger.debug("createAndSubmitTransfer");
 
-  const resData = await client.transfer({
+  const transferResponseData = await client.transfer({
     ercAddress: ercAddress,
     recipientData: {
       values: [value],
@@ -39,10 +55,10 @@ export async function createAndSubmitTransfer(
     tokenType: ercStandard,
   });
 
-  // resData null signals that something went wrong in the Client
-  if (resData === null) return;
+  // transferResponseData null signals that something went wrong in the Client
+  if (transferResponseData === null) return;
 
-  const unsignedTx = resData.txDataToSign;
+  const unsignedTx = transferResponseData.txDataToSign;
   logger.debug({ unsignedTx }, "Transefr tx, unsigned");
 
   let txReceipt: TransactionReceipt;
@@ -52,12 +68,12 @@ export async function createAndSubmitTransfer(
       ownerPrivateKey,
       shieldContractAddress,
       unsignedTx,
-      fee,
+      "0",
       web3,
     );
   } catch (err) {
     logger.child({ unsignedTx }).error(err);
     return null;
   }
-  return { txL1: txReceipt, txL2: resData.transaction };
+  return { txL1: txReceipt, txL2: transferResponseData.transaction };
 }

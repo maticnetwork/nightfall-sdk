@@ -14,7 +14,7 @@ const ETHEREUM_PRIVATE_KEY =
 const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
 const TOKEN_ADDRESS = "0x4f3c4F8D4575Cf73c2FAf9F36cc505e19E65B9C0";
 const TOKEN_STANDARD = "ERC20";
-const VALUE_TO_BE_TRANSFERED = "0.0001";
+const VALUE_TO_BE_TRANSFERED = "0.0002";
 
 const options = {
   blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
@@ -49,7 +49,7 @@ const main = async () => {
     process.exit(1);
   } finally {
     userSender.close();
-    //userRecipient.close();
+    userRecipient.close();
     console.log("Closing tranfer operation!");
   }
 };

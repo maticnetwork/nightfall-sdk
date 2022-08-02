@@ -5,8 +5,8 @@ import {
   UserOptions,
   UserMakeDepositOptions,
   UserExportCommitments,
-  UserMakeTransfer,
   UserMakeTransefrOptions,
+  TransferReceipts,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -17,17 +17,13 @@ import {
   stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
-import {
-  createOptions,
-  makeDepositOptions,
-  makeTransefrOptions,
-} from "./validations";
+import { createOptions, makeTransefrOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
-import Commitment from "../../libs/types";
-import { createAndSubmitTransfer } from "../../libs/transactions/transfer";
+import { Commitment } from "../../libs/types";
+import { handleTransfer } from "../../libs/transactions/transfer";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -38,7 +34,6 @@ class UserFactory {
     logger.debug("UserFactory :: create");
     createOptions.validate(options);
 
-    console.log("OPTIONS: ", options);
     // Format options
     const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
     const blockchainWsUrl = options.blockchainWsUrl.trim().toLowerCase();
@@ -171,51 +166,74 @@ class User {
 
   /**
    *
-   * @method makeTransfer handle the flow to make a transfer in polygon nightfall network.
+   * @method makeTransfer allow user to make a transfer in polygon nightfall network.
    * @async
-   * @param {UserMakeDepositOptions} options
-   * @returns
+   * @param {string} tokenAddress - the address of the smart contract for the ercStandard
+   * @param {string} tokenStandard - the ercStandard
+   * @param {string} value - the amount to be transfered
+   * @param {string} recipientAddress - the compressedZkpPublicKey for the receiver
+   * @param {string} feeGwei - The amount (GWei) to pay a proposer for the transaction
+   * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+   * by the token's owner to be able to withdraw the token.
+   * @returns Promise<TransferReceipts>
    * @author luizoamorim
    */
-  async makeTransfer(options: UserMakeTransefrOptions) {
-    logger.debug({ options }, "User :: makeTransfer");
-    makeTransefrOptions.validate(options);
+  async makeTransfer({
+    tokenAddress,
+    tokenStandard,
+    value,
+    recipientAddress,
+    feeGwei,
+  }: UserMakeTransefrOptions): Promise<TransferReceipts> {
+    logger.debug(
+      { tokenAddress, tokenStandard, value, recipientAddress, feeGwei },
+      "User :: makeTransfer",
+    );
 
-    // Format options
-    let value = options.value.trim();
-    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
-    const tokenAddress = options.tokenAddress.trim();
-    const tokenStandard = options.tokenStandard.trim().toUpperCase();
-    const recipientAddress = options.recipientAddress.trim();
+    // Validate the parameters
+    makeTransefrOptions.validate({
+      tokenAddress,
+      tokenStandard,
+      value,
+      recipientAddress,
+      feeGwei,
+    });
+
+    // Format the parameters
+    const valueFormated = value.trim();
+    const feeGweiFormated = feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddressFormated = tokenAddress.trim();
+    const tokenStandardFormated = tokenStandard.trim().toUpperCase();
+    const recipientAddressFormated = recipientAddress.trim();
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress) {
+    if (!this.token || tokenAddressFormated !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
-        address: tokenAddress,
-        ercStandard: tokenStandard,
+        address: tokenAddressFormated,
+        ercStandard: tokenStandardFormated,
         web3: this.web3Websocket.web3,
       });
     }
+
     if (this.token === null) throw new Error("Unable to set token");
 
-    // Convert value and fee to wei
-    value = stringValueToWei(value, this.token.decimals);
-    fee = fee + "000000000";
-    logger.info({ value, fee }, "Value and fee in wei");
+    // Convert values fron GWei to Wei
+    const valueWeiFormat = stringValueToWei(valueFormated, this.token.decimals);
+    const feeWeiFormat = feeGweiFormated + "000000000";
+    logger.info({ valueWeiFormat, feeWeiFormat }, "Value and fee in wei");
 
-    // Transfer
-    const transferReceipts = await createAndSubmitTransfer(
+    const transferReceipts = await handleTransfer(
       this.token.contractAddress,
       this.token.ercStandard,
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
       this.shieldContractAddress,
-      value,
-      fee,
+      valueWeiFormat,
+      "0",
       this.web3Websocket.web3,
       this.client,
-      recipientAddress,
+      recipientAddressFormated,
     );
 
     if (transferReceipts === null) return null;
