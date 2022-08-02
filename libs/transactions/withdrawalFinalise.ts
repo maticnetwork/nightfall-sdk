@@ -9,7 +9,7 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-export async function createAndSubmitFinalWithdrawal(
+export async function createAndSubmitFinaliseWithdrawal(
   withdrawTxHash: string,
   ownerAddress: string,
   ownerPrivateKey: string,
@@ -25,7 +25,7 @@ export async function createAndSubmitFinalWithdrawal(
   if (resData === null) return;
 
   const unsignedTx = resData.txDataToSign;
-  logger.debug({ unsignedTx }, "Finalise withdrawal tx, unsigned");
+  logger.debug({ unsignedTx }, "Finalise withdrawal tx, unsigned"); // TODO review
 
   let txReceipt: TransactionReceipt;
   try {

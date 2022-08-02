@@ -15,7 +15,7 @@ import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
   createAndSubmitWithdrawal,
-  createAndSubmitFinalWithdrawal,
+  createAndSubmitFinaliseWithdrawal,
   stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
@@ -212,11 +212,8 @@ class User {
   }
 
   async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
+    logger.debug({ options }, "User :: finaliseWithdrawal");
     // TODO options validation
-
-    // Format options
-    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
-    fee = fee + "000000000";
 
     // If no withdrawTxHash was given, use the latest
     const withdrawTxHash =
@@ -224,27 +221,26 @@ class User {
       this.nightfallWithdrawalTxHashes[
         this.nightfallWithdrawalTxHashes.length - 1
       ]; // Will return undefined for [], TODO improve feedback
+    logger.info({ withdrawTxHash }, "Finalise withdrawal with tx hash");
 
-    const receipt = await createAndSubmitFinalWithdrawal(
+    return createAndSubmitFinaliseWithdrawal(
       withdrawTxHash,
       this.ethAddress,
       this.ethPrivateKey,
       this.shieldContractAddress,
-      fee,
+      "0",
       this.web3Websocket.web3,
       this.client,
     );
-    // TODO review
-    return receipt;
   }
 
   async checkPendingDeposits() {
     return this.client.getPendingDeposits(this.zkpKeys);
   }
 
-  async checkPendingWithdrawals() {
-    return this.client.getPendingWithdrawals(this.zkpKeys); // TODO
-  }
+  // async checkPendingWithdrawals() {
+  //   return this.client.getPendingWithdrawals(this.zkpKeys); // TODO
+  // }
 
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);

@@ -37,7 +37,6 @@ export interface UserMakeWithdrawal {
 
 export interface UserFinaliseWithdrawal {
   withdrawTxHash?: string;
-  feeGwei?: string;
 }
 
 // TODO review names
