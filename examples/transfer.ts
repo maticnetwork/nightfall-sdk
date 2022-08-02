@@ -14,7 +14,7 @@ const ETHEREUM_PRIVATE_KEY =
 const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
 const TOKEN_ADDRESS = "0x4f3c4F8D4575Cf73c2FAf9F36cc505e19E65B9C0";
 const TOKEN_STANDARD = "ERC20";
-const VALUE_TO_BE_TRANSFERED = "0.0202";
+const VALUE_TO_BE_TRANSFERED = "0.0005";
 
 const options = {
   blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
@@ -45,6 +45,12 @@ const main = async () => {
     });
     console.log("transfer object: ", transfer);
     console.log("Nightfall tx hashes ::", userSender.nightfallTxHashes);
+
+    const balances = await userSender.checkLayer2PendingSpentBalances(
+      [TOKEN_ADDRESS],
+      true,
+    );
+    console.log("BALANCES: ", balances);
   } catch (error) {
     console.log(error);
     process.exit(1);

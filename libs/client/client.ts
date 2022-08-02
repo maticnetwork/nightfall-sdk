@@ -213,6 +213,36 @@ class Client {
   }
 
   /**
+   * @method getLayer2PendingSpentBalances Make the call for the enpoint that is responsible to return
+   * the balance of pending spent commitments from transfer and withdraw for each ERC address
+   * @param {string[]} ercList - an array of ERC smart contracts
+   * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
+   * should filter the pending spent balances by compressed zkp public key
+   * @param {NightfallZkpKeys} zkpKeys - A set of Zero-knowledge proof keys
+   * @returns {Promise} This promise resolves into an object whose properties are the
+    addresses of the ERC contracts of the tokens held by this account in Layer 2. The
+    value of each propery is the number of tokens pending spent (transfer & withdraw)
+    from that contract. {obs: Just copied this comment for returns from the nf3.mjs}
+    @author luizoamorim
+   */
+  async getLayer2PendingSpentBalances(
+    ercList: string[],
+    shouldFilterByCompressedZkpPublicKey: boolean,
+    zkpKeys?: NightfallZkpKeys,
+  ) {
+    const res = await axios.get(`${this.apiUrl}/commitment/pending-spent`, {
+      params: {
+        compressedZkpPublicKey:
+          shouldFilterByCompressedZkpPublicKey === true
+            ? zkpKeys.compressedZkpPublicKey
+            : null,
+        ercList,
+      },
+    });
+    return res.data.balance;
+  }
+
+  /**
    *
    * @method getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
    * endpoint to get all commitments by compressed pkd.
@@ -257,6 +287,7 @@ class Client {
     @param {string} rootKey - The ID of an ERC721 or ERC1155 token.  In the case of
     an 'ERC20' coin, this should be set to '0x00'.
     @returns {Promise} Resolves into the Ethereum transaction receipt.
+    @author luizoamorim
     */
   async transfer({
     ercAddress,

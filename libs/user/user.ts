@@ -166,6 +166,25 @@ class User {
 
   /**
    *
+   * @method checkLayer2PendingSpentBalances should get return the balance of pending spent commitments
+   * from transfer and withdraw for each ERC address
+   * @param {string[]} ercList - an array of ERC smart contracts
+   * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
+   * @returns
+   */
+  async checkLayer2PendingSpentBalances(
+    ercList: string[],
+    shouldFilterByCompressedZkpPublicKey: boolean,
+  ) {
+    return this.client.getLayer2PendingSpentBalances(
+      ercList,
+      shouldFilterByCompressedZkpPublicKey,
+      this.zkpKeys,
+    );
+  }
+
+  /**
+   *
    * @method makeTransfer allow user to make a transfer in polygon nightfall network.
    * @async
    * @param {string} tokenAddress - the address of the smart contract for the ercStandard
@@ -238,10 +257,6 @@ class User {
       offchain,
     );
 
-    console.log(
-      "TRANSFEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEER: ",
-      transferReceipts,
-    );
     if (transferReceipts === null) {
       logger.error({ transferReceipts }, "Transfer was not completed!");
       return null;
