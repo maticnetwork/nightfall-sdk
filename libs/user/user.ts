@@ -1,9 +1,9 @@
 import path from "path";
 import { CONTRACT_SHIELD, TX_FEE_GWEI_DEFAULT } from "./constants";
 import {
-  UserFactoryOptions,
-  UserOptions,
-  UserMakeDepositOptions,
+  UserFactoryCreate,
+  UserConstructor,
+  UserMakeDeposit,
   UserExportCommitments,
   UserMakeWithdrawal,
   UserFinaliseWithdrawal,
@@ -19,7 +19,12 @@ import {
   stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
-import { createOptions, makeDepositOptions } from "./validations";
+import {
+  createOptions,
+  makeDepositOptions,
+  makeWithdrawalOptions,
+  finaliseWithdrawalOptions,
+} from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
@@ -31,7 +36,7 @@ const logger = parentLogger.child({
 });
 
 class UserFactory {
-  static async create(options: UserFactoryOptions) {
+  static async create(options: UserFactoryCreate) {
     logger.debug("UserFactory :: create");
     createOptions.validate(options);
 
@@ -92,16 +97,16 @@ class User {
   nightfallDepositTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
 
-  constructor(options: UserOptions) {
+  constructor(options: UserConstructor) {
     logger.debug("new User");
 
-    let key: keyof UserOptions;
+    let key: keyof UserConstructor;
     for (key in options) {
       this[key] = options[key];
     }
   }
 
-  async makeDeposit(options: UserMakeDepositOptions) {
+  async makeDeposit(options: UserMakeDeposit) {
     logger.debug({ options }, "User :: makeDeposit");
     makeDepositOptions.validate(options);
 
@@ -161,14 +166,14 @@ class User {
 
   async makeWithdrawal(options: UserMakeWithdrawal) {
     logger.debug({ options }, "User :: makeWithdrawal");
-    // TODO makeDepositOptions.validate(options);
+    makeWithdrawalOptions.validate(options);
 
     // Format options
     let value = options.value.trim();
     let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
-    const recipientAddress = options.recipientAddress.trim(); // TODO validate Eth address
+    const recipientAddress = options.recipientAddress.trim();
     const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
@@ -193,12 +198,12 @@ class User {
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
+      recipientAddress,
       this.shieldContractAddress,
       value,
       fee,
       this.web3Websocket.web3,
       this.client,
-      recipientAddress,
     );
 
     if (withdrawalReceipts === null) return null;
@@ -213,14 +218,17 @@ class User {
 
   async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
     logger.debug({ options }, "User :: finaliseWithdrawal");
-    // TODO options validation
+    finaliseWithdrawalOptions.validate(options);
 
     // If no withdrawTxHash was given, use the latest
     const withdrawTxHash =
       options.withdrawTxHash?.trim() ||
       this.nightfallWithdrawalTxHashes[
         this.nightfallWithdrawalTxHashes.length - 1
-      ]; // Will return undefined for [], TODO improve feedback
+      ];
+    if (!withdrawTxHash)
+      throw new Error("Could not find any withdrawal tx hash");
+
     logger.info({ withdrawTxHash }, "Finalise withdrawal with tx hash");
 
     return createAndSubmitFinaliseWithdrawal(
@@ -239,7 +247,7 @@ class User {
   }
 
   // async checkPendingWithdrawals() {
-  //   return this.client.getPendingWithdrawals(this.zkpKeys); // TODO
+  //   return this.client.getPendingWithdrawals(this.zkpKeys); // CHECK is this valuable?
   // }
 
   async checkNightfallBalances() {

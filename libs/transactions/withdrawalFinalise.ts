@@ -25,7 +25,7 @@ export async function createAndSubmitFinaliseWithdrawal(
   if (resData === null) return;
 
   const unsignedTx = resData.txDataToSign;
-  logger.debug({ unsignedTx }, "Finalise withdrawal tx, unsigned"); // TODO review
+  logger.debug({ unsignedTx }, "Finalise withdrawal tx, unsigned");
 
   let txReceipt: TransactionReceipt;
   try {

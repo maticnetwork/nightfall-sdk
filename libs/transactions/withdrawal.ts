@@ -21,7 +21,7 @@ export async function createAndSubmitWithdrawal(
   fee: string,
   web3: Web3,
   client: Client,
-  recipientAddress: string, // TODO move, rename
+  recipientAddress: string, // TODO consider renaming
 ) {
   logger.debug("createAndSubmitDeposit");
 
