@@ -246,10 +246,6 @@ class User {
     return this.client.getPendingDeposits(this.zkpKeys);
   }
 
-  // async checkPendingWithdrawals() {
-  //   return this.client.getPendingWithdrawals(this.zkpKeys); // CHECK is this valuable?
-  // }
-
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
   }

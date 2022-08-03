@@ -48,12 +48,12 @@ export async function submitTransaction(
     gas,
     gasPrice,
   };
-  logger.debug({ tx }, "Asking web3 to sign tx...");
+  logger.debug({ tx }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
     tx,
     senderPrivateKey,
   );
 
-  logger.debug({ signedTx }, "About to send signedTx...");
+  logger.debug({ signedTx }, "Send signedTx...");
   return web3.eth.sendSignedTransaction(signedTx.rawTransaction);
 }

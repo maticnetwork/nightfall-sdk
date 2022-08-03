@@ -16,12 +16,12 @@ export async function createAndSubmitWithdrawal(
   ownerAddress: string,
   ownerPrivateKey: string,
   ownerZkpKeys: NightfallZkpKeys,
+  recipientAddress: string, // TODO consider renaming
   shieldContractAddress: string,
   value: string,
   fee: string,
   web3: Web3,
   client: Client,
-  recipientAddress: string, // TODO consider renaming
 ) {
   logger.debug("createAndSubmitDeposit");
 
