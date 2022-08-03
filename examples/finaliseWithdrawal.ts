@@ -11,15 +11,11 @@ dotenv.config({ path: path.join(rootPath, ".env") });
 
 // Script config for ganache
 const ETHEREUM_PRIVATE_KEY_DEFAULT =
-  "0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e";
+  "0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e"; // address 0x9C8B2276D490141Ae1440Da660E470E7C0349C63
 const TOKEN_ADDRESS_DEFAULT = "0x9b7bD670D87C3Dd5C808ba627c75ba7E88aD066f"; // ERC20Mock contract address in ganache
 
 // Script config for goerli
-const BLOCKCHAIN_WEBSOCKET_URL = process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL;
-const CLIENT_API_URL = process.env.SDK_CLIENT_API_URL;
-const ETHEREUM_PRIVATE_KEY = process.env.SDK_ETH_PRIVATE_KEY;
-const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
-const TOKEN_ADDRESS = process.env.SDK_TOKEN_ADDRESS; // MATIC contract address in goerli
+// TBC
 
 const options = {
   blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
@@ -34,25 +30,16 @@ const main = async () => {
   let user;
   try {
     user = await UserFactory.create(options);
-    const status = await user.checkStatus();
-    console.log(status);
 
-    const tokenAddress = TOKEN_ADDRESS_DEFAULT;
-    const tokenStandard = "ERC20";
-    const value = "0.0001";
-    const receipts = await user.makeDeposit({
-      tokenAddress,
-      tokenStandard,
-      value,
-    });
-    console.log(receipts);
-    console.log(
-      "Nightfall deposit tx hashes ::",
-      user.nightfallDepositTxHashes,
-    );
+    // console.log(
+    //   "Nightfall withdrawal tx hashes ::",
+    //   user.nightfallWithdrawalTxHashes,
+    // );
 
-    const balances = await user.checkPendingDeposits();
-    console.log(balances);
+    const withdrawTxHash =
+      "0x1aa2deb027b6961c15c95f04b537b14efd65c0abed0791cd8ef374b8d47439e4";
+    const l1Receipt = await user.finaliseWithdrawal({ withdrawTxHash });
+    console.log(l1Receipt);
   } catch (error) {
     console.log(error);
     process.exit(1);

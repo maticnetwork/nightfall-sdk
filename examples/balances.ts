@@ -9,6 +9,10 @@ import path from "path";
 const rootPath = path.resolve();
 dotenv.config({ path: path.join(rootPath, ".env") });
 
+// Script config for ganache
+const ETHEREUM_PRIVATE_KEY_DEFAULT =
+  "0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e";
+
 // Script config for goerli
 const BLOCKCHAIN_WEBSOCKET_URL = process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL;
 const CLIENT_API_URL = process.env.SDK_CLIENT_API_URL;
@@ -16,10 +20,11 @@ const ETHEREUM_PRIVATE_KEY = process.env.SDK_ETH_PRIVATE_KEY;
 const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
 
 const options = {
-  blockchainWsUrl: BLOCKCHAIN_WEBSOCKET_URL || BLOCKCHAIN_WS_URL_DEFAULT,
-  clientApiUrl: CLIENT_API_URL || CLIENT_API_URL_DEFAULT,
-  ethereumPrivateKey: ETHEREUM_PRIVATE_KEY,
-  nightfallMnemonic: NIGHTFALL_MNEMONIC,
+  blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
+  clientApiUrl: CLIENT_API_URL_DEFAULT,
+  ethereumPrivateKey: ETHEREUM_PRIVATE_KEY_DEFAULT,
+  nightfallMnemonic:
+    "salt depart hamster salon mechanic nephew play ship coyote divide wire price",
 };
 
 // Script
