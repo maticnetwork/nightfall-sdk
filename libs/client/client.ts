@@ -233,14 +233,6 @@ class Client {
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
         );
-<<<<<<< Updated upstream
-
-=======
-        console.log(
-          "RETORNAO::::::::::::::::::::::::::::::::::::::::",
-          response,
-        );
->>>>>>> Stashed changes
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");
