@@ -5,8 +5,8 @@ import {
   UserOptions,
   UserMakeDepositOptions,
   UserExportCommitments,
-  UserMakeTransefrOptions,
   TransferReceipts,
+  UserMakeTransfer,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -15,15 +15,15 @@ import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
   stringValueToWei,
+  createAndSubmitTransfer,
 } from "../transactions";
 import { parentLogger } from "../utils";
-import { createOptions, makeTransefrOptions } from "./validations";
+import { createOptions, makeTransferOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
 import { Commitment } from "../../libs/types";
-import { handleTransfer } from "../../libs/transactions/transfer";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -197,34 +197,19 @@ class User {
    * @returns Promise<TransferReceipts>
    * @author luizoamorim
    */
-  async makeTransfer({
-    tokenAddress,
-    tokenStandard,
-    value,
-    recipientAddress,
-    feeGwei,
-    offchain = false,
-  }: UserMakeTransefrOptions): Promise<TransferReceipts> {
-    logger.debug(
-      { tokenAddress, tokenStandard, value, recipientAddress, feeGwei },
-      "User :: makeTransfer",
-    );
+  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
+    logger.debug(options, "User :: makeTransfer");
 
     // Validate the parameters
-    makeTransefrOptions.validate({
-      tokenAddress,
-      tokenStandard,
-      value,
-      recipientAddress,
-      feeGwei,
-    });
+    makeTransferOptions.validate(options);
 
     // Format the parameters
-    const valueFormated = value.trim();
-    const feeGweiFormated = feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
-    const tokenAddressFormated = tokenAddress.trim();
-    const tokenStandardFormated = tokenStandard.trim().toUpperCase();
-    const recipientAddressFormated = recipientAddress.trim();
+    const valueFormated = options.value.trim();
+    const feeGweiFormated = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddressFormated = options.tokenAddress.trim();
+    const tokenStandardFormated = options.tokenStandard.trim().toUpperCase();
+    const recipientAddressFormated = options.recipientAddress.trim();
+    const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenAddressFormated !== this.token.contractAddress) {
@@ -242,7 +227,7 @@ class User {
     const feeWeiFormat = feeGweiFormated + "000000000";
     logger.info({ valueWeiFormat, feeWeiFormat }, "Value and fee in wei");
 
-    const transferReceipts = await handleTransfer(
+    const transferReceipts = await createAndSubmitTransfer(
       this.token.contractAddress,
       this.token.ercStandard,
       this.ethAddress,
@@ -250,11 +235,11 @@ class User {
       this.zkpKeys,
       this.shieldContractAddress,
       valueWeiFormat,
-      "0",
+      feeWeiFormat,
       this.web3Websocket.web3,
       this.client,
       recipientAddressFormated,
-      offchain,
+      isOffChain,
     );
 
     if (transferReceipts === null) {

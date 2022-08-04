@@ -12,7 +12,7 @@ const logger = parentLogger.child({
 });
 
 /**
- * @method handleTransfer handle the flow for transferences in layer2
+ * @method createAndSubmitTransfer handle the flow for transferences in layer2
  * @param {string} ercAddress - the address of the smart contract created for this token
  * @param {string} ercStandard - the erc standard
  * @param {string} ownerAddress - the address of who is doing the transfer
@@ -29,8 +29,8 @@ const logger = parentLogger.child({
  * @param {boolean} offchain - indicates if the transfer is onchain or offchain
  * @returns
  */
-export async function handleTransfer(
-  ercAddress: string,
+export async function createAndSubmitTransfer(
+  contractAddress: string,
   ercStandard: string,
   ownerAddress: string,
   ownerPrivateKey: string,
@@ -41,27 +41,26 @@ export async function handleTransfer(
   web3: Web3,
   client: Client,
   recipientAddress: string,
-  offchain: boolean,
+  isOffChain: boolean,
 ): Promise<{ txL1: TransactionReceipt; txL2: Transaction }> | null {
   logger.debug("createAndSubmitTransfer");
 
-  const transferResponseData = await client.transfer({
-    ercAddress: ercAddress,
-    recipientData: {
+  const transferResponseData = await client.transfer(
+    contractAddress,
+    fee,
+    {
       values: [value],
       recipientCompressedZkpPublicKeys: [recipientAddress],
     },
-    fee,
-    offchain,
-    rootKey: ownerZkpKeys.rootKey,
-    tokenId: "0x00",
-    tokenType: ercStandard,
-  });
+    ownerZkpKeys,
+    "0x00",
+    isOffChain,
+  );
 
   // transferResponseData null signals that something went wrong in the Client
   if (transferResponseData === null) return null;
 
-  if (!offchain) {
+  if (!isOffChain) {
     const unsignedTx = transferResponseData.txDataToSign;
     logger.debug({ unsignedTx }, "Transefr tx, unsigned");
 
@@ -72,7 +71,7 @@ export async function handleTransfer(
         ownerPrivateKey,
         shieldContractAddress,
         unsignedTx,
-        "0",
+        fee,
         web3,
       );
     } catch (err) {

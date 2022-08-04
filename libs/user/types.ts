@@ -1,7 +1,7 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
 import type { TransactionReceipt } from "web3-core";
-import { Transaction } from "libs/types";
+import { Transaction } from "../types";
 
 export interface UserFactoryOptions {
   blockchainWsUrl: string;
@@ -27,28 +27,14 @@ export interface UserMakeDepositOptions {
   feeGwei?: string;
 }
 
-export interface UserMakeTransefrOptions {
-  tokenAddress: string;
-  tokenStandard: string;
-  value: string;
-  feeGwei?: string;
+export interface UserMakeTransfer extends UserMakeDepositOptions {
   recipientAddress: string;
-  offchain: boolean;
+  isOffChain: boolean;
 }
 
 export interface RecipientData {
   recipientCompressedZkpPublicKeys: string[];
   values: string[];
-}
-
-export interface UserMakeTransfer {
-  ercAddress: string;
-  tokenId: string;
-  tokenType: string;
-  recipientData: RecipientData;
-  rootKey: string;
-  fee: string;
-  offchain: boolean;
 }
 
 export interface UserExportCommitments {

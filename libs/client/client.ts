@@ -3,7 +3,7 @@ import { Commitment, TransferReponseData } from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { UserMakeTransfer } from "libs/user/types";
+import { RecipientData } from "libs/user/types";
 // import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
@@ -289,25 +289,25 @@ class Client {
     @returns {Promise} Resolves into the Ethereum transaction receipt.
     @author luizoamorim
     */
-  async transfer({
-    ercAddress,
-    fee,
-    offchain,
-    recipientData,
-    rootKey,
-    tokenId,
-  }: UserMakeTransfer): Promise<TransferReponseData> {
+  async transfer(
+    contractAddress: string,
+    fee: string,
+    recipientData: RecipientData,
+    ownerZkpKeys: NightfallZkpKeys,
+    tokenId: string,
+    isOffChain: boolean,
+  ): Promise<TransferReponseData> {
     logger.debug("Calling client at deposit");
     let axiosResponse: AxiosResponse;
 
     try {
       axiosResponse = await axios.post(`${this.apiUrl}/transfer`, {
-        offchain,
-        ercAddress,
-        tokenId,
-        recipientData,
-        rootKey,
+        ercAddress: contractAddress,
         fee,
+        recipientData,
+        rootKey: ownerZkpKeys.rootKey,
+        tokenId,
+        isOffChain,
       });
       logger.info(
         { status: axiosResponse.status, data: axiosResponse.data },
