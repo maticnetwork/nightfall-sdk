@@ -16,8 +16,8 @@ const ETHEREUM_PRIVATE_KEY = process.env.SDK_ETH_PRIVATE_KEY;
 const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
 
 const options = {
-  blockchainWsUrl: BLOCKCHAIN_WEBSOCKET_URL || BLOCKCHAIN_WS_URL_DEFAULT,
-  clientApiUrl: CLIENT_API_URL || CLIENT_API_URL_DEFAULT,
+  blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
+  clientApiUrl: CLIENT_API_URL_DEFAULT,
   ethereumPrivateKey: ETHEREUM_PRIVATE_KEY,
   nightfallMnemonic: NIGHTFALL_MNEMONIC,
 };
@@ -31,7 +31,7 @@ const main = async () => {
     console.log(status);
 
     const balances = await user.checkNightfallBalances();
-    console.log(balances);
+    console.log("BALANCES: ", balances);
   } catch (error) {
     console.log(error);
     process.exit(1);

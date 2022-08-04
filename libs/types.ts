@@ -1,3 +1,5 @@
+import { string } from "joi";
+
 interface Commitment {
   _id: string;
   preimage: {
@@ -17,4 +19,25 @@ interface Commitment {
   blockNumber: number;
 }
 
-export default Commitment;
+interface Transaction {
+  fee: string;
+  historicRootBlockNumberL2: string[];
+  transactionType: string;
+  tokenType: string;
+  tokenId: string;
+  value: string;
+  ercAddress: string;
+  recipientAddress: string;
+  commitments: string[];
+  nullifiers: string[];
+  compressedSecrets: string[];
+  proof: string[]; //string of hashes
+  transactionHash: string;
+}
+
+interface TransferReponseData {
+  txDataToSign: string;
+  transaction: Transaction;
+  salts: string[];
+}
+export { Commitment, Transaction, TransferReponseData };

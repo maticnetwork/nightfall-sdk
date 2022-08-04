@@ -32,3 +32,22 @@ export const makeDepositOptions = Joi.object({
   value: Joi.string().required(),
   feeGwei: Joi.string(),
 });
+
+export const makeTransferOptions = Joi.object({
+  tokenAddress: Joi.string()
+    .trim()
+    .custom(isChecksum, "custom validation")
+    .required(),
+  tokenStandard: Joi.string()
+    .trim()
+    .uppercase()
+    .valid(...Object.keys(TOKEN_STANDARDS))
+    .required(),
+  value: Joi.string().required(),
+  feeGwei: Joi.string(),
+  recipientAddress: Joi.string()
+    .trim()
+    .custom(isChecksum, "custom validation")
+    .required(),
+  isOffChain: Joi.boolean(),
+});

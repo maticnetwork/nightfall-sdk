@@ -1,6 +1,7 @@
 import type Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../../utils";
+import type { TransactionReceipt } from "web3-core";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -15,6 +16,18 @@ const GAS_ESTIMATE_ENDPOINT =
 const GAS_MULTIPLIER = Number(process.env.GAS_MULTIPLIER) || 2;
 const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
 
+/**
+ * @function submitTransaction create, sign and broadcast a transaction to the network
+ * @param senderAddress - the address of who is doing the transfer
+ * @param senderPrivateKey - the private key of the sender to sing the transaction
+ * @param recipientAddress - the zkp public key of the recipient
+ * @param unsignedTx - the tx data to be signed
+ * @param fee - the amount (Wei) to pay a proposer for the transaction
+ * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+ * by the token's owner to be able to withdraw the token
+ * @param web3 - web3js instance
+ * @returns
+ */
 export async function submitTransaction(
   senderAddress: string,
   senderPrivateKey: string,
@@ -22,7 +35,7 @@ export async function submitTransaction(
   unsignedTx: string,
   fee: string,
   web3: Web3,
-) {
+): Promise<TransactionReceipt> {
   const logInput = {
     from: senderAddress,
     to: recipientAddress,
@@ -44,9 +57,7 @@ export async function submitTransaction(
     from: senderAddress,
     to: recipientAddress,
     data: unsignedTx,
-    value: fee,
     gas,
-    gasPrice,
   };
 
   const signedTx = await web3.eth.accounts.signTransaction(

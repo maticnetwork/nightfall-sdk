@@ -1,8 +1,9 @@
 import axios, { AxiosResponse } from "axios";
-import Commitment from "libs/types";
+import { Commitment, TransferReponseData } from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
+import { RecipientData } from "libs/user/types";
 // import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
@@ -212,6 +213,36 @@ class Client {
   }
 
   /**
+   * @method getLayer2PendingSpentBalances Make the call for the enpoint that is responsible to return
+   * the balance of pending spent commitments from transfer and withdraw for each ERC address
+   * @param {string[]} ercList - an array of ERC smart contracts
+   * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
+   * should filter the pending spent balances by compressed zkp public key
+   * @param {NightfallZkpKeys} zkpKeys - A set of Zero-knowledge proof keys
+   * @returns {Promise} This promise resolves into an object whose properties are the
+    addresses of the ERC contracts of the tokens held by this account in Layer 2. The
+    value of each propery is the number of tokens pending spent (transfer & withdraw)
+    from that contract. {obs: Just copied this comment for returns from the nf3.mjs}
+    @author luizoamorim
+   */
+  async getLayer2PendingSpentBalances(
+    ercList: string[],
+    shouldFilterByCompressedZkpPublicKey: boolean,
+    zkpKeys?: NightfallZkpKeys,
+  ) {
+    const res = await axios.get(`${this.apiUrl}/commitment/pending-spent`, {
+      params: {
+        compressedZkpPublicKey:
+          shouldFilterByCompressedZkpPublicKey === true
+            ? zkpKeys.compressedZkpPublicKey
+            : null,
+        ercList,
+      },
+    });
+    return res.data.balance;
+  }
+
+  /**
    *
    * @method getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
    * endpoint to get all commitments by compressed pkd.
@@ -232,7 +263,6 @@ class Client {
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
         );
-
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");
@@ -240,6 +270,61 @@ class Client {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
+  }
+
+  /**
+    Transfers a token within Layer 2.
+    @method
+    @async
+    @param {string} ercAddress - The address of the ERCx contract from which the token
+    @param {string} fee - The amount (Wei) to pay a proposer for the transaction    
+    is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+    by the token's owner to be able to withdraw the token.
+    @param {RecipientData} recipientData - An object with an array of values and an array
+    of compressedZkpPublicKeys.        
+    @param {string} tokenId - The ID of an ERC721 or ERC1155 token.  In the case of
+    an 'ERC20' coin, this should be set to '0x00'.
+    @param {string} rootKey - The ID of an ERC721 or ERC1155 token.  In the case of
+    an 'ERC20' coin, this should be set to '0x00'.
+    @returns {Promise} Resolves into the Ethereum transaction receipt.
+    @author luizoamorim
+    */
+  async transfer(
+    contractAddress: string,
+    fee: string,
+    recipientData: RecipientData,
+    ownerZkpKeys: NightfallZkpKeys,
+    tokenId: string,
+    isOffChain: boolean,
+  ): Promise<TransferReponseData> {
+    logger.debug("Calling client at deposit");
+    let axiosResponse: AxiosResponse;
+
+    try {
+      axiosResponse = await axios.post(`${this.apiUrl}/transfer`, {
+        ercAddress: contractAddress,
+        fee,
+        recipientData,
+        rootKey: ownerZkpKeys.rootKey,
+        tokenId,
+        isOffChain,
+      });
+      logger.info(
+        { status: axiosResponse.status, data: axiosResponse.data },
+        "Client at transfer responded",
+      );
+
+      if (
+        axiosResponse.data.error &&
+        axiosResponse.data.error === "No suitable commitments"
+      ) {
+        throw new Error("No suitable commitments were found");
+      }
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return axiosResponse.data;
   }
 }
 

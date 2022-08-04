@@ -4,7 +4,9 @@ import {
   UserFactoryOptions,
   UserOptions,
   UserMakeDepositOptions,
-  UserExportCommitments
+  UserExportCommitments,
+  TransferReceipts,
+  UserMakeTransfer,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -13,14 +15,15 @@ import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
   stringValueToWei,
+  createAndSubmitTransfer,
 } from "../transactions";
 import { parentLogger } from "../utils";
-import { createOptions, makeDepositOptions } from "./validations";
+import { createOptions, makeTransferOptions } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
-import Commitment from "../../libs/types";
+import { Commitment } from "../../libs/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -98,7 +101,6 @@ class User {
 
   async makeDeposit(options: UserMakeDepositOptions) {
     logger.debug({ options }, "User :: makeDeposit");
-    makeDepositOptions.validate(options);
 
     // Format options
     let value = options.value.trim();
@@ -160,6 +162,93 @@ class User {
 
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
+  }
+
+  /**
+   *
+   * @method checkLayer2PendingSpentBalances should get return the balance of pending spent commitments
+   * from transfer and withdraw for each ERC address
+   * @param {string[]} ercList - an array of ERC smart contracts
+   * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
+   * @returns
+   */
+  async checkLayer2PendingSpentBalances(
+    ercList: string[],
+    shouldFilterByCompressedZkpPublicKey: boolean,
+  ) {
+    return this.client.getLayer2PendingSpentBalances(
+      ercList,
+      shouldFilterByCompressedZkpPublicKey,
+      this.zkpKeys,
+    );
+  }
+
+  /**
+   *
+   * @method makeTransfer allow user to make a transfer in polygon nightfall network.
+   * @async
+   * @param {string} tokenAddress - the address of the smart contract for the ercStandard
+   * @param {string} tokenStandard - the ercStandard
+   * @param {string} value - the amount to be transfered
+   * @param {string} recipientAddress - the compressedZkpPublicKey for the receiver
+   * @param {string} feeGwei - The amount (GWei) to pay a proposer for the transaction
+   * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+   * by the token's owner to be able to withdraw the token.
+   * @returns Promise<TransferReceipts>
+   * @author luizoamorim
+   */
+  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
+    logger.debug(options, "User :: makeTransfer");
+
+    // Validate the parameters
+    makeTransferOptions.validate(options);
+
+    // Format the parameters
+    const valueFormated = options.value.trim();
+    const feeGweiFormated = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddressFormated = options.tokenAddress.trim();
+    const tokenStandardFormated = options.tokenStandard.trim().toUpperCase();
+    const recipientAddressFormated = options.recipientAddress.trim();
+    const isOffChain = options.isOffChain || false;
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddressFormated !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddressFormated,
+        ercStandard: tokenStandardFormated,
+        web3: this.web3Websocket.web3,
+      });
+    }
+
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert values fron GWei to Wei
+    const valueWeiFormat = stringValueToWei(valueFormated, this.token.decimals);
+    const feeWeiFormat = feeGweiFormated + "000000000";
+    logger.info({ valueWeiFormat, feeWeiFormat }, "Value and fee in wei");
+
+    const transferReceipts = await createAndSubmitTransfer(
+      this.token.contractAddress,
+      this.token.ercStandard,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      this.shieldContractAddress,
+      valueWeiFormat,
+      feeWeiFormat,
+      this.web3Websocket.web3,
+      this.client,
+      recipientAddressFormated,
+      isOffChain,
+    );
+
+    if (transferReceipts === null) {
+      logger.error({ transferReceipts }, "Transfer was not completed!");
+      return null;
+    }
+
+    logger.info({ transferReceipts }, "Transfer was completed!");
+    return transferReceipts;
   }
 
   /**
