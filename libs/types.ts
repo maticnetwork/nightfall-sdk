@@ -1,11 +1,11 @@
 interface Commitment {
   _id: string;
+  compressedZkpPublicKey: string;
   preimage: {
     ercAddress: string;
     tokenId: string;
     value: string;
     zkpPublicKey: string[];
-    compressedZkpPublicKey: string;
     salt: string;
   };
   isDeposited: boolean;

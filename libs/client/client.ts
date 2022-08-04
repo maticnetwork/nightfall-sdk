@@ -228,11 +228,19 @@ class Client {
         listOfCompressedZkpPublicKey &&
         listOfCompressedZkpPublicKey.length > 0
       ) {
+        console.log("LISTAGEM: ", listOfCompressedZkpPublicKey);
         const response = await axios.post(
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
         );
+<<<<<<< Updated upstream
 
+=======
+        console.log(
+          "RETORNAO::::::::::::::::::::::::::::::::::::::::",
+          response,
+        );
+>>>>>>> Stashed changes
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
       throw new Error("You should pass at least one compressedZkpPublicKey");

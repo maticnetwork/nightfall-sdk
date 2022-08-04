@@ -4,7 +4,7 @@ import { UserFactory } from "../../../libs/user";
 import * as dotenv from "dotenv";
 import path from "path";
 import { Client } from "../../../libs/client";
-import Commitment from "../../../libs/types";
+import { Commitment } from "../../../libs/types";
 
 const _rootPath = path.resolve();
 dotenv.config({ path: path.join(_rootPath, ".env") });
@@ -43,7 +43,7 @@ describe("Suit of integration tests for export commitments use case", () => {
   test("Verify if the commitments match with the compressedZkpPublicKey", async () => {
     const data = fs.readFileSync(FILE_PATH);
     const jsonData: Commitment[] = JSON.parse(data.toString("utf8"));
-    expect(jsonData[0].preimage.compressedZkpPublicKey).toBe(
+    expect(jsonData[0].compressedZkpPublicKey).toBe(
       user.zkpKeys.compressedZkpPublicKey,
     );
   });
