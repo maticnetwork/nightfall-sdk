@@ -2,14 +2,6 @@ import { UserFactory } from "../libs/user";
 import * as dotenv from "dotenv";
 import path from "path";
 
-// Set up environment
-const environment = process.argv[2];
-
-// Based on environment, read vars from envFile
-const rootPath = path.resolve();
-const envFile = ".env." + environment;
-dotenv.config({ path: path.join(rootPath, "examples", envFile) });
-
 // App config
 const config = {
   blockchainWsUrl: process.env.APP_BLOCKCHAIN_WEBSOCKET_URL,
