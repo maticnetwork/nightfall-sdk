@@ -1,6 +1,13 @@
-# node
+# Node
 node_modules
 dist
-.env
+
+# Env files
+.env.ganache
+.env.goerli
+
+# Tests
 coverage
+
+# Feature related
 commitmentsBackup.json
