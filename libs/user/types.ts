@@ -20,25 +20,27 @@ export interface UserConstructor {
   zkpKeys: any; // TODO NightfallZkpKeys might have to be declared as class??;
 }
 
-export interface UserMakeDeposit {
+export interface UserMakeTransaction {
   tokenAddress: string;
   tokenStandard: string;
   value: string;
   feeGwei?: string;
 }
 
-export interface UserMakeWithdrawal extends UserMakeDeposit {
+export type UserMakeDeposit = UserMakeTransaction;
+
+export interface UserMakeTransfer extends UserMakeTransaction {
+  recipientAddress: string;
+  isOffChain: boolean;
+}
+
+export interface UserMakeWithdrawal extends UserMakeTransaction {
   recipientAddress: string;
   isOffChain?: boolean;
 }
 
 export interface UserFinaliseWithdrawal {
   withdrawTxHash?: string;
-}
-
-export interface UserMakeTransfer extends UserMakeDeposit {
-  recipientAddress: string;
-  isOffChain: boolean;
 }
 
 export interface RecipientData {
