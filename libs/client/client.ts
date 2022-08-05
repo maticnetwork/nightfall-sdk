@@ -259,6 +259,7 @@ class Client {
         listOfCompressedZkpPublicKey &&
         listOfCompressedZkpPublicKey.length > 0
       ) {
+        console.log("LISTAGEM: ", listOfCompressedZkpPublicKey);
         const response = await axios.post(
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
