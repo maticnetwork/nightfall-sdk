@@ -304,12 +304,12 @@ class User {
    * @param compressedZkpPublicKey the key derivated from user mnemonic.
    * @author luizoamorim
    */
-  async importAndSaveCommitments(
+   async importAndSaveCommitments(
     pathToExport: string,
     fileName: string,
     compressedZkpPublicKey: string,
   ) {
-    const listOfCommitments: Commitments[] | Error = await importCommitments(
+    const listOfCommitments: ICommitments[] | Error = await importCommitments(
       `${pathToExport}${fileName}`,
     );
 
@@ -330,6 +330,12 @@ class User {
 
     this.client.saveCommitments(listOfCommitments);
   }
+
+  close() {
+    logger.debug("User :: close");
+    this.web3Websocket.close();
+  }
+}
 
   close() {
     logger.debug("User :: close");
