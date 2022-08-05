@@ -291,6 +291,51 @@ class User {
     }
   }
 
+  /**
+   * @function importAndSaveCommitments should coverage the import commitments flow.
+   * - Should import a file with commitments.
+   * - Verify if all the commitments in the list of imported commitments are of the
+   * ICommitment type (This verification is within importCommitments function).
+   * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
+   * - If all verifications pass, should send the commitments to the client to be saved
+   *  in the database.
+   * @param pathToExport the path to export the file.
+   * @param fileName the name of the file.
+   * @param compressedZkpPublicKey the key derivated from user mnemonic.
+   * @author luizoamorim
+   */
+  async importAndSaveCommitments(
+    pathToExport: string,
+    fileName: string,
+    compressedZkpPublicKey: string,
+  ) {
+    const listOfCommitments: ICommitments[] | Error = await importCommitments(
+      `${pathToExport}${fileName}`,
+    );
+
+    if (listOfCommitments instanceof Error) {
+      logger.error(listOfCommitments);
+      return;
+    }
+
+    const isCommitmentsFromMnemonicReturn = await isCommitmentsFromMnemonic(
+      listOfCommitments,
+      compressedZkpPublicKey,
+    );
+
+    if (!isCommitmentsFromMnemonicReturn) {
+      logger.error(ERROR_COMMITMENT_NOT_MATCH_MNEMONIC);
+      return;
+    }
+
+    this.client.saveCommitments(listOfCommitments);
+  }
+
+  close() {
+    logger.debug("User :: close");
+    this.web3Websocket.close();
+  }
+
   async checkStatus() {
     logger.debug("User :: checkStatus");
     const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
