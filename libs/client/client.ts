@@ -274,6 +274,29 @@ class Client {
   }
 
   /**
+   *
+   * @function saveCommitments do the communications with commitments/saveAll
+   * endpoint
+   * @param listOfCommitments a list of commitments to be saved in the database.
+   * @author luizoamorim
+   */
+   async saveCommitments(listOfCommitments: Commitment[]) {
+    try {
+      await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
+      logger.info("Commitments imported successfully");
+    } catch (err) {
+      if (err.response.status == 500) {
+        logger.error(
+          "Some of these commitments already existis in the database!",
+        );
+      } else {
+        logger.error(err);
+      }
+    }
+  }
+}
+
+  /**
     Transfers a token within Layer 2.
     @method
     @async

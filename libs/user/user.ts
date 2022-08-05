@@ -309,7 +309,7 @@ class User {
     fileName: string,
     compressedZkpPublicKey: string,
   ) {
-    const listOfCommitments: ICommitments[] | Error = await importCommitments(
+    const listOfCommitments: Commitments[] | Error = await importCommitments(
       `${pathToExport}${fileName}`,
     );
 
