@@ -99,6 +99,14 @@ class User {
     }
   }
 
+  getNightfallMnemonic(): string {
+    return this.nightfallMnemonic;
+  }
+
+  getNightfallAddress(): string {
+    return this.zkpKeys?.compressedZkpPublicKey;
+  }
+
   async makeDeposit(options: UserMakeDepositOptions) {
     logger.debug({ options }, "User :: makeDeposit");
 
