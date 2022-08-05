@@ -14,19 +14,11 @@ const ETHEREUM_PRIVATE_KEY_DEFAULT =
   "0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e";
 const TOKEN_ADDRESS_DEFAULT = "0x9b7bD670D87C3Dd5C808ba627c75ba7E88aD066f"; // ERC20Mock contract address in ganache
 
-// Script config for goerli
-const BLOCKCHAIN_WEBSOCKET_URL = process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL;
-const CLIENT_API_URL = process.env.SDK_CLIENT_API_URL;
-const ETHEREUM_PRIVATE_KEY = process.env.SDK_ETH_PRIVATE_KEY;
-const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
-const TOKEN_ADDRESS = process.env.SDK_TOKEN_ADDRESS; // MATIC contract address in goerli
-
 const options = {
   blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
   clientApiUrl: CLIENT_API_URL_DEFAULT,
   ethereumPrivateKey: ETHEREUM_PRIVATE_KEY_DEFAULT,
-  nightfallMnemonic:
-    "salt depart hamster salon mechanic nephew play ship coyote divide wire price",
+  // nightfallMnemonic:, // Mnemonic is optional, we will provide you with one
 };
 
 // Script
