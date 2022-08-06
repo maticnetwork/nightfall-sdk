@@ -59,10 +59,12 @@ export async function submitTransaction(
     data: unsignedTx,
     gas,
   };
-
+  logger.debug({ tx }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
     tx,
     senderPrivateKey,
   );
+
+  logger.debug({ signedTx }, "Send signedTx...");
   return web3.eth.sendSignedTransaction(signedTx.rawTransaction);
 }

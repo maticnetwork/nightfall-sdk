@@ -1,11 +1,15 @@
 import { createAndSubmitApproval } from "./approval";
 import { createAndSubmitDeposit } from "./deposit";
-import { stringValueToWei } from "./helpers/units";
 import { createAndSubmitTransfer } from "./transfer";
+import { createAndSubmitWithdrawal } from "./withdrawal";
+import { createAndSubmitFinaliseWithdrawal } from "./withdrawalFinalise";
+import { stringValueToWei } from "./helpers/units";
 
 export {
   createAndSubmitApproval,
   createAndSubmitDeposit,
-  stringValueToWei,
   createAndSubmitTransfer,
+  createAndSubmitWithdrawal,
+  createAndSubmitFinaliseWithdrawal,
+  stringValueToWei,
 };
