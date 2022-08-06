@@ -48,6 +48,7 @@
     "prettier": "prettier --check .",
     "test": "jest",
     "eg:deposit": "npx ts-node examples/deposit.ts",
-    "eg:nf-balances": "npx ts-node examples/balances.ts"
+    "eg:nf-balances": "npx ts-node examples/balances.ts",
+    "eg:transfer": "npx ts-node examples/transfer.ts"
   }
 }
