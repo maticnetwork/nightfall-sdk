@@ -28,13 +28,16 @@ const main = async () => {
     const tokenAddress = config.tokenAddress;
     const tokenStandard = "ERC20";
     const value = "0.0001";
-    const deposit = await user.makeDeposit({
+    const receipts = await user.makeDeposit({
       tokenAddress,
       tokenStandard,
       value,
     });
-    console.log(deposit);
-    console.log("Nightfall tx hashes ::", user.nightfallTxHashes);
+    console.log(receipts);
+    console.log(
+      "Nightfall deposit tx hashes ::",
+      user.nightfallDepositTxHashes,
+    );
 
     const balances = await user.checkPendingDeposits();
     console.log(balances);

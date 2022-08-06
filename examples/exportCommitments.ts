@@ -1,15 +1,23 @@
 import * as dotenv from "dotenv";
 import path from "path";
-import { UserFactory } from "../libs/user";
+import {
+  UserFactory,
+  BLOCKCHAIN_WS_URL_DEFAULT,
+  CLIENT_API_URL_DEFAULT,
+} from "../libs/user";
 
 const _rootPath = path.resolve();
 dotenv.config({ path: path.join(_rootPath, ".env") });
 
+const ETHEREUM_PRIVATE_KEY =
+  "0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e";
+const NIGHTFALL_MNEMONIC = process.env.SDK_NIGHTFALL_MNEMONIC;
+
 const options = {
-  blockchainWsUrl: process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL,
-  clientApiUrl: process.env.SDK_CLIENT_API_URL,
-  ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
-  nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
+  blockchainWsUrl: BLOCKCHAIN_WS_URL_DEFAULT,
+  clientApiUrl: CLIENT_API_URL_DEFAULT,
+  ethereumPrivateKey: ETHEREUM_PRIVATE_KEY,
+  nightfallMnemonic: NIGHTFALL_MNEMONIC,
 };
 
 /**

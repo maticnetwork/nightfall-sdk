@@ -2,6 +2,12 @@ import Joi, { CustomHelpers } from "joi";
 import { checkAddressChecksum } from "web3-utils";
 import { TOKEN_STANDARDS } from "../tokens";
 
+const isChecksum = (tokenAddress: string, helpers: CustomHelpers) => {
+  const isValid = checkAddressChecksum(tokenAddress);
+  if (!isValid) return helpers.error("Invalid checksum, review tokenAddress");
+  return tokenAddress;
+};
+
 // See https://joi.dev/tester/
 const PATTERN_ETH_PRIVATE_KEY = /^0x[0-9a-f]{64}$/;
 export const createOptions = Joi.object({
@@ -14,11 +20,6 @@ export const createOptions = Joi.object({
   nightfallMnemonic: Joi.string(),
 });
 
-const isChecksum = (tokenAddress: string, helpers: CustomHelpers) => {
-  const isValid = checkAddressChecksum(tokenAddress);
-  if (!isValid) return helpers.error("Invalid checksum, review tokenAddress");
-  return tokenAddress;
-};
 export const makeDepositOptions = Joi.object({
   tokenAddress: Joi.string()
     .trim()
@@ -31,4 +32,45 @@ export const makeDepositOptions = Joi.object({
     .required(),
   value: Joi.string().required(),
   feeGwei: Joi.string(),
+});
+
+export const makeTransferOptions = Joi.object({
+  tokenAddress: Joi.string()
+    .trim()
+    .custom(isChecksum, "custom validation")
+    .required(),
+  tokenStandard: Joi.string()
+    .trim()
+    .uppercase()
+    .valid(...Object.keys(TOKEN_STANDARDS))
+    .required(),
+  value: Joi.string().required(),
+  recipientAddress: Joi.string()
+    .trim()
+    .required(), // .custom(isChecksum, "custom validation")
+  feeGwei: Joi.string(),
+  isOffChain: Joi.boolean(),
+});
+
+export const makeWithdrawalOptions = Joi.object({
+  tokenAddress: Joi.string()
+    .trim()
+    .custom(isChecksum, "custom validation")
+    .required(),
+  tokenStandard: Joi.string()
+    .trim()
+    .uppercase()
+    .valid(...Object.keys(TOKEN_STANDARDS))
+    .required(),
+  value: Joi.string().required(),
+  recipientAddress: Joi.string()
+    .trim()
+    .custom(isChecksum, "custom validation")
+    .required(),
+  feeGwei: Joi.string(),
+  isOffChain: Joi.boolean(),
+});
+
+export const finaliseWithdrawalOptions = Joi.object({
+  withdrawTxHash: Joi.string(),
 });

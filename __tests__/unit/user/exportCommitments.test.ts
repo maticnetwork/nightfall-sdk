@@ -1,21 +1,36 @@
 import fs from "fs";
+import * as dotenv from "dotenv";
+import path from "path";
+
 import mockCommitments from "../../../__mocks__/mockCommitments";
-// import { User } from "../../../libs/user";
+import { UserFactory } from "../../../libs/user";
 const DUMMY_LIST_OF_COMPRESSED_ZKP_PK: string[] = [];
+
+const _rootPath = path.resolve();
+dotenv.config({ path: path.join(_rootPath, ".env") });
+
+const options = {
+  blockchainWsUrl: process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL,
+  clientApiUrl: process.env.SDK_CLIENT_API_URL,
+  ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
+  nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
+};
 jest.mock("../../../libs/client/client");
 import getAllCommitmentsByCompressedPkdStub from "../../../__mocks__/__stubs__/client";
 
 describe("Suit of tests for user class", () => {
-  beforeAll(() => {
+  let user: any;
+
+  beforeAll(async () => {
+    //user = await UserFactory.create(options);
     getAllCommitmentsByCompressedPkdStub;
   });
   test("Verify if the file is created with the commitments by this compressedPkd", async () => {
-    // const user = new User();
-    // await user.exportCommitments(
-    //   DUMMY_LIST_OF_COMPRESSED_ZKP_PK,
-    //   "./",
-    //   "commitmentsBackup.json",
-    // );
+    // await user.exportCommitments({
+    //   listOfCompressedZkpPublicKey: DUMMY_LIST_OF_COMPRESSED_ZKP_PK,
+    //   pathToExport: "./",
+    //   fileName: "commitmentsBackup.json",
+    // });
     // const FILE_PATH = "./commitmentsBackup.json";
     // const data = fs.readFileSync(FILE_PATH);
     // expect(data.toString("utf8")).toBe(

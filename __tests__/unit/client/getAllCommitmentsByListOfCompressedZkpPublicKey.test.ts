@@ -1,6 +1,6 @@
 import { Client } from "../../../libs/client/index";
 import mockCommitments from "../../../__mocks__/mockCommitments";
-import Commitment from "../../../libs/types";
+import { Commitment } from "../../../libs/types";
 import getAllCommitmentsByCompressedPkdStub from "../../../__mocks__/__stubs__/client";
 
 const commitments: Array<object> =
