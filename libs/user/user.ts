@@ -1,12 +1,14 @@
 import path from "path";
 import { CONTRACT_SHIELD, TX_FEE_GWEI_DEFAULT } from "./constants";
 import {
-  UserFactoryOptions,
-  UserOptions,
-  UserMakeDepositOptions,
+  UserFactoryCreate,
+  UserConstructor,
+  UserMakeDeposit,
+  UserMakeTransfer,
+  UserMakeWithdrawal,
+  UserFinaliseWithdrawal,
   UserExportCommitments,
   TransferReceipts,
-  UserMakeTransfer,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -14,11 +16,19 @@ import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
-  stringValueToWei,
   createAndSubmitTransfer,
+  createAndSubmitWithdrawal,
+  createAndSubmitFinaliseWithdrawal,
+  stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
-import { createOptions, makeTransferOptions } from "./validations";
+import {
+  createOptions,
+  makeDepositOptions,
+  makeTransferOptions,
+  makeWithdrawalOptions,
+  finaliseWithdrawalOptions,
+} from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
@@ -30,7 +40,7 @@ const logger = parentLogger.child({
 });
 
 class UserFactory {
-  static async create(options: UserFactoryOptions) {
+  static async create(options: UserFactoryCreate) {
     logger.debug("UserFactory :: create");
     createOptions.validate(options);
 
@@ -88,19 +98,21 @@ class User {
 
   // Set when transacting
   token: any;
-  nightfallTxHashes: string[] = [];
+  nightfallDepositTxHashes: string[] = [];
+  nightfallWithdrawalTxHashes: string[] = [];
 
-  constructor(options: UserOptions) {
+  constructor(options: UserConstructor) {
     logger.debug("new User");
 
-    let key: keyof UserOptions;
+    let key: keyof UserConstructor;
     for (key in options) {
       this[key] = options[key];
     }
   }
 
-  async makeDeposit(options: UserMakeDepositOptions) {
+  async makeDeposit(options: UserMakeDeposit) {
     logger.debug({ options }, "User :: makeDeposit");
+    makeDepositOptions.validate(options);
 
     // Format options
     let value = options.value.trim();
@@ -151,9 +163,87 @@ class User {
     if (depositReceipts === null) return null;
     logger.info({ depositReceipts }, "Deposit completed");
 
-    this.nightfallTxHashes.push(depositReceipts.txL2?.transactionHash);
+    this.nightfallDepositTxHashes.push(depositReceipts.txL2?.transactionHash);
 
     return depositReceipts;
+  }
+
+  async makeWithdrawal(options: UserMakeWithdrawal) {
+    logger.debug({ options }, "User :: makeWithdrawal");
+    makeWithdrawalOptions.validate(options);
+
+    // Format options
+    let value = options.value.trim();
+    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddress = options.tokenAddress.trim();
+    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const recipientAddress = options.recipientAddress.trim();
+    const isOffChain = options.isOffChain || false;
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddress !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddress,
+        ercStandard: tokenStandard,
+        web3: this.web3Websocket.web3,
+      });
+    }
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert value and fee to wei
+    value = stringValueToWei(value, this.token.decimals);
+    fee = fee + "000000000";
+    logger.info({ value, fee }, "Value and fee in wei");
+
+    // Withdrawal
+    const withdrawalReceipts = await createAndSubmitWithdrawal(
+      isOffChain,
+      this.token,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      recipientAddress,
+      this.shieldContractAddress,
+      value,
+      fee,
+      this.web3Websocket.web3,
+      this.client,
+    );
+
+    if (withdrawalReceipts === null) return null;
+    logger.info({ withdrawalReceipts }, "Withdrawal completed");
+
+    this.nightfallWithdrawalTxHashes.push(
+      withdrawalReceipts.txL2?.transactionHash,
+    );
+
+    return withdrawalReceipts;
+  }
+
+  async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
+    logger.debug({ options }, "User :: finaliseWithdrawal");
+    finaliseWithdrawalOptions.validate(options);
+
+    // If no withdrawTxHash was given, use the latest
+    const withdrawTxHash =
+      options.withdrawTxHash?.trim() ||
+      this.nightfallWithdrawalTxHashes[
+        this.nightfallWithdrawalTxHashes.length - 1
+      ];
+    if (!withdrawTxHash)
+      throw new Error("Could not find any withdrawal tx hash");
+
+    logger.info({ withdrawTxHash }, "Finalise withdrawal with tx hash");
+
+    return createAndSubmitFinaliseWithdrawal(
+      withdrawTxHash,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.shieldContractAddress,
+      "0",
+      this.web3Websocket.web3,
+      this.client,
+    );
   }
 
   async checkPendingDeposits() {
