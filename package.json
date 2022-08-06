@@ -47,10 +47,10 @@
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
     "test": "jest",
-    "eg:deposit": "npx ts-node examples/deposit.ts",
-    "eg:transfer": "npx ts-node examples/transfer.ts"
+    "eg:deposit": "ts-node examples/deposit.ts",
+    "eg:transfer": "ts-node examples/transfer.ts",
     "eg:withdrawal": "ts-node examples/withdrawal.ts",
     "eg:finalise-withdrawal": "ts-node examples/finaliseWithdrawal.ts",
-    "eg:nf-balances": "npx ts-node examples/balances.ts"
+    "eg:nf-balances": "ts-node examples/balances.ts"
   }
 }
