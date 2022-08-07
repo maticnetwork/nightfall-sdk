@@ -291,7 +291,7 @@ class Client {
       logger.error(err);
       return null;
     }
-    return res.data;
+    return res.data.balance?.[zkpKeys.compressedZkpPublicKey];
   }
 
   async getNightfallBalances(zkpKeys: NightfallZkpKeys) {
@@ -311,7 +311,7 @@ class Client {
       logger.error(err);
       return null;
     }
-    return res.data;
+    return res.data.balance;
   }
 
   /**
@@ -327,21 +327,24 @@ class Client {
     from that contract. {obs: Just copied this comment for returns from the nf3.mjs}
     @author luizoamorim
    */
-  async getLayer2PendingSpentBalances(
-    ercList: string[],
-    shouldFilterByCompressedZkpPublicKey: boolean,
-    zkpKeys?: NightfallZkpKeys,
-  ) {
-    const res = await axios.get(`${this.apiUrl}/commitment/pending-spent`, {
-      params: {
-        compressedZkpPublicKey:
-          shouldFilterByCompressedZkpPublicKey === true
-            ? zkpKeys.compressedZkpPublicKey
-            : null,
-        ercList,
-      },
-    });
-    return res.data.balance;
+  async getPendingTransfers(zkpKeys: NightfallZkpKeys) {
+    logger.debug("Calling client at commitment/pending-spent");
+    let res: AxiosResponse;
+    try {
+      res = await axios.get(`${this.apiUrl}/commitment/pending-spent`, {
+        params: {
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        },
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at commitment/pending-spent responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data.balance?.[zkpKeys.compressedZkpPublicKey];
   }
 
   /**
@@ -361,7 +364,6 @@ class Client {
         listOfCompressedZkpPublicKey &&
         listOfCompressedZkpPublicKey.length > 0
       ) {
-        console.log("LISTAGEM: ", listOfCompressedZkpPublicKey);
         const response = await axios.post(
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,

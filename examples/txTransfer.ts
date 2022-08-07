@@ -36,10 +36,7 @@ const main = async () => {
     // COMING SOON
 
     // # 5 [OPTIONAL] You can check transfers that are not yet in a block
-    const pendingTransfers = await userSender.checkLayer2PendingSpentBalances(
-      [tokenAddress],
-      true,
-    );
+    const pendingTransfers = await userSender.checkPendingTransfers();
     console.log("Pending balances", pendingTransfers);
   } catch (error) {
     console.log(error);

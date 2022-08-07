@@ -322,6 +322,10 @@ class User {
     return this.client.getPendingDeposits(this.zkpKeys);
   }
 
+  async checkNightfallBalances() {
+    return this.client.getNightfallBalances(this.zkpKeys);
+  }
+
   /**
    *
    * @method checkLayer2PendingSpentBalances should get return the balance of pending spent commitments
@@ -330,19 +334,8 @@ class User {
    * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
    * @returns
    */
-  async checkLayer2PendingSpentBalances(
-    ercList: string[],
-    shouldFilterByCompressedZkpPublicKey: boolean,
-  ) {
-    return this.client.getLayer2PendingSpentBalances(
-      ercList,
-      shouldFilterByCompressedZkpPublicKey,
-      this.zkpKeys,
-    );
-  }
-
-  async checkNightfallBalances() {
-    return this.client.getNightfallBalances(this.zkpKeys);
+  async checkPendingTransfers() {
+    return this.client.getPendingTransfers(this.zkpKeys);
   }
 
   /**
