@@ -31,7 +31,7 @@ export type UserMakeDeposit = UserMakeTransaction;
 
 export interface UserMakeTransfer extends UserMakeTransaction {
   recipientAddress: string;
-  isOffChain: boolean;
+  isOffChain?: boolean;
 }
 
 export interface UserMakeWithdrawal extends UserMakeTransaction {

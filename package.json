@@ -48,6 +48,7 @@
     "prettier": "prettier --check .",
     "test": "jest",
     "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
+    "eg:transfer:ganache": "ts-node -r dotenv/config examples/txTransfer.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
     "eg:withdrawal": "ts-node examples/withdrawal.ts",
     "eg:finalise-withdrawal": "ts-node examples/finaliseWithdrawal.ts",
     "eg:balances:ganache": "ts-node -r dotenv/config examples/balances.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true"
