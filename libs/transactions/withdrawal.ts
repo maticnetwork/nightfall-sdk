@@ -11,27 +11,27 @@ const logger = parentLogger.child({
 });
 
 export async function createAndSubmitWithdrawal(
-  isOffChain: boolean,
-  token: any, // Token,
+  token: any,
   ownerAddress: string,
   ownerPrivateKey: string,
   ownerZkpKeys: NightfallZkpKeys,
-  recipientAddress: string, // TODO consider renaming
   shieldContractAddress: string,
-  value: string,
-  fee: string,
   web3: Web3,
   client: Client,
+  value: string,
+  fee: string,
+  ethRecipientAddress: string,
+  isOffChain: boolean,
 ) {
   logger.debug("createAndSubmitDeposit");
 
   const resData = await client.withdraw(
-    isOffChain,
     token,
     ownerZkpKeys,
     value,
     fee,
-    recipientAddress,
+    ethRecipientAddress,
+    isOffChain,
   );
   // resData null signals that something went wrong in the Client
   if (resData === null) return;
@@ -48,8 +48,8 @@ export async function createAndSubmitWithdrawal(
         ownerPrivateKey,
         shieldContractAddress,
         unsignedTx,
-        fee,
         web3,
+        fee,
       );
     } catch (err) {
       logger.child({ unsignedTx }).error(err);

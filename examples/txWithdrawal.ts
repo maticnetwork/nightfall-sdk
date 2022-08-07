@@ -16,12 +16,12 @@ const main = async () => {
     const tokenAddress = config.tokenAddress;
     const tokenStandard = "ERC20";
     const value = "0.0001";
-    const recipientAddress = "0x9C8B2276D490141Ae1440Da660E470E7C0349C63";
+    const ethRecipientAddress = "0x9C8B2276D490141Ae1440Da660E470E7C0349C63";
     const txReceipts = await user.makeWithdrawal({
       tokenAddress,
       tokenStandard,
       value,
-      recipientAddress,
+      ethRecipientAddress,
     });
     console.log("Transaction receipts", txReceipts);
 
