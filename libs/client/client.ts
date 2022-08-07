@@ -3,7 +3,7 @@ import { Commitment, TransferReponseData } from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { RecipientData } from "libs/user/types";
+import { NightfallRecipientData } from "libs/transactions/types";
 // import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
@@ -145,7 +145,7 @@ class Client {
 
   async deposit(
     token: any, // Token,
-    zkpKeys: NightfallZkpKeys,
+    ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
   ) {
@@ -156,9 +156,9 @@ class Client {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
         tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
+        nullifierKey: ownerZkpKeys.nullifierKey,
         value,
-        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
-        nullifierKey: zkpKeys.nullifierKey,
         fee,
       });
       logger.info(
@@ -190,63 +190,59 @@ class Client {
     @author luizoamorim
     */
   async transfer(
-    contractAddress: string,
-    fee: string,
-    recipientData: RecipientData,
+    token: any,
     ownerZkpKeys: NightfallZkpKeys,
-    tokenId: string,
+    nightfallRecipientData: NightfallRecipientData,
+    fee: string,
     isOffChain: boolean,
   ): Promise<TransferReponseData> {
-    logger.debug("Calling client at deposit");
-    let axiosResponse: AxiosResponse;
+    logger.debug("Calling client at transfer");
+    let res: AxiosResponse;
 
     try {
-      axiosResponse = await axios.post(`${this.apiUrl}/transfer`, {
-        ercAddress: contractAddress,
-        fee,
-        recipientData,
+      res = await axios.post(`${this.apiUrl}/transfer`, {
+        ercAddress: token.contractAddress,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
         rootKey: ownerZkpKeys.rootKey,
-        tokenId,
-        isOffChain,
+        recipientData: nightfallRecipientData,
+        fee,
+        offchain: isOffChain,
       });
       logger.info(
-        { status: axiosResponse.status, data: axiosResponse.data },
+        { status: res.status, data: res.data },
         "Client at transfer responded",
       );
 
-      if (
-        axiosResponse.data.error &&
-        axiosResponse.data.error === "No suitable commitments"
-      ) {
+      if (res.data.error && res.data.error === "No suitable commitments") {
         throw new Error("No suitable commitments were found");
       }
     } catch (err) {
       logger.error(err);
       return null;
     }
-    return axiosResponse.data;
+    return res.data;
   }
 
   async withdraw(
-    isOffChain: boolean,
-    token: any, // Token,
-    zkpKeys: NightfallZkpKeys,
+    token: any,
+    ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
-    recipientAddress: string,
+    ethRecipientAddress: string,
+    isOffChain: boolean,
   ) {
     logger.debug("Calling client at withdraw");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/withdraw`, {
-        offchain: isOffChain,
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
         tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        rootKey: ownerZkpKeys.rootKey,
+        recipientAddress: ethRecipientAddress,
         value,
-        rootKey: zkpKeys.rootKey,
         fee,
-        recipientAddress,
+        offchain: isOffChain,
       });
       logger.info(
         { status: res.status, data: res.data },
