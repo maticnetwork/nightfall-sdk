@@ -1,7 +1,6 @@
 import { UserFactory } from "../libs/user";
 import { config } from "./appConfig";
 
-// Script
 const main = async () => {
   let user;
   try {
