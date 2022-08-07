@@ -17,10 +17,10 @@ export async function createAndSubmitDeposit(
   ownerPrivateKey: string,
   ownerZkpKeys: NightfallZkpKeys,
   shieldContractAddress: string,
-  value: string,
-  fee: string,
   web3: Web3,
   client: Client,
+  value: string,
+  fee: string,
 ) {
   logger.debug("createAndSubmitDeposit");
 
@@ -38,8 +38,8 @@ export async function createAndSubmitDeposit(
       ownerPrivateKey,
       shieldContractAddress,
       unsignedTx,
-      fee,
       web3,
+      fee,
     );
   } catch (err) {
     logger.child({ unsignedTx }).error(err);

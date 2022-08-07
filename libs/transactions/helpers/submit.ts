@@ -33,8 +33,8 @@ export async function submitTransaction(
   senderPrivateKey: string,
   recipientAddress: string,
   unsignedTx: string,
-  fee: string,
   web3: Web3,
+  fee = "0",
 ): Promise<TransactionReceipt> {
   const logInput = {
     from: senderAddress,
