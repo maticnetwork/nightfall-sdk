@@ -172,6 +172,61 @@ class Client {
     return res.data;
   }
 
+  /**
+    Transfers a token within Layer 2.
+    @method
+    @async
+    @param {string} ercAddress - The address of the ERCx contract from which the token
+    @param {string} fee - The amount (Wei) to pay a proposer for the transaction    
+    is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+    by the token's owner to be able to withdraw the token.
+    @param {RecipientData} recipientData - An object with an array of values and an array
+    of compressedZkpPublicKeys.        
+    @param {string} tokenId - The ID of an ERC721 or ERC1155 token.  In the case of
+    an 'ERC20' coin, this should be set to '0x00'.
+    @param {string} rootKey - The ID of an ERC721 or ERC1155 token.  In the case of
+    an 'ERC20' coin, this should be set to '0x00'.
+    @returns {Promise} Resolves into the Ethereum transaction receipt.
+    @author luizoamorim
+    */
+  async transfer(
+    contractAddress: string,
+    fee: string,
+    recipientData: RecipientData,
+    ownerZkpKeys: NightfallZkpKeys,
+    tokenId: string,
+    isOffChain: boolean,
+  ): Promise<TransferReponseData> {
+    logger.debug("Calling client at deposit");
+    let axiosResponse: AxiosResponse;
+
+    try {
+      axiosResponse = await axios.post(`${this.apiUrl}/transfer`, {
+        ercAddress: contractAddress,
+        fee,
+        recipientData,
+        rootKey: ownerZkpKeys.rootKey,
+        tokenId,
+        isOffChain,
+      });
+      logger.info(
+        { status: axiosResponse.status, data: axiosResponse.data },
+        "Client at transfer responded",
+      );
+
+      if (
+        axiosResponse.data.error &&
+        axiosResponse.data.error === "No suitable commitments"
+      ) {
+        throw new Error("No suitable commitments were found");
+      }
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return axiosResponse.data;
+  }
+
   async withdraw(
     isOffChain: boolean,
     token: any, // Token,
@@ -322,61 +377,6 @@ class Client {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
-  }
-
-  /**
-    Transfers a token within Layer 2.
-    @method
-    @async
-    @param {string} ercAddress - The address of the ERCx contract from which the token
-    @param {string} fee - The amount (Wei) to pay a proposer for the transaction    
-    is being taken.  Note that the Nightfall_3 State.sol contract must be approved
-    by the token's owner to be able to withdraw the token.
-    @param {RecipientData} recipientData - An object with an array of values and an array
-    of compressedZkpPublicKeys.        
-    @param {string} tokenId - The ID of an ERC721 or ERC1155 token.  In the case of
-    an 'ERC20' coin, this should be set to '0x00'.
-    @param {string} rootKey - The ID of an ERC721 or ERC1155 token.  In the case of
-    an 'ERC20' coin, this should be set to '0x00'.
-    @returns {Promise} Resolves into the Ethereum transaction receipt.
-    @author luizoamorim
-    */
-  async transfer(
-    contractAddress: string,
-    fee: string,
-    recipientData: RecipientData,
-    ownerZkpKeys: NightfallZkpKeys,
-    tokenId: string,
-    isOffChain: boolean,
-  ): Promise<TransferReponseData> {
-    logger.debug("Calling client at deposit");
-    let axiosResponse: AxiosResponse;
-
-    try {
-      axiosResponse = await axios.post(`${this.apiUrl}/transfer`, {
-        ercAddress: contractAddress,
-        fee,
-        recipientData,
-        rootKey: ownerZkpKeys.rootKey,
-        tokenId,
-        isOffChain,
-      });
-      logger.info(
-        { status: axiosResponse.status, data: axiosResponse.data },
-        "Client at transfer responded",
-      );
-
-      if (
-        axiosResponse.data.error &&
-        axiosResponse.data.error === "No suitable commitments"
-      ) {
-        throw new Error("No suitable commitments were found");
-      }
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
-    return axiosResponse.data;
   }
 }
 
