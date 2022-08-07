@@ -6,6 +6,7 @@ import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
 import { Transaction } from "libs/types";
+import { NightfallRecipientData } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -30,39 +31,38 @@ const logger = parentLogger.child({
  * @returns
  */
 export async function createAndSubmitTransfer(
-  contractAddress: string,
-  ercStandard: string,
+  token: any,
   ownerAddress: string,
   ownerPrivateKey: string,
   ownerZkpKeys: NightfallZkpKeys,
   shieldContractAddress: string,
-  value: string,
-  fee: string,
   web3: Web3,
   client: Client,
-  recipientAddress: string,
+  value: string,
+  fee: string,
+  nightfallRecipientAddress: string,
   isOffChain: boolean,
 ): Promise<{ txL1: TransactionReceipt; txL2: Transaction }> | null {
   logger.debug("createAndSubmitTransfer");
 
-  const transferResponseData = await client.transfer(
-    contractAddress,
-    fee,
-    {
-      values: [value],
-      recipientCompressedZkpPublicKeys: [recipientAddress],
-    },
+  const nightfallRecipientData: NightfallRecipientData = {
+    recipientCompressedZkpPublicKeys: [nightfallRecipientAddress],
+    values: [value],
+  };
+  const resData = await client.transfer(
+    token,
     ownerZkpKeys,
-    "0x00",
+    nightfallRecipientData,
+    fee,
     isOffChain,
   );
 
-  // transferResponseData null signals that something went wrong in the Client
-  if (transferResponseData === null) return null;
+  // resData null signals that something went wrong in the Client
+  if (resData === null) return null;
 
   if (!isOffChain) {
-    const unsignedTx = transferResponseData.txDataToSign;
-    logger.debug({ unsignedTx }, "Transefr tx, unsigned");
+    const unsignedTx = resData.txDataToSign;
+    logger.debug({ unsignedTx }, "Transfer tx, unsigned");
 
     let txReceipt: TransactionReceipt;
     try {
@@ -71,13 +71,13 @@ export async function createAndSubmitTransfer(
         ownerPrivateKey,
         shieldContractAddress,
         unsignedTx,
-        fee,
         web3,
+        fee,
       );
     } catch (err) {
       logger.child({ unsignedTx }).error(err);
       return null;
     }
-    return { txL1: txReceipt, txL2: transferResponseData.transaction };
+    return { txL1: txReceipt, txL2: resData.transaction };
   }
 }
