@@ -32,7 +32,7 @@ const main = async () => {
     });
     console.log("Transaction receipts", txReceipts);
 
-    // # 4 [OPTIONAL] You can check your transaction hash
+    // # 4 [OPTIONAL] You can check the transaction hash
     // COMING SOON
 
     // # 5 [OPTIONAL] You can check transfers that are not yet in a block

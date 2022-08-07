@@ -30,7 +30,7 @@ const main = async () => {
     });
     console.log("Transaction receipts", txReceipts);
 
-    // # 5 [OPTIONAL] You can check your transaction hash
+    // # 5 [OPTIONAL] You can check the transaction hash
     console.log("Nightfall deposit tx hashes", user.nightfallDepositTxHashes);
 
     // # 6 [OPTIONAL] You can check deposits that are not yet in Nightfall
