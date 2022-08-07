@@ -110,6 +110,13 @@ class User {
     }
   }
 
+  async checkStatus() {
+    logger.debug("User :: checkStatus");
+    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
+    const isClientAlive = await this.client.healthCheck();
+    return { isWeb3WsAlive, isClientAlive };
+  }
+
   async makeDeposit(options: UserMakeDeposit) {
     logger.debug({ options }, "User :: makeDeposit");
     makeDepositOptions.validate(options);
@@ -166,6 +173,74 @@ class User {
     this.nightfallDepositTxHashes.push(depositReceipts.txL2?.transactionHash);
 
     return depositReceipts;
+  }
+
+  /**
+   *
+   * @method makeTransfer allow user to make a transfer in polygon nightfall network.
+   * @async
+   * @param {string} tokenAddress - the address of the smart contract for the ercStandard
+   * @param {string} tokenStandard - the ercStandard
+   * @param {string} value - the amount to be transfered
+   * @param {string} recipientAddress - the compressedZkpPublicKey for the receiver
+   * @param {string} feeGwei - The amount (GWei) to pay a proposer for the transaction
+   * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
+   * by the token's owner to be able to withdraw the token.
+   * @returns Promise<TransferReceipts>
+   * @author luizoamorim
+   */
+  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
+    logger.debug(options, "User :: makeTransfer");
+
+    // Validate the parameters
+    makeTransferOptions.validate(options);
+
+    // Format the parameters
+    const valueFormated = options.value.trim();
+    const feeGweiFormated = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddressFormated = options.tokenAddress.trim();
+    const tokenStandardFormated = options.tokenStandard.trim().toUpperCase();
+    const recipientAddressFormated = options.recipientAddress.trim();
+    const isOffChain = options.isOffChain || false;
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddressFormated !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddressFormated,
+        ercStandard: tokenStandardFormated,
+        web3: this.web3Websocket.web3,
+      });
+    }
+
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert values fron GWei to Wei
+    const valueWeiFormat = stringValueToWei(valueFormated, this.token.decimals);
+    const feeWeiFormat = feeGweiFormated + "000000000";
+    logger.info({ valueWeiFormat, feeWeiFormat }, "Value and fee in wei");
+
+    const transferReceipts = await createAndSubmitTransfer(
+      this.token.contractAddress,
+      this.token.ercStandard,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      this.shieldContractAddress,
+      valueWeiFormat,
+      feeWeiFormat,
+      this.web3Websocket.web3,
+      this.client,
+      recipientAddressFormated,
+      isOffChain,
+    );
+
+    if (transferReceipts === null) {
+      logger.error({ transferReceipts }, "Transfer was not completed!");
+      return null;
+    }
+
+    logger.info({ transferReceipts }, "Transfer was completed!");
+    return transferReceipts;
   }
 
   async makeWithdrawal(options: UserMakeWithdrawal) {
@@ -250,10 +325,6 @@ class User {
     return this.client.getPendingDeposits(this.zkpKeys);
   }
 
-  async checkNightfallBalances() {
-    return this.client.getNightfallBalances(this.zkpKeys);
-  }
-
   /**
    *
    * @method checkLayer2PendingSpentBalances should get return the balance of pending spent commitments
@@ -273,72 +344,8 @@ class User {
     );
   }
 
-  /**
-   *
-   * @method makeTransfer allow user to make a transfer in polygon nightfall network.
-   * @async
-   * @param {string} tokenAddress - the address of the smart contract for the ercStandard
-   * @param {string} tokenStandard - the ercStandard
-   * @param {string} value - the amount to be transfered
-   * @param {string} recipientAddress - the compressedZkpPublicKey for the receiver
-   * @param {string} feeGwei - The amount (GWei) to pay a proposer for the transaction
-   * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
-   * by the token's owner to be able to withdraw the token.
-   * @returns Promise<TransferReceipts>
-   * @author luizoamorim
-   */
-  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
-    logger.debug(options, "User :: makeTransfer");
-
-    // Validate the parameters
-    makeTransferOptions.validate(options);
-
-    // Format the parameters
-    const valueFormated = options.value.trim();
-    const feeGweiFormated = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
-    const tokenAddressFormated = options.tokenAddress.trim();
-    const tokenStandardFormated = options.tokenStandard.trim().toUpperCase();
-    const recipientAddressFormated = options.recipientAddress.trim();
-    const isOffChain = options.isOffChain || false;
-
-    // Set token only if it's not set or is different
-    if (!this.token || tokenAddressFormated !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        address: tokenAddressFormated,
-        ercStandard: tokenStandardFormated,
-        web3: this.web3Websocket.web3,
-      });
-    }
-
-    if (this.token === null) throw new Error("Unable to set token");
-
-    // Convert values fron GWei to Wei
-    const valueWeiFormat = stringValueToWei(valueFormated, this.token.decimals);
-    const feeWeiFormat = feeGweiFormated + "000000000";
-    logger.info({ valueWeiFormat, feeWeiFormat }, "Value and fee in wei");
-
-    const transferReceipts = await createAndSubmitTransfer(
-      this.token.contractAddress,
-      this.token.ercStandard,
-      this.ethAddress,
-      this.ethPrivateKey,
-      this.zkpKeys,
-      this.shieldContractAddress,
-      valueWeiFormat,
-      feeWeiFormat,
-      this.web3Websocket.web3,
-      this.client,
-      recipientAddressFormated,
-      isOffChain,
-    );
-
-    if (transferReceipts === null) {
-      logger.error({ transferReceipts }, "Transfer was not completed!");
-      return null;
-    }
-
-    logger.info({ transferReceipts }, "Transfer was completed!");
-    return transferReceipts;
+  async checkNightfallBalances() {
+    return this.client.getNightfallBalances(this.zkpKeys);
   }
 
   /**
@@ -379,13 +386,6 @@ class User {
       logger.child({ options }).error(err);
       return null;
     }
-  }
-
-  async checkStatus() {
-    logger.debug("User :: checkStatus");
-    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
-    const isClientAlive = await this.client.healthCheck();
-    return { isWeb3WsAlive, isClientAlive };
   }
 
   close() {
