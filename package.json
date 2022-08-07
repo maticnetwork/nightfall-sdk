@@ -46,7 +46,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
-    "test": "jest",
+    "test:ganache": "DOTENV_CONFIG_PATH=./examples/.env.ganache jest --setupFiles dotenv/config",
     "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
     "eg:transfer:ganache": "ts-node -r dotenv/config examples/txTransfer.ts dotenv_config_path=./examples/.env.ganache",
     "eg:withdrawal:ganache": "ts-node -r dotenv/config examples/txWithdrawal.ts dotenv_config_path=./examples/.env.ganache",
