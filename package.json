@@ -47,7 +47,7 @@
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
     "test": "jest",
-    "eg:deposit": "ts-node -r dotenv/config examples/deposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
+    "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
     "eg:withdrawal": "ts-node examples/withdrawal.ts",
     "eg:finalise-withdrawal": "ts-node examples/finaliseWithdrawal.ts",
     "eg:nf-balances": "ts-node examples/balances.ts"
