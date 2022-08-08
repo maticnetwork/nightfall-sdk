@@ -20,12 +20,12 @@ const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
  * Create, sign and broadcast an Ethereum transaction to the network
  * 
  * @function submitTransaction 
- * @param {string} senderAddress the Eth address sending the contents of the transaction
- * @param {string} senderPrivateKey the Eth private key of the sender to sign the transaction
- * @param {string} recipientAddress the Eth address receiving the contents of the transaction
- * @param {string} unsignedTx the contents of the transaction (sent in data)
+ * @param {string} senderAddress Eth address sending the contents of the transaction
+ * @param {string} senderPrivateKey Eth private key of the sender to sign the transaction
+ * @param {string} recipientAddress Eth address receiving the contents of the transaction
+ * @param {string} unsignedTx The contents of the transaction (sent in data)
  * @param {Web3} web3 web3js instance
- * @param {string} fee the amount of Wei to pay to a proposer for processing the transaction
+ * @param {string} fee The amount in Wei to pay a proposer for the transaction
  * @returns {Promise} Will resolve into an Ethereum <TransactionReceipt>
  */
 export async function submitTransaction(

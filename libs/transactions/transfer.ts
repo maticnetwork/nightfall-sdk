@@ -13,22 +13,21 @@ const logger = parentLogger.child({
 });
 
 /**
- * @method createAndSubmitTransfer handle the flow for transferences in layer2
- * @param {string} ercAddress - the address of the smart contract created for this token
- * @param {string} ercStandard - the erc standard
- * @param {string} ownerAddress - the address of who is doing the transfer
- * @param {string} ownerPrivateKey - the private key of the sender to sing the transaction
- * @param {NightfallZkpKeys} ownerZkpKeys - the zkp keys for the sender
- * @param {string} shieldContractAddress - the address of the Shield smart contract
- * @param {string} value - the value to be transfered
- * @param {string} fee - the amount (Wei) to pay a proposer for the transaction
- * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
- * by the token's owner to be able to withdraw the token
- * @param {Web3} web3 - web3js instance
- * @param {Client} client -
- * @param {string} recipientAddress - the zkp public key of the recipient
- * @param {boolean} offchain - indicates if the transfer is onchain or offchain
- * @returns
+ * Handle the flow for transfer transactions
+ *
+ * @method createAndSubmitTransfer
+ * @param {} token An instance of Token holding token info such as contract address
+ * @param {string} ownerAddress Eth address sending the contents of the transfer  // TODO review names
+ * @param {string} ownerPrivateKey Eth private key of the sender to sign the transaction
+ * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+ * @param {string} shieldContractAddress Address of the Shield smart contract
+ * @param {Web3} web3 web3js instance
+ * @param {Client} client An instance of Client to interact with the API
+ * @param {string} value The amount of the token to be transferred
+ * @param {string} fee The amount in Wei to pay a proposer for the transaction
+ * @param {string} nightfallRecipientAddress Compressed Zkp public key of the recipient in L2
+ * @param {boolean} isOffChain If true, transaction will be sent to the proposer's API (handled off-chain)
+ * @returns // TODO
  */
 export async function createAndSubmitTransfer(
   token: any,
