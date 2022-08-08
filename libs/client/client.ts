@@ -173,22 +173,17 @@ class Client {
   }
 
   /**
-    Transfers a token within Layer 2.
-    @method
-    @async
-    @param {string} ercAddress - The address of the ERCx contract from which the token
-    @param {string} fee - The amount (Wei) to pay a proposer for the transaction    
-    is being taken.  Note that the Nightfall_3 State.sol contract must be approved
-    by the token's owner to be able to withdraw the token.
-    @param {RecipientData} recipientData - An object with an array of values and an array
-    of compressedZkpPublicKeys.        
-    @param {string} tokenId - The ID of an ERC721 or ERC1155 token.  In the case of
-    an 'ERC20' coin, this should be set to '0x00'.
-    @param {string} rootKey - The ID of an ERC721 or ERC1155 token.  In the case of
-    an 'ERC20' coin, this should be set to '0x00'.
-    @returns {Promise} Resolves into the Ethereum transaction receipt.
-    @author luizoamorim
-    */
+   * Perform a POST request to create a transfer transaction
+   *
+   * @async
+   * @method transfer
+   * @param {} token An instance of Token holding token info such as contract address
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {NightfallRecipientData} nightfallRecipientData An object with [valueWei] an [recipientCompressedZkpPublicKey]
+   * @param {string} fee The amount in Wei to pay a proposer for the transaction
+   * @param {boolean} isOffChain If true, transaction will be sent to the proposer's API (handled off-chain)
+   * @returns {Promise} Resolves into the Ethereum transaction receipt.
+   */
   async transfer(
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
@@ -324,8 +319,7 @@ class Client {
    * @returns {Promise} This promise resolves into an object whose properties are the
     addresses of the ERC contracts of the tokens held by this account in Layer 2. The
     value of each propery is the number of tokens pending spent (transfer & withdraw)
-    from that contract. {obs: Just copied this comment for returns from the nf3.mjs}
-    @author luizoamorim
+    from that contract. TODO review
    */
   async getPendingTransfers(zkpKeys: NightfallZkpKeys) {
     logger.debug("Calling client at commitment/pending-spent");
