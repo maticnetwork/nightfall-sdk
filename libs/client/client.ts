@@ -3,7 +3,7 @@ import { Commitment, TransferReponseData } from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { RecipientData } from "libs/user/types";
+import { NightfallRecipientData } from "libs/transactions/types";
 // import type { Token } from "../tokens";
 
 const logger = parentLogger.child({
@@ -145,7 +145,7 @@ class Client {
 
   async deposit(
     token: any, // Token,
-    zkpKeys: NightfallZkpKeys,
+    ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
   ) {
@@ -156,9 +156,9 @@ class Client {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
         tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
+        nullifierKey: ownerZkpKeys.nullifierKey,
         value,
-        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
-        nullifierKey: zkpKeys.nullifierKey,
         fee,
       });
       logger.info(
@@ -172,26 +172,72 @@ class Client {
     return res.data;
   }
 
-  async withdraw(
+  /**
+   * Perform a POST request to create a transfer transaction
+   *
+   * @async
+   * @method transfer
+   * @param {} token An instance of Token holding token info such as contract address
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {NightfallRecipientData} nightfallRecipientData An object with [valueWei] an [recipientCompressedZkpPublicKey]
+   * @param {string} fee The amount in Wei to pay a proposer for the transaction
+   * @param {boolean} isOffChain If true, transaction will be sent to the proposer's API (handled off-chain)
+   * @returns {Promise} Resolves into the Ethereum transaction receipt.
+   */
+  async transfer(
+    token: any,
+    ownerZkpKeys: NightfallZkpKeys,
+    nightfallRecipientData: NightfallRecipientData,
+    fee: string,
     isOffChain: boolean,
-    token: any, // Token,
-    zkpKeys: NightfallZkpKeys,
+  ): Promise<TransferReponseData> {
+    logger.debug("Calling client at transfer");
+    let res: AxiosResponse;
+
+    try {
+      res = await axios.post(`${this.apiUrl}/transfer`, {
+        ercAddress: token.contractAddress,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        rootKey: ownerZkpKeys.rootKey,
+        recipientData: nightfallRecipientData,
+        fee,
+        offchain: isOffChain,
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at transfer responded",
+      );
+
+      if (res.data.error && res.data.error === "No suitable commitments") {
+        throw new Error("No suitable commitments were found");
+      }
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data;
+  }
+
+  async withdraw(
+    token: any,
+    ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
-    recipientAddress: string,
+    ethRecipientAddress: string,
+    isOffChain: boolean,
   ) {
     logger.debug("Calling client at withdraw");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/withdraw`, {
-        offchain: isOffChain,
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
         tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        rootKey: ownerZkpKeys.rootKey,
+        recipientAddress: ethRecipientAddress,
         value,
-        rootKey: zkpKeys.rootKey,
         fee,
-        recipientAddress,
+        offchain: isOffChain,
       });
       logger.info(
         { status: res.status, data: res.data },
@@ -240,7 +286,7 @@ class Client {
       logger.error(err);
       return null;
     }
-    return res.data;
+    return res.data.balance?.[zkpKeys.compressedZkpPublicKey];
   }
 
   async getNightfallBalances(zkpKeys: NightfallZkpKeys) {
@@ -260,7 +306,7 @@ class Client {
       logger.error(err);
       return null;
     }
-    return res.data;
+    return res.data.balance;
   }
 
   /**
@@ -273,24 +319,26 @@ class Client {
    * @returns {Promise} This promise resolves into an object whose properties are the
     addresses of the ERC contracts of the tokens held by this account in Layer 2. The
     value of each propery is the number of tokens pending spent (transfer & withdraw)
-    from that contract. {obs: Just copied this comment for returns from the nf3.mjs}
-    @author luizoamorim
+    from that contract. TODO review
    */
-  async getLayer2PendingSpentBalances(
-    ercList: string[],
-    shouldFilterByCompressedZkpPublicKey: boolean,
-    zkpKeys?: NightfallZkpKeys,
-  ) {
-    const res = await axios.get(`${this.apiUrl}/commitment/pending-spent`, {
-      params: {
-        compressedZkpPublicKey:
-          shouldFilterByCompressedZkpPublicKey === true
-            ? zkpKeys.compressedZkpPublicKey
-            : null,
-        ercList,
-      },
-    });
-    return res.data.balance;
+  async getPendingTransfers(zkpKeys: NightfallZkpKeys) {
+    logger.debug("Calling client at commitment/pending-spent");
+    let res: AxiosResponse;
+    try {
+      res = await axios.get(`${this.apiUrl}/commitment/pending-spent`, {
+        params: {
+          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        },
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        "Client at commitment/pending-spent responded",
+      );
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
+    return res.data.balance?.[zkpKeys.compressedZkpPublicKey];
   }
 
   /**
@@ -310,7 +358,6 @@ class Client {
         listOfCompressedZkpPublicKey &&
         listOfCompressedZkpPublicKey.length > 0
       ) {
-        console.log("LISTAGEM: ", listOfCompressedZkpPublicKey);
         const response = await axios.post(
           `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
           listOfCompressedZkpPublicKey,
@@ -322,61 +369,6 @@ class Client {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
-  }
-
-  /**
-    Transfers a token within Layer 2.
-    @method
-    @async
-    @param {string} ercAddress - The address of the ERCx contract from which the token
-    @param {string} fee - The amount (Wei) to pay a proposer for the transaction    
-    is being taken.  Note that the Nightfall_3 State.sol contract must be approved
-    by the token's owner to be able to withdraw the token.
-    @param {RecipientData} recipientData - An object with an array of values and an array
-    of compressedZkpPublicKeys.        
-    @param {string} tokenId - The ID of an ERC721 or ERC1155 token.  In the case of
-    an 'ERC20' coin, this should be set to '0x00'.
-    @param {string} rootKey - The ID of an ERC721 or ERC1155 token.  In the case of
-    an 'ERC20' coin, this should be set to '0x00'.
-    @returns {Promise} Resolves into the Ethereum transaction receipt.
-    @author luizoamorim
-    */
-  async transfer(
-    contractAddress: string,
-    fee: string,
-    recipientData: RecipientData,
-    ownerZkpKeys: NightfallZkpKeys,
-    tokenId: string,
-    isOffChain: boolean,
-  ): Promise<TransferReponseData> {
-    logger.debug("Calling client at deposit");
-    let axiosResponse: AxiosResponse;
-
-    try {
-      axiosResponse = await axios.post(`${this.apiUrl}/transfer`, {
-        ercAddress: contractAddress,
-        fee,
-        recipientData,
-        rootKey: ownerZkpKeys.rootKey,
-        tokenId,
-        isOffChain,
-      });
-      logger.info(
-        { status: axiosResponse.status, data: axiosResponse.data },
-        "Client at transfer responded",
-      );
-
-      if (
-        axiosResponse.data.error &&
-        axiosResponse.data.error === "No suitable commitments"
-      ) {
-        throw new Error("No suitable commitments were found");
-      }
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
-    return axiosResponse.data;
   }
 }
 
