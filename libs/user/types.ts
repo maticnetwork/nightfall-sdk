@@ -30,22 +30,17 @@ export interface UserMakeTransaction {
 export type UserMakeDeposit = UserMakeTransaction;
 
 export interface UserMakeTransfer extends UserMakeTransaction {
-  recipientAddress: string;
-  isOffChain: boolean;
+  nightfallRecipientAddress: string;
+  isOffChain?: boolean;
 }
 
 export interface UserMakeWithdrawal extends UserMakeTransaction {
-  recipientAddress: string;
+  ethRecipientAddress: string;
   isOffChain?: boolean;
 }
 
 export interface UserFinaliseWithdrawal {
   withdrawTxHash?: string;
-}
-
-export interface RecipientData {
-  recipientCompressedZkpPublicKeys: string[];
-  values: string[];
 }
 
 export interface UserExportCommitments {

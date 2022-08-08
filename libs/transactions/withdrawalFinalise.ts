@@ -10,13 +10,12 @@ const logger = parentLogger.child({
 });
 
 export async function createAndSubmitFinaliseWithdrawal(
-  withdrawTxHash: string,
   ownerAddress: string,
   ownerPrivateKey: string,
   shieldContractAddress: string,
-  fee: string,
   web3: Web3,
   client: Client,
+  withdrawTxHash: string,
 ) {
   logger.debug("createAndSubmitDeposit");
 
@@ -34,7 +33,6 @@ export async function createAndSubmitFinaliseWithdrawal(
       ownerPrivateKey,
       shieldContractAddress,
       unsignedTx,
-      fee,
       web3,
     );
   } catch (err) {

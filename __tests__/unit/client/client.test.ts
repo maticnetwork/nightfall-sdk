@@ -8,16 +8,16 @@ describe("Client", () => {
   const client = new Client(dummyUrl);
   const zkpKeys = {
     compressedZkpPublicKey:
-      "0x300adad07dedfff59e930711c8ba5324ac7d22a15ea454ebca7eaba0fae7f9a4",
+      "0x00781eab9bd94da3eb84c7a1b085f162f5eb58f9c189efef788a5176982a07e1",
     nullifierKey:
-      "0x1ff0e5c9bb59a8e2c2edbcaf9a19bd17721f74998a8c5b4961db8ac4000cb6c6",
+      "0x1ec80c50b816fff74890a5d08bc95c1c749d955201b8a9ada0f99a117b8ccc8a",
     rootKey:
-      "0x14837799d8eb23da87c723f6e4f29b7e80dc0cdda8ab45a8430b133cdd997f25",
+      "0x2366fc5530da8bc6618f01b2ac8fee17489cdef28ee8c21a0b945ba883d0da7c",
     zkpPrivateKey:
-      "0xd98adbc9dfc82f3e268cc30de5ca172c2c5d9f0ba677d1914fd5244b211a125",
+      "0xd9f1e813a2c10559620ad3fba2050c13898d1250776f27b9e7f35de5f973788",
     zkpPublicKey: [
-      "0x28ff35250fe2d316277f150b12c08e965e623871c5cc50020993381f9f54d816",
-      "0x300adad07dedfff59e930711c8ba5324ac7d22a15ea454ebca7eaba0fae7f9a4",
+      "0x39cf22690edcc4d25eb1121a8d583e566b03463ef2defc8703670878ddca0ce",
+      "0x781eab9bd94da3eb84c7a1b085f162f5eb58f9c189efef788a5176982a07e1",
     ],
   };
 
@@ -108,7 +108,7 @@ describe("Client", () => {
   describe("Method generateZkpKeysFromMnemonic", () => {
     const url = dummyUrl + "/generate-zkp-keys";
     const mnemonic =
-      "notable soul hair frost pave now coach what income brush wet make";
+      "chef fortune soon coral laugh distance arrest summer lottery rival quarter oyster";
     const addressIndex = 0;
 
     test("Should return a set of Zero-knowledge proof keys if client app responds successfully", async () => {
