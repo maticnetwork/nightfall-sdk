@@ -176,18 +176,12 @@ class User {
   }
 
   /**
+   * Allow user to transfer tokens in Polygon Nightfall
    *
-   * @method makeTransfer allow user to make a transfer in polygon nightfall network.
    * @async
-   * @param {string} tokenAddress - the address of the smart contract for the ercStandard
-   * @param {string} tokenStandard - the ercStandard
-   * @param {string} value - the amount to be transfered
-   * @param {string} recipientAddress - the compressedZkpPublicKey for the receiver
-   * @param {string} feeGwei - The amount (GWei) to pay a proposer for the transaction
-   * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
-   * by the token's owner to be able to withdraw the token.
-   * @returns Promise<TransferReceipts>
-   * @author luizoamorim
+   * @method makeTransfer
+   * @param {UserMakeTransfer} options Object containing necessary data to perform transfers
+   * @returns // TODO
    */
   async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
     logger.debug(options, "User :: makeTransfer");

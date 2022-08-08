@@ -13,21 +13,21 @@ const logger = parentLogger.child({
 });
 
 /**
- * Handle the flow for transfer transactions
+ * Handle the flow for transfer transaction (tx)
  *
  * @async
  * @function createAndSubmitTransfer
  * @param {} token An instance of Token holding token info such as contract address
  * @param {string} ownerAddress Eth address sending the contents of the transfer  // TODO review names
- * @param {string} ownerPrivateKey Eth private key of the sender to sign the transaction
+ * @param {string} ownerPrivateKey Eth private key of the sender to sign the tx
  * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
  * @param {string} shieldContractAddress Address of the Shield smart contract
  * @param {Web3} web3 web3js instance
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be transferred
- * @param {string} fee The amount in Wei to pay a proposer for the transaction
+ * @param {string} fee The amount in Wei to pay a proposer for the tx
  * @param {string} nightfallRecipientAddress Recipient compressed Zkp public key in L2
- * @param {boolean} isOffChain If true, transaction will be sent to the proposer's API (handled off-chain)
+ * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
  * @returns // TODO
  */
 export async function createAndSubmitTransfer(
