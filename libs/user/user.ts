@@ -58,8 +58,6 @@ class UserFactory {
     const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
-    if (!shieldContractAddress)
-      throw new Error("Unable to get Shield contract address");
 
     // Get the Eth account address from private key if it's a valid key
     const ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);

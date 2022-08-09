@@ -3,13 +3,15 @@ import { Commitment, TransferReponseData } from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { NightfallRecipientData } from "libs/transactions/types";
-// import type { Token } from "../tokens";
+import type { NightfallRecipientData } from "libs/transactions/types";
+import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
+const ERR_REQ_GET_CONTRACT_ADDRESS =
+  "Client get request at contract-address failed";
 /**
  * Creates a new Client
  *
@@ -61,24 +63,27 @@ class Client {
   }
 
   /**
-   * Perform a GET request at contract-address to get this data for a given contract name
+   * Make GET request to get the address for a given contract name
    *
    * @method getContractAddress
    * @param {string} contractName The name of the contract for which we need the address
+   * @throws {NightfallSdkError} ERR_REQ_GET_CONTRACT_ADDRESS
    * @return {Promise<null | string>} Address if request is successful, else null
    */
-  async getContractAddress(contractName: string): Promise<null | string> {
-    logger.debug({ contractName }, "Calling client at contract-address");
+  async getContractAddress(contractName: string): Promise<string> {
+    const endpoint = `contract-address/${contractName}`;
+    logger.debug({ endpoint }, "Calling client at");
+
     let res: AxiosResponse;
     try {
-      res = await axios.get(`${this.apiUrl}/contract-address/${contractName}`);
+      res = await axios.get(`${this.apiUrl}/${endpoint}`);
       logger.info(
         { status: res.status, data: res.data },
-        "Client at contract-address responded",
+        `${endpoint} responded`,
       );
     } catch (err) {
       logger.child({ contractName }).error(err);
-      return null;
+      throw new NightfallSdkError(ERR_REQ_GET_CONTRACT_ADDRESS);
     }
     return res.data.address;
   }
