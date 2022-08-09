@@ -10,8 +10,6 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-const ERR_REQ_GET_CONTRACT_ADDRESS =
-  "Client get request at contract-address failed";
 /**
  * Creates a new Client
  *
@@ -65,10 +63,11 @@ class Client {
   /**
    * Make GET request to get the address for a given contract name
    *
+   * @async
    * @method getContractAddress
    * @param {string} contractName The name of the contract for which we need the address
-   * @throws {NightfallSdkError} ERR_REQ_GET_CONTRACT_ADDRESS
-   * @return {Promise<null | string>} Address if request is successful, else null
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<string>} Eth contract address
    */
   async getContractAddress(contractName: string): Promise<string> {
     const endpoint = `contract-address/${contractName}`;
@@ -83,7 +82,7 @@ class Client {
       );
     } catch (err) {
       logger.child({ contractName }).error(err);
-      throw new NightfallSdkError(ERR_REQ_GET_CONTRACT_ADDRESS);
+      throw new NightfallSdkError(err);
     }
     return res.data.address;
   }
