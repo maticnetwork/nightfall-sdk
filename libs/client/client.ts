@@ -280,8 +280,9 @@ class Client {
    * @param listOfCommitments a list of commitments to be saved in the database.
    * @author luizoamorim
    */
-   async saveCommitments(listOfCommitments: Commitment[]) {
+  async saveCommitments(listOfCommitments: Commitment[]) {
     try {
+      console.log("COMMITMENTSSSSSSSSSSSSSSSSSSS:", listOfCommitments);
       await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
       logger.info("Commitments imported successfully");
     } catch (err) {
@@ -294,7 +295,6 @@ class Client {
       }
     }
   }
-}
 
   /**
     Transfers a token within Layer 2.

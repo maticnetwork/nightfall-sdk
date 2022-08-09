@@ -23,7 +23,11 @@ import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
-import { Commitment } from "../../libs/types";
+import { Commitment } from "../types";
+import importCommitments from "../utils/importCommitments";
+import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
+import { ERROR_COMMITMENT_NOT_MATCH_MNEMONIC } from "../messages/commitments";
+import isCommitmentType from "libs/utils/isCommitmentType";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -304,12 +308,12 @@ class User {
    * @param compressedZkpPublicKey the key derivated from user mnemonic.
    * @author luizoamorim
    */
-   async importAndSaveCommitments(
+  async importAndSaveCommitments(
     pathToExport: string,
     fileName: string,
     compressedZkpPublicKey: string,
   ) {
-    const listOfCommitments: ICommitments[] | Error = await importCommitments(
+    const listOfCommitments: Commitment[] | Error = await importCommitments(
       `${pathToExport}${fileName}`,
     );
 
@@ -329,17 +333,6 @@ class User {
     }
 
     this.client.saveCommitments(listOfCommitments);
-  }
-
-  close() {
-    logger.debug("User :: close");
-    this.web3Websocket.close();
-  }
-}
-
-  close() {
-    logger.debug("User :: close");
-    this.web3Websocket.close();
   }
 
   async checkStatus() {

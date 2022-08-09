@@ -17,6 +17,20 @@ interface Commitment {
   isNullifiedOnChain: number;
   nullifier: string;
   blockNumber: number;
+  transactionHashCommittedL1: string;
+  leafIndex: number;
+  root: string;
+  siblingPath: CommitmentSibling;
+}
+
+interface CommitmentSibling {
+  isMember: boolean;
+  path: SiblingPath[];
+}
+
+interface SiblingPath {
+  dir: string;
+  value: string;
 }
 
 interface Transaction {
@@ -40,4 +54,4 @@ interface TransferReponseData {
   transaction: Transaction;
   salts: string[];
 }
-export { Commitment, Transaction, TransferReponseData };
+export { Commitment, Transaction, TransferReponseData, SiblingPath };

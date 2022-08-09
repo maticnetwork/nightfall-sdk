@@ -1,5 +1,5 @@
-import { ERROR_INVALID_COMMITMENT_TYPE } from "../../libs/messages/commitments";
-import { Commitment } from "libs/types";
+import { ERROR_INVALID_COMMITMENT_TYPE } from "../messages/commitments";
+import { Commitment, SiblingPath } from "../types";
 
 /**
  *
@@ -39,6 +39,23 @@ function isCommitmentType(commitment: Commitment) {
     throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
   if (commitment.preimage.zkpPublicKey === undefined)
     throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  if (commitment.transactionHashCommittedL1 === undefined)
+    throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  if (commitment.leafIndex === undefined)
+    throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  if (commitment.root === undefined)
+    throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  if (commitment.siblingPath === undefined)
+    throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  if (commitment.siblingPath.isMember === undefined)
+    throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  if (commitment.siblingPath.path === undefined)
+    throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  commitment.siblingPath.path.forEach((path: SiblingPath) => {
+    if (path.dir === undefined) throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+    if (path.value === undefined)
+      throw new Error(ERROR_INVALID_COMMITMENT_TYPE);
+  });
 }
 
 export default isCommitmentType;
