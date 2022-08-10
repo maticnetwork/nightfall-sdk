@@ -120,7 +120,6 @@ class User {
   /**
    * Retrieve Nightfall mnemonic - remember you must keep it private
    *
-   * @async
    * @method getNightfallMnemonic
    * @return {string} Nightfall mnemonic
    */
