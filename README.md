@@ -157,7 +157,8 @@ APP_TOKEN_ADDRESS_1=0x4f3c4F8D4575Cf73c2FAf9F36cc505e19E65B9C0
 
 #### 2Tx rule
 
-This is a rule that explains the current Nightfall Protocol. The rule also applies for the example scripts below and it is stated here for clarity.
+This is a rule that explains the current Nightfall Protocol on Ganache and Testnet. To learn about Nightfall protocol on Mainnet visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
+The rule applies to the example scripts below and it is stated here for clarity.
 Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal(not finalise-withdrawal) are finalised.
 
 #### Nightfall keys
@@ -196,7 +197,7 @@ npm run-script eg:finalise-withdrawal:ganache
 
 ##### Check L2 balances
 
-Check your L2 balances
+Check your L2 balances.
 
 ```
 npm run-script eg:nf-balances:ganache
