@@ -10,6 +10,7 @@ const main = async () => {
       blockchainWsUrl: config.blockchainWsUrl,
       clientApiUrl: config.clientApiUrl,
       ethereumPrivateKey: config.ethereumPrivateKey,
+      nightfallMnemonic: config.nightfallMnemonic,
     });
 
     // # 2 [OPTIONAL] If you did not pass a mnemonic, you can retrieve it
