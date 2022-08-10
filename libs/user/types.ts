@@ -3,14 +3,14 @@ import type { Web3Websocket } from "../ethereum";
 import type { TransactionReceipt } from "web3-core";
 import { Transaction } from "../types";
 
-export interface UserFactoryOptions {
+export interface UserFactoryCreate {
   blockchainWsUrl: string;
   clientApiUrl: string;
   ethereumPrivateKey: string;
   nightfallMnemonic?: string;
 }
 
-export interface UserOptions {
+export interface UserConstructor {
   client: Client;
   web3Websocket: Web3Websocket;
   shieldContractAddress: string;
@@ -20,21 +20,27 @@ export interface UserOptions {
   zkpKeys: any; // TODO NightfallZkpKeys might have to be declared as class??;
 }
 
-export interface UserMakeDepositOptions {
+export interface UserMakeTransaction {
   tokenAddress: string;
   tokenStandard: string;
   value: string;
   feeGwei?: string;
 }
 
-export interface UserMakeTransfer extends UserMakeDepositOptions {
-  recipientAddress: string;
-  isOffChain: boolean;
+export type UserMakeDeposit = UserMakeTransaction;
+
+export interface UserMakeTransfer extends UserMakeTransaction {
+  nightfallRecipientAddress: string;
+  isOffChain?: boolean;
 }
 
-export interface RecipientData {
-  recipientCompressedZkpPublicKeys: string[];
-  values: string[];
+export interface UserMakeWithdrawal extends UserMakeTransaction {
+  ethRecipientAddress: string;
+  isOffChain?: boolean;
+}
+
+export interface UserFinaliseWithdrawal {
+  withdrawTxHash?: string;
 }
 
 export interface UserExportCommitments {

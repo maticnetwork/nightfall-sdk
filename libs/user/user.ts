@@ -1,12 +1,14 @@
 import path from "path";
 import { CONTRACT_SHIELD, TX_FEE_GWEI_DEFAULT } from "./constants";
 import {
-  UserFactoryOptions,
-  UserOptions,
-  UserMakeDepositOptions,
+  UserFactoryCreate,
+  UserConstructor,
+  UserMakeDeposit,
+  UserMakeTransfer,
+  UserMakeWithdrawal,
+  UserFinaliseWithdrawal,
   UserExportCommitments,
   TransferReceipts,
-  UserMakeTransfer,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -14,11 +16,19 @@ import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
-  stringValueToWei,
   createAndSubmitTransfer,
+  createAndSubmitWithdrawal,
+  createAndSubmitFinaliseWithdrawal,
+  stringValueToWei,
 } from "../transactions";
 import { parentLogger } from "../utils";
-import { createOptions, makeTransferOptions } from "./validations";
+import {
+  createOptions,
+  makeDepositOptions,
+  makeTransferOptions,
+  makeWithdrawalOptions,
+  finaliseWithdrawalOptions,
+} from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
@@ -30,7 +40,7 @@ const logger = parentLogger.child({
 });
 
 class UserFactory {
-  static async create(options: UserFactoryOptions) {
+  static async create(options: UserFactoryCreate) {
     logger.debug("UserFactory :: create");
     createOptions.validate(options);
 
@@ -88,15 +98,23 @@ class User {
 
   // Set when transacting
   token: any;
-  nightfallTxHashes: string[] = [];
+  nightfallDepositTxHashes: string[] = [];
+  nightfallWithdrawalTxHashes: string[] = [];
 
-  constructor(options: UserOptions) {
+  constructor(options: UserConstructor) {
     logger.debug("new User");
 
-    let key: keyof UserOptions;
+    let key: keyof UserConstructor;
     for (key in options) {
       this[key] = options[key];
     }
+  }
+
+  async checkStatus() {
+    logger.debug("User :: checkStatus");
+    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
+    const isClientAlive = await this.client.healthCheck();
+    return { isWeb3WsAlive, isClientAlive };
   }
 
   getNightfallMnemonic(): string {
@@ -107,12 +125,14 @@ class User {
     return this.zkpKeys?.compressedZkpPublicKey;
   }
 
-  async makeDeposit(options: UserMakeDepositOptions) {
+  async makeDeposit(options: UserMakeDeposit) {
     logger.debug({ options }, "User :: makeDeposit");
 
+    makeDepositOptions.validate(options);
+
     // Format options
-    let value = options.value.trim();
-    let fee = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const value = options.value.trim();
+    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
 
@@ -127,9 +147,9 @@ class User {
     if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei
-    value = stringValueToWei(value, this.token.decimals);
-    fee = fee + "000000000";
-    logger.info({ value, fee }, "Value and fee in wei");
+    const valueWei = stringValueToWei(value, this.token.decimals);
+    const feeWei = feeGwei + "000000000";
+    logger.info({ valueWei, feeWei }, "Value and fee in wei");
 
     // Deposit tx might need approval
     const approvalReceipt = await createAndSubmitApproval(
@@ -137,9 +157,8 @@ class User {
       this.ethAddress,
       this.ethPrivateKey,
       this.shieldContractAddress,
-      value,
-      "0",
       this.web3Websocket.web3,
+      valueWei,
     );
     if (approvalReceipt === null) return null;
     logger.info({ approvalReceipt }, "Approval completed");
@@ -151,17 +170,154 @@ class User {
       this.ethPrivateKey,
       this.zkpKeys,
       this.shieldContractAddress,
-      value,
-      fee,
       this.web3Websocket.web3,
       this.client,
+      valueWei,
+      feeWei,
     );
     if (depositReceipts === null) return null;
     logger.info({ depositReceipts }, "Deposit completed");
 
-    this.nightfallTxHashes.push(depositReceipts.txL2?.transactionHash);
+    this.nightfallDepositTxHashes.push(depositReceipts.txL2?.transactionHash);
 
     return depositReceipts;
+  }
+
+  /**
+   * Allow user to transfer tokens in Polygon Nightfall
+   *
+   * @async
+   * @method makeTransfer
+   * @param {UserMakeTransfer} options Object containing necessary data to perform transfers
+   * @returns // TODO
+   */
+  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
+    logger.debug(options, "User :: makeTransfer");
+
+    makeTransferOptions.validate(options);
+
+    // Format options
+    const value = options.value.trim();
+    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddress = options.tokenAddress.trim();
+    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const nightfallRecipientAddress = options.nightfallRecipientAddress.trim();
+    const isOffChain = options.isOffChain || false;
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddress !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddress,
+        ercStandard: tokenStandard,
+        web3: this.web3Websocket.web3,
+      });
+    }
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert value and fee to wei
+    const valueWei = stringValueToWei(value, this.token.decimals);
+    const feeWei = feeGwei + "000000000";
+    logger.info({ valueWei, feeWei }, "Value and fee in wei");
+
+    const transferReceipts = await createAndSubmitTransfer(
+      this.token,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      this.shieldContractAddress,
+      this.web3Websocket.web3,
+      this.client,
+      valueWei,
+      feeWei,
+      nightfallRecipientAddress,
+      isOffChain,
+    );
+
+    if (transferReceipts === null) {
+      logger.error({ transferReceipts }, "Transfer was not completed!");
+      return null;
+    }
+
+    logger.info({ transferReceipts }, "Transfer was completed!");
+    return transferReceipts;
+  }
+
+  async makeWithdrawal(options: UserMakeWithdrawal) {
+    logger.debug({ options }, "User :: makeWithdrawal");
+
+    makeWithdrawalOptions.validate(options);
+
+    // Format options
+    const value = options.value.trim();
+    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const tokenAddress = options.tokenAddress.trim();
+    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const ethRecipientAddress = options.ethRecipientAddress.trim();
+    const isOffChain = options.isOffChain || false;
+
+    // Set token only if it's not set or is different
+    if (!this.token || tokenAddress !== this.token.contractAddress) {
+      this.token = await TokenFactory.create({
+        address: tokenAddress,
+        ercStandard: tokenStandard,
+        web3: this.web3Websocket.web3,
+      });
+    }
+    if (this.token === null) throw new Error("Unable to set token");
+
+    // Convert value and fee to wei
+    const valueWei = stringValueToWei(value, this.token.decimals);
+    const feeWei = feeGwei + "000000000";
+    logger.info({ valueWei, feeWei }, "Value and fee in wei");
+
+    // Withdrawal
+    const withdrawalReceipts = await createAndSubmitWithdrawal(
+      this.token,
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.zkpKeys,
+      this.shieldContractAddress,
+      this.web3Websocket.web3,
+      this.client,
+      valueWei,
+      feeWei,
+      ethRecipientAddress,
+      isOffChain,
+    );
+
+    if (withdrawalReceipts === null) return null;
+    logger.info({ withdrawalReceipts }, "Withdrawal completed");
+
+    this.nightfallWithdrawalTxHashes.push(
+      withdrawalReceipts.txL2?.transactionHash,
+    );
+
+    return withdrawalReceipts;
+  }
+
+  async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
+    logger.debug({ options }, "User :: finaliseWithdrawal");
+    finaliseWithdrawalOptions.validate(options);
+
+    // If no withdrawTxHash was given, use the latest
+    const withdrawTxHash =
+      options.withdrawTxHash?.trim() ||
+      this.nightfallWithdrawalTxHashes[
+        this.nightfallWithdrawalTxHashes.length - 1
+      ];
+    if (!withdrawTxHash)
+      throw new Error("Could not find any withdrawal tx hash");
+
+    logger.info({ withdrawTxHash }, "Finalise withdrawal with tx hash");
+
+    return createAndSubmitFinaliseWithdrawal(
+      this.ethAddress,
+      this.ethPrivateKey,
+      this.shieldContractAddress,
+      this.web3Websocket.web3,
+      this.client,
+      withdrawTxHash,
+    );
   }
 
   async checkPendingDeposits() {
@@ -180,83 +336,8 @@ class User {
    * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
    * @returns
    */
-  async checkLayer2PendingSpentBalances(
-    ercList: string[],
-    shouldFilterByCompressedZkpPublicKey: boolean,
-  ) {
-    return this.client.getLayer2PendingSpentBalances(
-      ercList,
-      shouldFilterByCompressedZkpPublicKey,
-      this.zkpKeys,
-    );
-  }
-
-  /**
-   *
-   * @method makeTransfer allow user to make a transfer in polygon nightfall network.
-   * @async
-   * @param {string} tokenAddress - the address of the smart contract for the ercStandard
-   * @param {string} tokenStandard - the ercStandard
-   * @param {string} value - the amount to be transfered
-   * @param {string} recipientAddress - the compressedZkpPublicKey for the receiver
-   * @param {string} feeGwei - The amount (GWei) to pay a proposer for the transaction
-   * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
-   * by the token's owner to be able to withdraw the token.
-   * @returns Promise<TransferReceipts>
-   * @author luizoamorim
-   */
-  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
-    logger.debug(options, "User :: makeTransfer");
-
-    // Validate the parameters
-    makeTransferOptions.validate(options);
-
-    // Format the parameters
-    const valueFormated = options.value.trim();
-    const feeGweiFormated = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
-    const tokenAddressFormated = options.tokenAddress.trim();
-    const tokenStandardFormated = options.tokenStandard.trim().toUpperCase();
-    const recipientAddressFormated = options.recipientAddress.trim();
-    const isOffChain = options.isOffChain || false;
-
-    // Set token only if it's not set or is different
-    if (!this.token || tokenAddressFormated !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        address: tokenAddressFormated,
-        ercStandard: tokenStandardFormated,
-        web3: this.web3Websocket.web3,
-      });
-    }
-
-    if (this.token === null) throw new Error("Unable to set token");
-
-    // Convert values fron GWei to Wei
-    const valueWeiFormat = stringValueToWei(valueFormated, this.token.decimals);
-    const feeWeiFormat = feeGweiFormated + "000000000";
-    logger.info({ valueWeiFormat, feeWeiFormat }, "Value and fee in wei");
-
-    const transferReceipts = await createAndSubmitTransfer(
-      this.token.contractAddress,
-      this.token.ercStandard,
-      this.ethAddress,
-      this.ethPrivateKey,
-      this.zkpKeys,
-      this.shieldContractAddress,
-      valueWeiFormat,
-      feeWeiFormat,
-      this.web3Websocket.web3,
-      this.client,
-      recipientAddressFormated,
-      isOffChain,
-    );
-
-    if (transferReceipts === null) {
-      logger.error({ transferReceipts }, "Transfer was not completed!");
-      return null;
-    }
-
-    logger.info({ transferReceipts }, "Transfer was completed!");
-    return transferReceipts;
+  async checkPendingTransfers() {
+    return this.client.getPendingTransfers(this.zkpKeys);
   }
 
   /**
@@ -297,13 +378,6 @@ class User {
       logger.child({ options }).error(err);
       return null;
     }
-  }
-
-  async checkStatus() {
-    logger.debug("User :: checkStatus");
-    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
-    const isClientAlive = await this.client.healthCheck();
-    return { isWeb3WsAlive, isClientAlive };
   }
 
   close() {

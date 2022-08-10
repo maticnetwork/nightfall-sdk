@@ -14,9 +14,8 @@ export async function createAndSubmitApproval(
   ownerAddress: string,
   ownerPrivateKey: string,
   spenderAddress: string,
-  value: string,
-  fee: string,
   web3: Web3,
+  value: string,
 ): Promise<void | null | TransactionReceipt> {
   logger.debug("createAndSubmitApproval");
 
@@ -36,7 +35,6 @@ export async function createAndSubmitApproval(
       ownerPrivateKey,
       token.contractAddress,
       unsignedTx,
-      fee,
       web3,
     );
   } catch (err) {

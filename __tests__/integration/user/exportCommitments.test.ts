@@ -1,19 +1,13 @@
 import fs from "fs";
 import { UserFactory } from "../../../libs/user";
-
-import * as dotenv from "dotenv";
-import path from "path";
 import { Client } from "../../../libs/client";
 import { Commitment } from "../../../libs/types";
 
-const _rootPath = path.resolve();
-dotenv.config({ path: path.join(_rootPath, ".env") });
-
 const options = {
-  blockchainWsUrl: process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL,
-  clientApiUrl: process.env.SDK_CLIENT_API_URL,
-  ethereumPrivateKey: process.env.SDK_ETH_PRIVATE_KEY,
-  nightfallMnemonic: process.env.SDK_NIGHTFALL_MNEMONIC,
+  blockchainWsUrl: process.env.APP_BLOCKCHAIN_WEBSOCKET_URL,
+  clientApiUrl: process.env.APP_CLIENT_API_URL,
+  ethereumPrivateKey: process.env.APP_ETH_PRIVATE_KEY,
+  nightfallMnemonic: process.env.APP_NIGHTFALL_MNEMONIC,
 };
 
 describe("Suit of integration tests for export commitments use case", () => {

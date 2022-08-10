@@ -46,9 +46,12 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
-    "test": "jest",
-    "eg:deposit": "npx ts-node examples/deposit.ts",
-    "eg:nf-balances": "npx ts-node examples/balances.ts",
-    "eg:nf-data": "ts-node examples/nfAccountData.ts"
+    "test:ganache": "DOTENV_CONFIG_PATH=./examples/.env.ganache jest --setupFiles dotenv/config",
+    "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
+    "eg:transfer:ganache": "ts-node -r dotenv/config examples/txTransfer.ts dotenv_config_path=./examples/.env.ganache",
+    "eg:withdrawal:ganache": "ts-node -r dotenv/config examples/txWithdrawal.ts dotenv_config_path=./examples/.env.ganache",
+    "eg:finalise-withdrawal:ganache": "ts-node -r dotenv/config examples/txWithdrawalFinalise.ts dotenv_config_path=./examples/.env.ganache",
+    "eg:balances:ganache": "ts-node -r dotenv/config examples/balances.ts dotenv_config_path=./examples/.env.ganache",
+    "eg:export-commitments:ganache": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.ganache"
   }
 }

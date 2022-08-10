@@ -39,7 +39,7 @@ export function validateOrCreateNfMnemonic(
  *
  * @function createZkpKeysAndSubscribeToIncomingKeys
  * @param {string} mnemonic
- * @param {Client} client
+ * @param {Client} client an instance of Client to interact with the API
  * @returns {null|NightfallKeys} NightfallKeys if the mnemonic is new or given one is valid, else return null
  */
 export async function createZkpKeysAndSubscribeToIncomingKeys(
