@@ -12,17 +12,17 @@ const main = async () => {
       nightfallMnemonic: config.nightfallMnemonic,
     });
 
-    // # 2 Export commitments in JSON format to `pathToExport`
-    await user.exportCommitments({
-      listOfCompressedZkpPublicKey: [user.zkpKeys.compressedZkpPublicKey],
-      pathToExport: "./",
-      fileName: "commitmentsBackup.json",
-    });
+    // # 2 Pass withdrawal transaction hash to finalise the withdrawal
+    const withdrawTxHash =
+      "0x63f301110c0e2d1480e761d369f6406dcaf226370480011e6d5e1eaae4a8243e";
+    const txReceipt = await user.finaliseWithdrawal({ withdrawTxHash });
+    console.log("Transaction receipt", txReceipt);
   } catch (error) {
     console.log(error);
     process.exit(1);
   } finally {
     user.close();
+    console.log("Bye bye");
   }
 };
 

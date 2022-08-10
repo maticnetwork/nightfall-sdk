@@ -17,24 +17,25 @@ const GAS_MULTIPLIER = Number(process.env.GAS_MULTIPLIER) || 2;
 const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
 
 /**
- * @function submitTransaction create, sign and broadcast a transaction to the network
- * @param senderAddress - the address of who is doing the transfer
- * @param senderPrivateKey - the private key of the sender to sing the transaction
- * @param recipientAddress - the zkp public key of the recipient
- * @param unsignedTx - the tx data to be signed
- * @param fee - the amount (Wei) to pay a proposer for the transaction
- * is being taken.  Note that the Nightfall_3 State.sol contract must be approved
- * by the token's owner to be able to withdraw the token
- * @param web3 - web3js instance
- * @returns
+ * Create, sign and broadcast an Ethereum transaction (tx) to the network
+ * 
+ * @async
+ * @function submitTransaction
+ * @param {string} senderAddress Eth address sending the contents of the tx
+ * @param {string} senderPrivateKey Eth private key of the sender to sign the tx
+ * @param {string} recipientAddress Eth address receiving the contents of the tx
+ * @param {string} unsignedTx The contents of the tx (sent in data)
+ * @param {Web3} web3 web3js instance
+ * @param {string} fee The amount in Wei to pay a proposer for the tx
+ * @returns {Promise<TransactionReceipt>} Will resolve into a web3 tx receipt
  */
 export async function submitTransaction(
   senderAddress: string,
   senderPrivateKey: string,
   recipientAddress: string,
   unsignedTx: string,
-  fee: string,
   web3: Web3,
+  fee = "0",
 ): Promise<TransactionReceipt> {
   const logInput = {
     from: senderAddress,
@@ -59,10 +60,12 @@ export async function submitTransaction(
     data: unsignedTx,
     gas,
   };
-
+  logger.debug({ tx }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
     tx,
     senderPrivateKey,
   );
+
+  logger.debug({ signedTx }, "Send signedTx...");
   return web3.eth.sendSignedTransaction(signedTx.rawTransaction);
 }

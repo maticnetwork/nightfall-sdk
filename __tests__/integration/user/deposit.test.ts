@@ -1,14 +1,11 @@
 import { UserFactory } from "../../../libs/user";
-import * as dotenv from "dotenv";
-import path from "path";
 
-const rootPath = path.resolve();
-dotenv.config({ path: path.join(rootPath, ".env") });
-
-// Script config for goerli
-const BLOCKCHAIN_WEBSOCKET_URL = process.env.SDK_BLOCKCHAIN_WEBSOCKET_URL;
-const CLIENT_API_URL = process.env.SDK_CLIENT_API_URL;
-const ETHEREUM_PRIVATE_KEY = process.env.SDK_ETH_PRIVATE_KEY;
+const options = {
+  blockchainWsUrl: process.env.APP_BLOCKCHAIN_WEBSOCKET_URL,
+  clientApiUrl: process.env.APP_CLIENT_API_URL,
+  ethereumPrivateKey: process.env.APP_ETH_PRIVATE_KEY,
+  nightfallMnemonic: process.env.APP_NIGHTFALL_MNEMONIC,
+};
 
 jest.setTimeout(50000); // CHECK Why this?
 
@@ -19,11 +16,7 @@ describe("Suit for tests deposits", () => {
   const value = "0.0001";
 
   beforeAll(async () => {
-    user = await UserFactory.create({
-      blockchainWsUrl: BLOCKCHAIN_WEBSOCKET_URL,
-      clientApiUrl: CLIENT_API_URL,
-      ethereumPrivateKey: ETHEREUM_PRIVATE_KEY,
-    });
+    user = await UserFactory.create(options);
   });
 
   test("Should verify communication with client api and web3 websocket", async () => {
