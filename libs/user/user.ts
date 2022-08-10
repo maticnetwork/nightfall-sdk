@@ -117,12 +117,15 @@ class User {
     return { isWeb3WsAlive, isClientAlive };
   }
 
+  /**
+   * Retrieve Nightfall mnemonic - remember you must keep it private
+   *
+   * @async
+   * @method getNightfallMnemonic
+   * @return {string} Nightfall mnemonic
+   */
   getNightfallMnemonic(): string {
     return this.nightfallMnemonic;
-  }
-
-  getNightfallAddress(): string {
-    return this.zkpKeys?.compressedZkpPublicKey;
   }
 
   async makeDeposit(options: UserMakeDeposit) {
