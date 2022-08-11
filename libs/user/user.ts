@@ -1,5 +1,9 @@
 import path from "path";
-import { CONTRACT_SHIELD, TX_FEE_GWEI_DEFAULT } from "./constants";
+import {
+  CONTRACT_SHIELD,
+  TX_FEE_ETH_GWEI_DEFAULT,
+  TX_FEE_MATIC_GWEI_DEFAULT,
+} from "./constants";
 import {
   UserFactoryCreate,
   UserConstructor,
@@ -124,7 +128,7 @@ class User {
 
     // Format options
     const value = options.value.trim();
-    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const feeGwei = options.feeGwei?.trim() || TX_FEE_ETH_GWEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
 
@@ -190,7 +194,7 @@ class User {
 
     // Format options
     const value = options.value.trim();
-    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const feeGwei = options.feeGwei?.trim() || TX_FEE_MATIC_GWEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
     const nightfallRecipientAddress = options.nightfallRecipientAddress.trim();
@@ -241,7 +245,7 @@ class User {
 
     // Format options
     const value = options.value.trim();
-    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const feeGwei = options.feeGwei?.trim() || TX_FEE_MATIC_GWEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
     const ethRecipientAddress = options.ethRecipientAddress.trim();

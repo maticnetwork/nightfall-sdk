@@ -72,7 +72,6 @@ export async function createAndSubmitTransfer(
         shieldContractAddress,
         unsignedTx,
         web3,
-        fee,
       );
     } catch (err) {
       logger.child({ unsignedTx }).error(err);
