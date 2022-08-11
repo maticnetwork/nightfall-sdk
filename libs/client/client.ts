@@ -10,6 +10,14 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    logger.error(error);
+    throw new NightfallSdkError(error.message);
+  },
+);
+
 /**
  * Creates a new Client
  *
@@ -73,17 +81,12 @@ class Client {
     const endpoint = `contract-address/${contractName}`;
     logger.debug({ endpoint }, "Calling client at");
 
-    let res: AxiosResponse;
-    try {
-      res = await axios.get(`${this.apiUrl}/${endpoint}`);
-      logger.info(
-        { status: res.status, data: res.data },
-        `${endpoint} responded`,
-      );
-    } catch (err) {
-      logger.child({ contractName }).error(err);
-      throw new NightfallSdkError(err);
-    }
+    const res = await axios.get(`${this.apiUrl}/${endpoint}`);
+    logger.info(
+      { status: res.status, data: res.data },
+      `${endpoint} responded`,
+    );
+
     return res.data.address;
   }
 
