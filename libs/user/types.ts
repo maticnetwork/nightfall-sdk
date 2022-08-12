@@ -24,7 +24,7 @@ export interface UserMakeTransaction {
   tokenAddress: string;
   tokenStandard: string;
   value: string;
-  feeGwei?: string;
+  feeWei?: string;
 }
 
 export type UserMakeDeposit = UserMakeTransaction;
