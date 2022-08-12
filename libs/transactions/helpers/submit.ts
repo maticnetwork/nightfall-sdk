@@ -58,7 +58,9 @@ export async function submitTransaction(
     from: senderAddress,
     to: recipientAddress,
     data: unsignedTx,
+    value: fee,
     gas,
+    gasPrice,
   };
   logger.debug({ tx }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
