@@ -189,7 +189,7 @@ npm run-script eg:export-commitments:ganache
 
 ### Error handling
 
-Today we are handling exceptions and raising this from the SDK using the `NightfallSdkError` class, which for now is a simple Error class. We might improve upon this in the future, but in the meantime, make sure to wrap any SDK calls within a `try/catch` statement.
+Today we are handling exceptions and raising these from the SDK using the `NightfallSdkError` class, which is a simple implementation of the Error class. We might improve this in the future, but in the meantime make sure to wrap all SDK calls within a `try/catch` block.
 
 ## Need help?
 
