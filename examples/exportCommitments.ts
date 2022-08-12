@@ -23,6 +23,7 @@ const main = async () => {
     process.exit(1);
   } finally {
     user.close();
+    console.log("Bye bye");
   }
 };
 

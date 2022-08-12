@@ -44,7 +44,7 @@ const main = async () => {
   } finally {
     userSender.close();
     userRecipient.close();
-    console.log("Closing tranfer operation!");
+    console.log("Bye bye");
   }
 };
 
