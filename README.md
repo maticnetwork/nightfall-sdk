@@ -26,15 +26,13 @@ To use the Nightfall SDK one must be aligned with the following requirements:
 
 This project uses Node.js 16.15.1. There is an `.nvmrc` file for those using [nvm](https://github.com/nvm-sh/nvm).
 
-### Nightfall client
+### Nightfall Client
 
 #### What is a Nightfall Client?
 
 The Nightfall Client is a key part of the architecture. It is the part which generates zero-knowledge proofs, stores zero-knowledge commitments and interacts with the contracts. The SDK uses Nightfall Client to interact with the Nightfall Protocol. To be able to use the SDK one must have a running instance of the Client.
 
-#### Setup a client
-
-##### Locally (Ganache)
+#### Setup a Client locally (Ganache)
 
 To use the SDK locally, set up and run the entire Nightfall project. The Client is part of this setup and by running the Project you are running the Client too.
 
@@ -49,7 +47,7 @@ cd nightfall_3
 ./start-nightfall -g
 ```
 
-###### Start the Proposer
+##### Start the Proposer
 
 ```bash
 cd nightfall_3/apps/proposer
@@ -57,7 +55,7 @@ npm install
 npm run start
 ```
 
-#### Goerli Testnet
+#### Setup a Client in testnet (Goerli)
 
 To use the SDK on a testnet you should only have a running Client, other parts of the infrastructure like the Proposer are provided.
 
@@ -82,48 +80,24 @@ BLOCKCHAIN_URL=your web3 url provider to access the blockchain
 ./start-client
 ```
 
-#### Ethereum Mainnet
-
-To use the SDK in production you should only have a running Client, other parts of the infrastructure like the Proposer are provided.
-
-```bash
-git clone https://github.com/EYBlockchain/nightfall_3.git
-cd nightfall_3/nightfall-client
-```
-
-##### Setup
-
-Rename `client-example.env` to `.client.env` and update the contents as following:
-
-```
-ETH_NETWORK=mainnet
-BLOCKCHAIN_URL=your web3 url provider to access the blockchain
-```
-
-##### Start client
-
-```bash
-./start-client
-```
-
-### SDK Setup
+## SDK Setup
 
 Now that you are finished with setting up Nightfall, let’s set up the SDK.
 
-#### Clone the repository:
+### Clone the repository
 
 ```bash
 git clone git@github.com:maticnetwork/nightfall-sdk.git
 cd nightfall-sdk
 ```
 
-#### Set Node.js version to 16.15.1:
+### Set Node.js version to 16.15.1
 
 ```
 nvm use
 ```
 
-#### Install requirements:
+### Install requirements
 
 ```
 npm install
@@ -165,13 +139,13 @@ Making a deposit, transfer or withdrawal means that a transaction is submitted t
 
 Upon each running of any of the scripts a new instance of the User class is created, if an existing Mnemonic isn’t specified in the .env file, a new Mnemonic is assigned to that specific user.
 
-##### Make a deposit
+#### Make a deposit
 
 ```
 npm run-script eg:deposit:ganache
 ```
 
-##### Make a transfer
+#### Make a transfer
 
 For making a transfer an already existing account with ERC20 balance is required. For testing purposes, this can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
 
@@ -179,7 +153,7 @@ For making a transfer an already existing account with ERC20 balance is required
 npm run-script eg:transfer:ganache
 ```
 
-##### Make a withdrawal
+#### Make a withdrawal
 
 For making a withdrawal an already existing account with ERC20 balance is required. For testing purposes, this can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
 
@@ -195,7 +169,7 @@ After initiating a withdrawal you will get a `withdrawTxHash`. To finalise a wit
 npm run-script eg:finalise-withdrawal:ganache
 ```
 
-##### Check L2 balances
+#### Check L2 balances
 
 Check your L2 balances.
 
@@ -203,7 +177,7 @@ Check your L2 balances.
 npm run-script eg:nf-balances:ganache
 ```
 
-##### Export commitments
+#### Export commitments
 
 For safety reasons, you can export your commitments and prevent losing them. While you have an exported copy of your Nightfall L2 commitments you can always import them, use them in Nightfall or withdraw them to Ethereum L1.
 
@@ -211,6 +185,12 @@ For safety reasons, you can export your commitments and prevent losing them. Whi
 npm run-script eg:export-commitments:ganache
 ```
 
-### Need help?
+## Using the SDK
+
+### Error handling
+
+Today we are handling exceptions and raising these from the SDK using the `NightfallSdkError` class, which is a simple implementation of the Error class. We might improve this in the future, but in the meantime make sure to wrap all SDK calls within a `try/catch` block.
+
+## Need help?
 
 If you have any questions or need some help, join the [Polygon Nightfall discord server](https://discord.com/invite/pZkC3JV2bR).
