@@ -1,6 +1,7 @@
 import type Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../utils";
+import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -12,12 +13,10 @@ const logger = parentLogger.child({
  * @function getEthAccountAddress
  * @param {string} ethereumPrivateKey
  * @param {Web3} web3
- * @returns {null|string} address <string> if the private key is valid, else return null
+ * @throws {NightfallSdkError} Error while validating eth private key
+ * @returns {string} Eth account address
  */
-export function getEthAccountAddress(
-  ethereumPrivateKey: string,
-  web3: Web3,
-): null | string {
+export function getEthAccountAddress(ethereumPrivateKey: string, web3: Web3): string {
   logger.debug("getEthAccountAddress");
   let ethAccount;
   try {
@@ -29,10 +28,10 @@ export function getEthAccountAddress(
     logger
       .child({ ethereumPrivateKey })
       .error(err, "Error while validating eth private key");
-    return null;
+    throw new NightfallSdkError(err);
   }
   const address = ethAccount.address;
-  logger.info({ address }, "Eth address is");
+  logger.info({ address }, "Eth account address is");
 
   return address;
 }

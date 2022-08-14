@@ -62,12 +62,9 @@ class UserFactory {
     const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
-    if (!shieldContractAddress)
-      throw new Error("Unable to get Shield contract address");
 
     // Get the Eth account address from private key if it's a valid key
     const ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
-    if (!ethAddress) throw new Error("Unable to get an Eth address");
 
     // Create a set of Zero-knowledge proof keys from a valid mnemonic
     // or from a new mnemonic if none was provided,
