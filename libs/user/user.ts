@@ -1,5 +1,9 @@
 import path from "path";
-import { CONTRACT_SHIELD, TX_FEE_GWEI_DEFAULT } from "./constants";
+import {
+  CONTRACT_SHIELD,
+  TX_FEE_ETH_WEI_DEFAULT,
+  TX_FEE_MATIC_WEI_DEFAULT,
+} from "./constants";
 import {
   UserFactoryCreate,
   UserConstructor,
@@ -131,7 +135,7 @@ class User {
 
     // Format options
     const value = options.value.trim();
-    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const feeWei = options.feeWei?.trim() || TX_FEE_ETH_WEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
 
@@ -147,8 +151,7 @@ class User {
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
-    const feeWei = feeGwei + "000000000";
-    logger.info({ valueWei, feeWei }, "Value and fee in wei");
+    logger.info({ valueWei, feeWei }, "Value and fee in Wei");
 
     // Deposit tx might need approval
     const approvalReceipt = await createAndSubmitApproval(
@@ -197,7 +200,7 @@ class User {
 
     // Format options
     const value = options.value.trim();
-    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
     const nightfallRecipientAddress = options.nightfallRecipientAddress.trim();
@@ -215,8 +218,7 @@ class User {
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
-    const feeWei = feeGwei + "000000000";
-    logger.info({ valueWei, feeWei }, "Value and fee in wei");
+    logger.info({ valueWei, feeWei }, "Value and fee in Wei");
 
     const transferReceipts = await createAndSubmitTransfer(
       this.token,
@@ -248,7 +250,7 @@ class User {
 
     // Format options
     const value = options.value.trim();
-    const feeGwei = options.feeGwei?.trim() || TX_FEE_GWEI_DEFAULT;
+    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
     const tokenAddress = options.tokenAddress.trim();
     const tokenStandard = options.tokenStandard.trim().toUpperCase();
     const ethRecipientAddress = options.ethRecipientAddress.trim();
@@ -266,8 +268,7 @@ class User {
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
-    const feeWei = feeGwei + "000000000";
-    logger.info({ valueWei, feeWei }, "Value and fee in wei");
+    logger.info({ valueWei, feeWei }, "Value and fee in Wei");
 
     // Withdrawal
     const withdrawalReceipts = await createAndSubmitWithdrawal(

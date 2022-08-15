@@ -31,7 +31,7 @@ export const makeDepositOptions = Joi.object({
     .valid(...Object.keys(TOKEN_STANDARDS))
     .required(),
   value: Joi.string().required(),
-  feeGwei: Joi.string(),
+  feeWei: Joi.string(),
 });
 
 export const makeTransferOptions = Joi.object({
@@ -46,7 +46,7 @@ export const makeTransferOptions = Joi.object({
     .required(),
   value: Joi.string().required(),
   nightfallRecipientAddress: Joi.string().trim().required(), // ISSUE #76
-  feeGwei: Joi.string(),
+  feeWei: Joi.string(),
   isOffChain: Joi.boolean(),
 });
 
@@ -65,7 +65,7 @@ export const makeWithdrawalOptions = Joi.object({
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),
-  feeGwei: Joi.string(),
+  feeWei: Joi.string(),
   isOffChain: Joi.boolean(),
 });
 
