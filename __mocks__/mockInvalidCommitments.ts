@@ -3097,7 +3097,7 @@ const mockInvalidCommitments = {
         isNullifiedOnChain: -1,
         nullifier:
           "0x0070ac48b5cb91feafd74af243974740409dd586aa9ac0fa530f0895c69bb6a7",
-        wrongblockNumber: -1,
+        blockNumber: -1,
         transactionHashCommittedL1:
           "0xfb1e0e24058051794ebabacfcb21f76b4ae95be7e4d303047195a8399182edca",
         wrongleafIndex: 0,
@@ -3289,7 +3289,7 @@ const mockInvalidCommitments = {
         isNullifiedOnChain: -1,
         nullifier:
           "0x0070ac48b5cb91feafd74af243974740409dd586aa9ac0fa530f0895c69bb6a7",
-        wrongblockNumber: -1,
+        blockNumber: -1,
         transactionHashCommittedL1:
           "0xfb1e0e24058051794ebabacfcb21f76b4ae95be7e4d303047195a8399182edca",
         leafIndex: 0,
@@ -3482,7 +3482,7 @@ const mockInvalidCommitments = {
         isNullifiedOnChain: -1,
         nullifier:
           "0x0070ac48b5cb91feafd74af243974740409dd586aa9ac0fa530f0895c69bb6a7",
-        wrongblockNumber: -1,
+        blockNumber: -1,
         transactionHashCommittedL1:
           "0xfb1e0e24058051794ebabacfcb21f76b4ae95be7e4d303047195a8399182edca",
         leafIndex: 0,
@@ -3674,7 +3674,7 @@ const mockInvalidCommitments = {
         isNullifiedOnChain: -1,
         nullifier:
           "0x0070ac48b5cb91feafd74af243974740409dd586aa9ac0fa530f0895c69bb6a7",
-        wrongblockNumber: -1,
+        blockNumber: -1,
         transactionHashCommittedL1:
           "0xfb1e0e24058051794ebabacfcb21f76b4ae95be7e4d303047195a8399182edca",
         leafIndex: 0,
@@ -3866,7 +3866,7 @@ const mockInvalidCommitments = {
         isNullifiedOnChain: -1,
         nullifier:
           "0x0070ac48b5cb91feafd74af243974740409dd586aa9ac0fa530f0895c69bb6a7",
-        wrongblockNumber: -1,
+        blockNumber: -1,
         transactionHashCommittedL1:
           "0xfb1e0e24058051794ebabacfcb21f76b4ae95be7e4d303047195a8399182edca",
         leafIndex: 0,
@@ -4058,7 +4058,7 @@ const mockInvalidCommitments = {
         isNullifiedOnChain: -1,
         nullifier:
           "0x0070ac48b5cb91feafd74af243974740409dd586aa9ac0fa530f0895c69bb6a7",
-        wrongblockNumber: -1,
+        blockNumber: -1,
         transactionHashCommittedL1:
           "0xfb1e0e24058051794ebabacfcb21f76b4ae95be7e4d303047195a8399182edca",
         leafIndex: 0,
@@ -4250,7 +4250,7 @@ const mockInvalidCommitments = {
         isNullifiedOnChain: -1,
         nullifier:
           "0x0070ac48b5cb91feafd74af243974740409dd586aa9ac0fa530f0895c69bb6a7",
-        wrongblockNumber: -1,
+        blockNumber: -1,
         transactionHashCommittedL1:
           "0xfb1e0e24058051794ebabacfcb21f76b4ae95be7e4d303047195a8399182edca",
         leafIndex: 0,
@@ -4260,12 +4260,12 @@ const mockInvalidCommitments = {
           path: [
             {
               dir: "right",
-              value:
+              wrongvalue:
                 "0x031107b7faed18c4938cf9642c3972378ca9fdf10a24d271077b70ff3608b518",
             },
             {
               dir: "right",
-              wrongvalue:
+              value:
                 "0x0000000000000000000000000000000000000000000000000000000000000000",
             },
             {
