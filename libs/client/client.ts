@@ -3,12 +3,20 @@ import { Commitment, TransferReponseData } from "libs/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { NightfallRecipientData } from "libs/transactions/types";
-// import type { Token } from "../tokens";
+import type { NightfallRecipientData } from "libs/transactions/types";
+import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    logger.error(error);
+    throw new NightfallSdkError(error.message);
+  },
+);
 
 /**
  * Creates a new Client
@@ -61,25 +69,24 @@ class Client {
   }
 
   /**
-   * Perform a GET request at contract-address to get this data for a given contract name
+   * Make GET request to get the address for a given contract name
    *
+   * @async
    * @method getContractAddress
    * @param {string} contractName The name of the contract for which we need the address
-   * @return {Promise<null | string>} Address if request is successful, else null
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<string>} Eth contract address
    */
-  async getContractAddress(contractName: string): Promise<null | string> {
-    logger.debug({ contractName }, "Calling client at contract-address");
-    let res: AxiosResponse;
-    try {
-      res = await axios.get(`${this.apiUrl}/contract-address/${contractName}`);
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at contract-address responded",
-      );
-    } catch (err) {
-      logger.child({ contractName }).error(err);
-      return null;
-    }
+  async getContractAddress(contractName: string): Promise<string> {
+    const endpoint = `contract-address/${contractName}`;
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.get(`${this.apiUrl}/${endpoint}`);
+    logger.info(
+      { status: res.status, data: res.data },
+      `${endpoint} responded`,
+    );
+
     return res.data.address;
   }
 

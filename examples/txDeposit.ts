@@ -10,14 +10,15 @@ const main = async () => {
       blockchainWsUrl: config.blockchainWsUrl,
       clientApiUrl: config.clientApiUrl,
       ethereumPrivateKey: config.ethereumPrivateKey,
+      nightfallMnemonic: config.nightfallMnemonic,
     });
 
     // # 2 [OPTIONAL] If you did not pass a mnemonic, you can retrieve it
-    // COMING SOON
+    const mnemonic = user.getNightfallMnemonic();
 
     // # 3 [OPTIONAL] You can check API Client, blockchain ws connection
     const status = await user.checkStatus();
-    console.log(status);
+    console.log("API Client, blockchain ws statuses", status);
 
     // # 4 Make deposit
     const tokenAddress = config.tokenAddress;
