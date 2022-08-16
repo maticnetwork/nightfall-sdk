@@ -2,7 +2,7 @@ import isCommitmentsFromMnemonic from "../../../libs/utils/isCommitmentFromMnemo
 import mockCommitmentsSameCompressedZkpPK from "../../../__mocks__/mockCommitmentsSameCompressedZkpPK";
 import mockCompressedZkpPublicKey from "../../../__mocks__/mockCompressedZkpPublicKey";
 import mockCommitments from "../../../__mocks__/mockCommitments";
-mockCommitments;
+
 describe("Suit fo tests for isCommitmentsFromMnemonic.test function", () => {
   test("should pass a list of commitments with the same compressedPkd and receive true", async () => {
     const isCommitmentsFromMnemonicReturn = await isCommitmentsFromMnemonic(
