@@ -1,7 +1,5 @@
 import { Commitment } from "libs/types";
 
-let allCommitmentsMatchWithCompressedZkpPK = true;
-
 /**
  * @function isCommitmentsFromMnemonic should verify if all commitments in the list
  * belongs to the compressed zkp public key.
@@ -17,15 +15,11 @@ async function isCommitmentsFromMnemonic(
 ): Promise<boolean> {
   for (const commitment of listOfCommitments) {
     if (commitment.compressedZkpPublicKey !== compressedZkpPublicKey) {
-      allCommitmentsMatchWithCompressedZkpPK = false;
-      break;
+      return false;
     }
   }
 
-  if (allCommitmentsMatchWithCompressedZkpPK) {
-    return true;
-  }
-  return false;
+  return true;
 }
 
 export default isCommitmentsFromMnemonic;
