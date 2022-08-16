@@ -377,17 +377,18 @@ class User {
   }
 
   /**
-   * @function importAndSaveCommitments should coverage the import commitments flow.
-   * - Should import a file with commitments.
-   * - Verify if all the commitments in the list of imported commitments are of the
-   * ICommitment type (This verification is within readAndValidateFile function).
+   *
+   * @async
+   * @method importAndSaveCommitments should coverage the import commitments flow.
+   * - Should read and validate a file with commitments.
+   * - Verify if all the commitments read are of the ICommitment type (This verification is within readAndValidateFile function).
    * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
    * - If all verifications pass, should send the commitments to the client to be saved
    *  in the database.
    * @param pathToExport the path to export the file.
    * @param fileName the name of the file.
    * @param compressedZkpPublicKey the key derivated from user mnemonic.
-   * @author luizoamorim
+   * @returns true if everything goes well.
    */
   async importAndSaveCommitments(
     pathToExport: string,
@@ -400,7 +401,7 @@ class User {
 
     if (listOfCommitments instanceof Error) {
       logger.error(listOfCommitments);
-      return;
+      throw listOfCommitments;
     }
 
     const isCommitmentsFromMnemonicReturn = await isCommitmentsFromMnemonic(
@@ -410,10 +411,12 @@ class User {
 
     if (!isCommitmentsFromMnemonicReturn) {
       logger.error(ERROR_COMMITMENT_NOT_MATCH_MNEMONIC);
-      return;
+      throw new Error(ERROR_COMMITMENT_NOT_MATCH_MNEMONIC);
     }
 
     this.client.saveCommitments(listOfCommitments);
+
+    return true;
   }
 
   close() {
