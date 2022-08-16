@@ -3,7 +3,6 @@ import { config } from "./appConfig";
 
 /**
  * @function main a script to test the import commitments flow
- * @author luizoamorim
  */
 const main = async () => {
   let user;

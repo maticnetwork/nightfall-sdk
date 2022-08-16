@@ -348,7 +348,6 @@ class Client {
    * @param listOfCompressedZkpPublicKey a list of compressed zkp publick keys derivated from
    * the user mnemonic.
    * @returns all the commitments existent for this compressed pkds.
-   * @author luizoamorim
    */
   async getCommitmentsByCompressedZkpPublicKey(
     listOfCompressedZkpPublicKey: string[],
@@ -376,11 +375,9 @@ class Client {
    * @function saveCommitments do the communications with commitments/saveAll
    * endpoint
    * @param listOfCommitments a list of commitments to be saved in the database.
-   * @author luizoamorim
    */
   async saveCommitments(listOfCommitments: Commitment[]) {
     try {
-      console.log("COMMITMENTSSSSSSSSSSSSSSSSSSS:", listOfCommitments);
       await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
       logger.info("Commitments imported successfully");
     } catch (err) {

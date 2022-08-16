@@ -7,7 +7,6 @@ import isCommitmentType from "./isCommitmentType";
  * @function importFile import a file and transform the cotent in a JSON format.
  * @param pathFileName an string with the path + file name.
  * @returns a list of commitments.
- * @author luizoamorim
  */
 const readAndValidateFile = async (
   pathFileName: string,

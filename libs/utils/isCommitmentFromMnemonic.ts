@@ -7,7 +7,6 @@ import { Commitment } from "libs/types";
  * @param compressedZkpPublicKey the compressed key derivated from the mnemonic that shall be
  * in the environment variables.
  * @returns true if all commitments match or false if don't match.
- * @author luizoamorim
  */
 async function isCommitmentsFromMnemonic(
   listOfCommitments: Commitment[],

@@ -6,7 +6,6 @@ import { Commitment, SiblingPath } from "../types";
  * @function isCommitmentType should verify if the object received is of a Commitment type.
  * @param commitment a object that should be a commitment type
  * @returns an error if the object don't have some of the type attributes.
- * @author luizoamorim
  */
 function isCommitmentType(commitment: Commitment) {
   if (commitment._id === undefined)

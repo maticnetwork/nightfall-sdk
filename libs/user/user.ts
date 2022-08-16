@@ -345,7 +345,6 @@ class User {
    * from the user mnemonic.
    * @param pathToExport the path to export the file.
    * @param fileName the name of the file.
-   * @author luizoamorim
    */
   async exportCommitments(
     options: UserExportCommitments,
