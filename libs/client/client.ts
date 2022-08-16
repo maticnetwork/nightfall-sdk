@@ -377,18 +377,8 @@ class Client {
    * @param listOfCommitments a list of commitments to be saved in the database.
    */
   async saveCommitments(listOfCommitments: Commitment[]) {
-    try {
-      await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
-      logger.info("Commitments imported successfully");
-    } catch (err) {
-      if (err.response.status == 500) {
-        logger.error(
-          "Some of these commitments already existis in the database!",
-        );
-      } else {
-        logger.error(err);
-      }
-    }
+    await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
+    logger.info("Commitments imported successfully");
   }
 }
 
