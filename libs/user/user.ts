@@ -34,7 +34,7 @@ import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
 import { Commitment } from "../types";
-import importCommitments from "../utils/importCommitments";
+import readAndValidateFile from "../utils/readAndValidateFile";
 import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
 import { ERROR_COMMITMENT_NOT_MATCH_MNEMONIC } from "../messages/commitments";
 import isCommitmentType from "libs/utils/isCommitmentType";
@@ -380,7 +380,7 @@ class User {
    * @function importAndSaveCommitments should coverage the import commitments flow.
    * - Should import a file with commitments.
    * - Verify if all the commitments in the list of imported commitments are of the
-   * ICommitment type (This verification is within importCommitments function).
+   * ICommitment type (This verification is within readAndValidateFile function).
    * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
    * - If all verifications pass, should send the commitments to the client to be saved
    *  in the database.
@@ -394,7 +394,7 @@ class User {
     fileName: string,
     compressedZkpPublicKey: string,
   ) {
-    const listOfCommitments: Commitment[] | Error = await importCommitments(
+    const listOfCommitments: Commitment[] | Error = await readAndValidateFile(
       `${pathToExport}${fileName}`,
     );
 

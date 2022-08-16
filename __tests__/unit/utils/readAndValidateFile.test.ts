@@ -1,7 +1,7 @@
 import fs from "fs";
 import mockCommitments from "../../../__mocks__/mockCommitments";
 import exportFile from "../../../libs/utils/exportFile";
-import importCommitments from "../../../libs/utils/importCommitments";
+import readAndValidateFile from "../../../libs/utils/readAndValidateFile";
 import mockInvalidCommitments from "../../../__mocks__/mockInvalidCommitments";
 import { Commitment } from "libs/types";
 
@@ -19,7 +19,7 @@ describe("Suit fo tests for import commitments function", () => {
   });
 
   test("should import a file and the content should match with a ICommitment[] type", async () => {
-    const commitments: Commitment[] | Error = await importCommitments(
+    const commitments: Commitment[] | Error = await readAndValidateFile(
       FILE_PATH_VALID_COMMITMENTS,
     );
     expect(commitments).not.toBe(Error);
@@ -38,7 +38,7 @@ describe("Suit fo tests for import commitments function", () => {
         JSON.stringify([commitment]),
       );
 
-      const commitments: Commitment[] | Error = await importCommitments(
+      const commitments: Commitment[] | Error = await readAndValidateFile(
         FILE_PATH_INVALID_COMMITMENTS,
       );
       expect(commitments instanceof Error).toBeTruthy();

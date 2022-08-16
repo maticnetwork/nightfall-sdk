@@ -9,7 +9,7 @@ import isCommitmentType from "./isCommitmentType";
  * @returns a list of commitments.
  * @author luizoamorim
  */
-const importCommitments = async (
+const readAndValidateFile = async (
   pathFileName: string,
 ): Promise<Commitment[] | Error> => {
   const file = fs.readFileSync(pathFileName);
@@ -25,4 +25,4 @@ const importCommitments = async (
   }
 };
 
-export default importCommitments;
+export default readAndValidateFile;
