@@ -37,13 +37,10 @@ export async function submitTransaction(
   web3: Web3,
   fee = "0",
 ): Promise<TransactionReceipt> {
-  const logInput = {
-    from: senderAddress,
-    to: recipientAddress,
-    unsignedTx,
-    fee,
-  };
-  logger.debug({ logInput }, "submitTransaction");
+  logger.debug(
+    { senderAddress, recipientAddress, unsignedTx, fee },
+    "submitTransaction",
+  );
 
   // Estimate gas
   const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // ISSUE #28
