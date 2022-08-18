@@ -155,7 +155,6 @@ class User {
    * @param {String} options.tokenStandard
    * @param {String} options.value
    * @param {String} [options.feeWei]
-   * @throws {Error} Argument is not valid bip39 mnemonic
    * @returns {Object}
    */
   async makeDeposit(options: UserMakeDeposit) {
@@ -220,7 +219,7 @@ class User {
    *
    * @async
    * @method makeTransfer
-   * @param {UserMakeTransfer} options Object containing necessary data to perform transfers
+   * @param {UserMakeTransfer} options
    * @param {String} options.tokenAddress
    * @param {String} options.tokenStandard
    * @param {String} options.value
@@ -384,7 +383,7 @@ class User {
    *
    * @async
    * @method checkPendingDeposits
-   * @returns {Promise} - This promise resolves into an object which contains the pendind deposits and their balances
+   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for deposit transactions that have not been included yet in a Layer2 block
    */
   async checkPendingDeposits() {
     return this.client.getPendingDeposits(this.zkpKeys);
@@ -395,7 +394,7 @@ class User {
    *
    * @async
    * @method checkNightfallBalances
-   * @returns {Promise} - This promise resolves into an object which contains the addresses and balances for the Layer2 addresses sent as a parametar.
+   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for commitments available in Layer2
    */
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
