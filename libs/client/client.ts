@@ -1,10 +1,11 @@
 import axios, { AxiosResponse } from "axios";
-import { Commitment, TransferReponseData } from "libs/types";
+import type { Commitment } from "../nightfall/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { NightfallRecipientData } from "libs/transactions/types";
 import { NightfallSdkError } from "../utils/error";
+import { TransferResponseData } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -43,7 +44,7 @@ class Client {
    * Perform a GET request at healthcheck to check that API is alive
    *
    * @method healthCheck
-   * @return {Promise<boolean>} True if API is alive, else false
+   * @returns {Promise<boolean>} True if API is alive, else false
    */
   async healthCheck(): Promise<boolean> {
     logger.debug("Calling client at healthcheck");
@@ -75,7 +76,7 @@ class Client {
    * @method getContractAddress
    * @param {string} contractName The name of the contract for which we need the address
    * @throws {NightfallSdkError} Bad response
-   * @return {Promise<string>} Eth contract address
+   * @returns {Promise<string>} Eth contract address
    */
   async getContractAddress(contractName: string): Promise<string> {
     const endpoint = `contract-address/${contractName}`;
@@ -97,7 +98,7 @@ class Client {
    * @method generateZkpKeysFromMnemonic
    * @param {string} validMnemonic A valid bip39 mnemonic
    * @param {number} addressIndex 0
-   * @return {Promise<null | NightfallZkpKeys>} A set of keys if request is successful, else null
+   * @returns {Promise<null | NightfallZkpKeys>} A set of keys if request is successful, else null
    */
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
@@ -127,7 +128,7 @@ class Client {
    *
    * @method subscribeToIncomingViewingKeys
    * @param {NightfallZkpKeys} zkpKeys A set of Zero-knowledge proof keys
-   * @return {Promise<null | string>} Status "success" if request is successful, else null
+   * @returns {Promise<null | string>} Status "success" if request is successful, else null
    */
   async subscribeToIncomingViewingKeys(
     zkpKeys: NightfallZkpKeys,
@@ -150,32 +151,41 @@ class Client {
     return res.data;
   }
 
+  /**
+   * Make POST request to start a deposit transaction
+   *
+   * @async
+   * @method deposit
+   * @param {} token An instance of Token holding token data such as contract address
+   * @param {string} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string} value The amount in Wei of the token to be deposited
+   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @throws {NightfallSdkError} Bad response
+   * @returns // TODO
+   */
   async deposit(
     token: any, // Token,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
   ) {
-    logger.debug("Calling client at deposit");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/deposit`, {
-        ercAddress: token.contractAddress,
-        tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
-        compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
-        nullifierKey: ownerZkpKeys.nullifierKey,
-        value,
-        fee,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at deposit responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
+    const endpoint = "deposit";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      ercAddress: token.contractAddress,
+      tokenType: token.ercStandard,
+      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
+      nullifierKey: ownerZkpKeys.nullifierKey,
+      value,
+      fee,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `${endpoint} responded`,
+    );
+
     return res.data;
   }
 
@@ -197,7 +207,7 @@ class Client {
     nightfallRecipientData: NightfallRecipientData,
     fee: string,
     isOffChain: boolean,
-  ): Promise<TransferReponseData> {
+  ): Promise<TransferResponseData> {
     logger.debug("Calling client at transfer");
     let res: AxiosResponse;
 

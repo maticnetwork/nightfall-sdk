@@ -1,7 +1,5 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
-import type { TransactionReceipt } from "web3-core";
-import { Transaction } from "../types";
 
 export interface UserFactoryCreate {
   blockchainWsUrl: string;
@@ -47,9 +45,4 @@ export interface UserExportCommitments {
   listOfCompressedZkpPublicKey: string[];
   pathToExport: string;
   fileName: string;
-}
-
-export interface TransferReceipts {
-  txL1: TransactionReceipt;
-  txL2: Transaction;
 }

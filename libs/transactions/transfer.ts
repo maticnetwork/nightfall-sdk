@@ -5,8 +5,8 @@ import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
-import { Transaction } from "libs/types";
-import { NightfallRecipientData } from "./types";
+import type { TransactionReceiptL2 } from "../nightfall/types";
+import type { NightfallRecipientData } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -42,7 +42,7 @@ export async function createAndSubmitTransfer(
   fee: string,
   nightfallRecipientAddress: string,
   isOffChain: boolean,
-): Promise<{ txL1: TransactionReceipt; txL2: Transaction }> | null {
+): Promise<{ txL1: TransactionReceipt; txL2: TransactionReceiptL2 }> | null {
   logger.debug("createAndSubmitTransfer");
 
   const nightfallRecipientData: NightfallRecipientData = {

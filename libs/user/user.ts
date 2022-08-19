@@ -12,7 +12,6 @@ import {
   UserMakeWithdrawal,
   UserFinaliseWithdrawal,
   UserExportCommitments,
-  TransferReceipts,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -37,7 +36,7 @@ import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
-import { Commitment } from "../../libs/types";
+import type { Commitment } from "../nightfall/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -162,8 +161,7 @@ class User {
       this.web3Websocket.web3,
       valueWei,
     );
-    if (approvalReceipt === null) return null;
-    logger.info({ approvalReceipt }, "Approval completed");
+    if (approvalReceipt) logger.info({ approvalReceipt }, "Approval completed");
 
     // Deposit
     const depositReceipts = await createAndSubmitDeposit(
@@ -177,10 +175,11 @@ class User {
       valueWei,
       feeWei,
     );
-    if (depositReceipts === null) return null;
     logger.info({ depositReceipts }, "Deposit completed");
 
-    this.nightfallDepositTxHashes.push(depositReceipts.txL2?.transactionHash);
+    this.nightfallDepositTxHashes.push(
+      depositReceipts.txReceiptL2?.transactionHash,
+    );
 
     return depositReceipts;
   }
@@ -193,7 +192,7 @@ class User {
    * @param {UserMakeTransfer} options Object containing necessary data to perform transfers
    * @returns // TODO
    */
-  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
+  async makeTransfer(options: UserMakeTransfer) {
     logger.debug(options, "User :: makeTransfer");
 
     makeTransferOptions.validate(options);
