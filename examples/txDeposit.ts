@@ -15,6 +15,7 @@ const main = async () => {
 
     // # 2 [OPTIONAL] If you did not pass a mnemonic, you can retrieve it
     const mnemonic = user.getNightfallMnemonic();
+    console.log("MNEMONIC: ", mnemonic);
 
     // # 3 [OPTIONAL] You can check API Client, blockchain ws connection
     const status = await user.checkStatus();

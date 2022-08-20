@@ -52,6 +52,7 @@
     "eg:withdrawal:ganache": "ts-node -r dotenv/config examples/txWithdrawal.ts dotenv_config_path=./examples/.env.ganache",
     "eg:finalise-withdrawal:ganache": "ts-node -r dotenv/config examples/txWithdrawalFinalise.ts dotenv_config_path=./examples/.env.ganache",
     "eg:balances:ganache": "ts-node -r dotenv/config examples/balances.ts dotenv_config_path=./examples/.env.ganache",
-    "eg:export-commitments:ganache": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.ganache"
+    "eg:export-commitments:ganache": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.ganache",
+    "eg:import-commitments:ganache": "ts-node -r dotenv/config examples/importCommitments.ts dotenv_config_path=./examples/.env.ganache"
   }
 }

@@ -11,6 +11,7 @@ const main = async () => {
       blockchainWsUrl: config.blockchainWsUrl,
       clientApiUrl: config.clientApiUrl,
       ethereumPrivateKey: config.ethereumPrivateKey,
+      nightfallMnemonic: config.nightfallMnemonic,
     });
 
     await user.importAndSaveCommitments(

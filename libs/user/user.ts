@@ -41,7 +41,6 @@ import { Commitment } from "../types";
 import readAndValidateFile from "../utils/readAndValidateFile";
 import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
 import { ERROR_COMMITMENT_NOT_MATCH_MNEMONIC } from "../messages/commitments";
-import isCommitmentType from "libs/utils/isCommitmentType";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -395,7 +394,7 @@ class User {
    * @param pathToExport the path to export the file.
    * @param fileName the name of the file.
    * @param compressedZkpPublicKey the key derivated from user mnemonic.
-   * @returns true if everything goes well.
+   * @returns the enpoint response.data that is an json with a success message.
    */
   async importAndSaveCommitments(
     pathToExport: string,
@@ -421,9 +420,9 @@ class User {
       throw new Error(ERROR_COMMITMENT_NOT_MATCH_MNEMONIC);
     }
 
-    this.client.saveCommitments(listOfCommitments);
+    const response = await this.client.saveCommitments(listOfCommitments);
 
-    return true;
+    return response.data;
   }
 
   close() {

@@ -384,8 +384,12 @@ class Client {
    * @param listOfCommitments a list of commitments to be saved in the database.
    */
   async saveCommitments(listOfCommitments: Commitment[]) {
-    await axios.post(`${this.apiUrl}/commitment/saveAll`, listOfCommitments);
+    const response = await axios.post(
+      `${this.apiUrl}/commitment/saveAll`,
+      listOfCommitments,
+    );
     logger.info("Commitments imported successfully");
+    return response;
   }
 }
 

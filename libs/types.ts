@@ -17,10 +17,6 @@ interface Commitment {
   isNullifiedOnChain: number;
   nullifier: string;
   blockNumber: number;
-  transactionHashCommittedL1: string;
-  leafIndex: number;
-  root: string;
-  siblingPath: CommitmentSibling;
 }
 
 interface CommitmentSibling {
