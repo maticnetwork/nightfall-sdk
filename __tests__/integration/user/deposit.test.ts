@@ -12,7 +12,7 @@ jest.setTimeout(50000); // CHECK Why this?
 describe("Suit for tests deposits", () => {
   let user: any; // TODO improve
   const tokenAddress = "0x07865c6E87B9F70255377e024ace6630C1Eaa37F"; // USDC goerli
-  const tokenStandard = "ERC20";
+  const tokenErcStandard = "ERC20";
   const value = "0.0001";
 
   beforeAll(async () => {
@@ -29,7 +29,7 @@ describe("Suit for tests deposits", () => {
   test("Should create a deposit transaction", async () => {
     // const result = await user.makeDeposit({
     //   tokenAddress,
-    //   tokenStandard,
+    //   tokenErcStandard,
     //   value,
     // });
     // expect(result).toHaveProperty("txL1");

@@ -41,7 +41,7 @@ class Token {
     logger.debug("new Token");
 
     this.web3 = options.web3;
-    this.contractAddress = options.address;
+    this.contractAddress = options.contractAddress;
     this.ercStandard = options.ercStandard.toUpperCase();
     logger.info(
       {

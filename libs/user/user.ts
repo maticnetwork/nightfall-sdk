@@ -128,7 +128,7 @@ class User {
    * Allow user to retrieve the Nightfall Mnemonic  - Keep this private
    *
    * @method getNightfallMnemonic
-   * @return {String} Nightfall mnemonic
+   * @returns {String} Nightfall mnemonic
    */
   getNightfallMnemonic(): string {
     return this.nightfallMnemonic;
@@ -150,8 +150,8 @@ class User {
    * @async
    * @method makeDeposit
    * @param {UserMakeDeposit} options
-   * @param {String} options.tokenAddress
-   * @param {String} options.tokenStandard
+   * @param {String} options.tokenContractAddress
+   * @param {String} options.tokenErcStandard
    * @param {String} options.value
    * @param {String} [options.feeWei]
    * @returns {Object}
@@ -164,14 +164,14 @@ class User {
     // Format options
     const value = options.value.trim();
     const feeWei = options.feeWei?.trim() || TX_FEE_ETH_WEI_DEFAULT;
-    const tokenAddress = options.tokenAddress.trim();
-    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const tokenContractAddress = options.tokenContractAddress.trim();
+    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress) {
+    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
-        address: tokenAddress,
-        ercStandard: tokenStandard,
+        contractAddress: tokenContractAddress,
+        ercStandard: tokenErcStandard,
         web3: this.web3Websocket.web3,
       });
     }
@@ -219,8 +219,8 @@ class User {
    * @async
    * @method makeTransfer
    * @param {UserMakeTransfer} options
-   * @param {String} options.tokenAddress
-   * @param {String} options.tokenStandard
+   * @param {String} options.tokenContractAddress
+   * @param {String} options.tokenErcStandard
    * @param {String} options.value
    * @param {String} [options.feeWei]
    * @param {String} options.nightfallRecipientAddress
@@ -235,16 +235,16 @@ class User {
     // Format options
     const value = options.value.trim();
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenAddress = options.tokenAddress.trim();
-    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const tokenContractAddress = options.tokenContractAddress.trim();
+    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
     const nightfallRecipientAddress = options.nightfallRecipientAddress.trim();
     const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress) {
+    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
-        address: tokenAddress,
-        ercStandard: tokenStandard,
+        contractAddress: tokenContractAddress,
+        ercStandard: tokenErcStandard,
         web3: this.web3Websocket.web3,
       });
     }
@@ -283,8 +283,8 @@ class User {
    * @async
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
-   * @param {String} options.tokenAddress
-   * @param {String} options.tokenStandard
+   * @param {String} options.tokenContractAddress
+   * @param {String} options.tokenErcStandard
    * @param {String} options.value
    * @param {String} [options.feeWei]
    * @param {String} options.ethRecipientAddress
@@ -299,16 +299,16 @@ class User {
     // Format options
     const value = options.value.trim();
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenAddress = options.tokenAddress.trim();
-    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const tokenContractAddress = options.tokenContractAddress.trim();
+    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
     const ethRecipientAddress = options.ethRecipientAddress.trim();
     const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress) {
+    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
-        address: tokenAddress,
-        ercStandard: tokenStandard,
+        contractAddress: tokenContractAddress,
+        ercStandard: tokenErcStandard,
         web3: this.web3Websocket.web3,
       });
     }
@@ -389,7 +389,7 @@ class User {
   }
 
   /**
-   * Allow user to get the total Nightfall Layer2 balance of its commitements
+   * Allow user to get the total Nightfall Layer2 balance of its commitments
    *
    * @async
    * @method checkNightfallBalances

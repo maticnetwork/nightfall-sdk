@@ -13,13 +13,13 @@ const main = async () => {
     });
 
     // # 2 Make withdrawal
-    const tokenAddress = config.tokenAddress;
-    const tokenStandard = "ERC20";
+    const tokenContractAddress = config.tokenContractAddress;
+    const tokenErcStandard = "ERC20";
     const value = "0.0001";
     const ethRecipientAddress = "0x9C8B2276D490141Ae1440Da660E470E7C0349C63";
     const txReceipts = await user.makeWithdrawal({
-      tokenAddress,
-      tokenStandard,
+      tokenContractAddress,
+      tokenErcStandard,
       value,
       ethRecipientAddress,
     });

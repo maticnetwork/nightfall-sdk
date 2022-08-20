@@ -22,7 +22,7 @@ const logger = parentLogger.child({
  * @param {string} ownerEthAddress Eth address sending the contents of the deposit
  * @param {string} ownerEthPrivateKey Eth private key of the sender to sign the tx
  * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
- * @param {string} shieldContractAddress Address of the Shield smart contract
+ * @param {string} shieldContractAddress Address of the Shield smart contract (recipient)
  * @param {Web3} web3 web3js instance
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be deposited

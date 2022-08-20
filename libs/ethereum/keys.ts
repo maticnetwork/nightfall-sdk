@@ -8,7 +8,7 @@ const logger = parentLogger.child({
 });
 
 /**
- * Generate an ethereum address from a given private key
+ * Recreate an Ethereum account from a given private key and return the address
  *
  * @function getEthAccountAddress
  * @param {string} ethereumPrivateKey
@@ -30,8 +30,8 @@ export function getEthAccountAddress(ethereumPrivateKey: string, web3: Web3): st
       .error(err, "Error while validating eth private key");
     throw new NightfallSdkError(err);
   }
-  const address = ethAccount.address;
-  logger.info({ address }, "Eth account address is");
+  const ethAddress = ethAccount.address;
+  logger.info({ ethAddress }, "Eth account address is");
 
-  return address;
+  return ethAddress;
 }

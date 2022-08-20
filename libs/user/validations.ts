@@ -2,10 +2,10 @@ import Joi, { CustomHelpers } from "joi";
 import { checkAddressChecksum } from "web3-utils";
 import { TOKEN_STANDARDS } from "../tokens";
 
-const isChecksum = (tokenAddress: string, helpers: CustomHelpers) => {
-  const isValid = checkAddressChecksum(tokenAddress);
-  if (!isValid) return helpers.error("Invalid checksum, review tokenAddress");
-  return tokenAddress;
+const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
+  const isValid = checkAddressChecksum(ethAddress);
+  if (!isValid) return helpers.error("Invalid checksum, review ethAddress");
+  return ethAddress;
 };
 
 // See https://joi.dev/tester/
@@ -21,11 +21,11 @@ export const createOptions = Joi.object({
 });
 
 export const makeDepositOptions = Joi.object({
-  tokenAddress: Joi.string()
+  tokenContractAddress: Joi.string()
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),
-  tokenStandard: Joi.string()
+  tokenErcStandard: Joi.string()
     .trim()
     .uppercase()
     .valid(...Object.keys(TOKEN_STANDARDS))
@@ -35,11 +35,11 @@ export const makeDepositOptions = Joi.object({
 });
 
 export const makeTransferOptions = Joi.object({
-  tokenAddress: Joi.string()
+  tokenContractAddress: Joi.string()
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),
-  tokenStandard: Joi.string()
+  tokenErcStandard: Joi.string()
     .trim()
     .uppercase()
     .valid(...Object.keys(TOKEN_STANDARDS))
@@ -51,11 +51,11 @@ export const makeTransferOptions = Joi.object({
 });
 
 export const makeWithdrawalOptions = Joi.object({
-  tokenAddress: Joi.string()
+  tokenContractAddress: Joi.string()
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),
-  tokenStandard: Joi.string()
+  tokenErcStandard: Joi.string()
     .trim()
     .uppercase()
     .valid(...Object.keys(TOKEN_STANDARDS))
