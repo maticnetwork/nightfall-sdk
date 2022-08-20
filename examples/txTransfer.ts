@@ -28,7 +28,7 @@ const main = async () => {
       tokenAddress,
       tokenStandard,
       value,
-      nightfallRecipientAddress: userRecipient.zkpKeys.compressedZkpPublicKey,
+      nightfallRecipientAddress: userRecipient.getNightfallAddress(),
     });
     console.log("Transaction receipts", txReceipts);
 
