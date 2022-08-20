@@ -1,6 +1,5 @@
 import fs from "fs";
 import { Commitment } from "libs/types";
-import isCommitmentType from "./isCommitmentType";
 
 /**
  *
@@ -15,9 +14,9 @@ const readAndValidateFile = async (
   try {
     const commitments: Commitment[] = JSON.parse(file.toString("utf8"));
     // Verify if file in in the correct format
-    for (const commitment of commitments) {
-      isCommitmentType(commitment);
-    }
+    // for (const commitment of commitments) {
+    //   isCommitmentType(commitment);
+    // }
     return commitments;
   } catch (err) {
     return err;

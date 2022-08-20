@@ -497,6 +497,16 @@ class User {
 
     const response = await this.client.saveCommitments(listOfCommitments);
 
+    if (!response) {
+      logger.error(
+        "All commitments of this list already exists in the database!",
+      );
+      throw new Error(
+        "All commitments of this list already exists in the database!",
+      );
+    }
+
+    logger.info(response.data);
     return response.data;
   }
 

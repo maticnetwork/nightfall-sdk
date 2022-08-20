@@ -370,7 +370,7 @@ class Client {
         );
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
-      throw new Error("You should pass at least one compressedZkpPublicKey");
+      throw new Error("ou should pass at least one compressedZkpPublicKey");
     } catch (err) {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
@@ -384,12 +384,16 @@ class Client {
    * @param listOfCommitments a list of commitments to be saved in the database.
    */
   async saveCommitments(listOfCommitments: Commitment[]) {
-    const response = await axios.post(
-      `${this.apiUrl}/commitment/saveAll`,
-      listOfCommitments,
-    );
-    logger.info("Commitments imported successfully");
-    return response;
+    try {
+      const response = await axios.post(
+        `${this.apiUrl}/commitment/saveAll`,
+        listOfCommitments,
+      );
+      return response;
+    } catch (err) {
+      logger.child({ listOfCommitments }).error(err);
+      return null;
+    }
   }
 }
 
