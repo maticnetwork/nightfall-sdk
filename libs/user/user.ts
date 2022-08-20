@@ -114,6 +114,13 @@ class User {
     }
   }
 
+  /**
+   *  Allow to check the status of the User running
+   *
+   * @async
+   * @method checkStatus
+   * @returns {Object}
+   */
   async checkStatus() {
     logger.debug("User :: checkStatus");
     const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
@@ -122,15 +129,37 @@ class User {
   }
 
   /**
-   * Retrieve Nightfall mnemonic - remember you must keep it private
+   * Allow user to retrieve the Nightfall Mnemonic  - Keep this private
    *
    * @method getNightfallMnemonic
-   * @return {string} Nightfall mnemonic
+   * @return {String} Nightfall mnemonic
    */
   getNightfallMnemonic(): string {
     return this.nightfallMnemonic;
   }
 
+  /**
+   * Allow user to retrieve Nightfall Layer2 address
+   *
+   * @method getNightfallAddress
+   * @returns {String} Nightfall Layer2 address
+   */
+  getNightfallAddress(): string {
+    return this.zkpKeys?.compressedZkpPublicKey;
+  }
+
+  /**
+   * Allow user to make an ERC20 deposit to Nightfall
+   *
+   * @async
+   * @method makeDeposit
+   * @param {UserMakeDeposit} options
+   * @param {String} options.tokenAddress
+   * @param {String} options.tokenStandard
+   * @param {String} options.value
+   * @param {String} [options.feeWei]
+   * @returns {Object}
+   */
   async makeDeposit(options: UserMakeDeposit) {
     logger.debug({ options }, "User :: makeDeposit");
 
@@ -189,12 +218,18 @@ class User {
   }
 
   /**
-   * Allow user to transfer tokens in Polygon Nightfall
+   * Allow user to transfer tokens in Nightfall to other Nightfall users
    *
    * @async
    * @method makeTransfer
-   * @param {UserMakeTransfer} options Object containing necessary data to perform transfers
-   * @returns // TODO
+   * @param {UserMakeTransfer} options
+   * @param {String} options.tokenAddress
+   * @param {String} options.tokenStandard
+   * @param {String} options.value
+   * @param {String} [options.feeWei]
+   * @param {String} options.nightfallRecipientAddress
+   * @param {Boolean} [options.isOffChain]
+   * @returns {Promise}
    */
   async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
     logger.debug(options, "User :: makeTransfer");
@@ -246,6 +281,20 @@ class User {
     return transferReceipts;
   }
 
+  /**
+   * Allow user to request a withdrawal from Layer2
+   *
+   * @async
+   * @method makeWithdrawal
+   * @param {UserMakeWithdrawal} options
+   * @param {String} options.tokenAddress
+   * @param {String} options.tokenStandard
+   * @param {String} options.value
+   * @param {String} [options.feeWei]
+   * @param {String} options.ethRecipientAddress
+   * @param {Boolean} [options.isOffChain]
+   * @returns {Object}
+   */
   async makeWithdrawal(options: UserMakeWithdrawal) {
     logger.debug({ options }, "User :: makeWithdrawal");
 
@@ -298,6 +347,15 @@ class User {
     return withdrawalReceipts;
   }
 
+  /**
+   * Allow user to finalise a previously initiated withdrawal and withdraw funds back to Layer1
+   *
+   * @async
+   * @method finaliseWithdrawal
+   * @param {UserFinaliseWithdrawal} options
+   * @param {String} options.withdrawTxHash
+   * @returns {TransactionReceipt}
+   */
   async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
     logger.debug({ options }, "User :: finaliseWithdrawal");
     finaliseWithdrawalOptions.validate(options);
@@ -323,35 +381,52 @@ class User {
     );
   }
 
+  /**
+   * Allow user to check the deposits that haven't been processed yet
+   *
+   * @async
+   * @method checkPendingDeposits
+   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for deposit transactions that have not been included yet in a Layer2 block
+   */
   async checkPendingDeposits() {
     return this.client.getPendingDeposits(this.zkpKeys);
   }
 
+  /**
+   * Allow user to get the total Nightfall Layer2 balance of its commitements
+   *
+   * @async
+   * @method checkNightfallBalances
+   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for commitments available in Layer2
+   */
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
   }
 
   /**
+   * Allow user to check the balance of the pending spent commitments on Layer2
    *
-   * @method checkLayer2PendingSpentBalances should get return the balance of pending spent commitments
-   * from transfer and withdraw for each ERC address
-   * @param {string[]} ercList - an array of ERC smart contracts
-   * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
-   * @returns
+   * @async
+   * @method checkPendingTransfers
+   * @returns {Promise}  - This promise resolves into an object whose properties are the
+    addresses of the ERC contracts of the tokens held by this account in Layer 2. The
+    value of each propery is the number of tokens pending spent (transfer & withdraw)
+    from that contract. 
    */
   async checkPendingTransfers() {
     return this.client.getPendingTransfers(this.zkpKeys);
   }
 
   /**
+   * Allow user to export the commitments
    *
-   * @method exportCommitments get the commitments from the client instance and
-   * export a file with this commitments to some path based in the env variables
-   * that set the path and the filename.
-   * @param listOfCompressedZkpPublicKey a list of compressed zkp public key derivated
-   * from the user mnemonic.
-   * @param pathToExport the path to export the file.
-   * @param fileName the name of the file.
+   * @async
+   * @method exportCommitments
+   * @param {UserExportCommitments} options
+   * @param {String[]} options.listOfCompressedZkpPublicKey
+   * @param {String} options.pathToExport
+   * @param {String} options.fileName
+   * @returns {Promise}
    */
   async exportCommitments(
     options: UserExportCommitments,
