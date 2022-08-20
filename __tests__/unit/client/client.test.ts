@@ -89,20 +89,6 @@ describe("Client", () => {
       expect(axios.get).toHaveBeenCalledWith(`${url}/${contractName}`);
       expect(result).toBe(shieldContractAddress);
     });
-
-    test("Should return null if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.get as jest.Mock).mockRejectedValue(
-        new Error("Axios error at contract-address"),
-      );
-
-      // Act
-      const result = await client.getContractAddress(contractName);
-
-      // Assert
-      expect(axios.get).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
-    });
   });
 
   describe("Method generateZkpKeysFromMnemonic", () => {
@@ -235,8 +221,18 @@ describe("Client", () => {
 
     test("Should return object if client app responds successfully", async () => {
       // Arrange
-      const data = {};
-      const res = { data };
+      const tokenBalances = {
+        "0xa8473bef03cbe50229a39718cbdc1fdee2f26b1a": [
+          200000,
+          {
+            balance: 200000,
+            tokenId:
+              "0x0000000000000000000000000000000000000000000000000000000000000000",
+          },
+        ],
+      };
+      const balance = { [zkpKeys.compressedZkpPublicKey]: tokenBalances };
+      const res = { data: { balance } };
       (axios.get as jest.Mock).mockResolvedValue(res);
 
       // Act
@@ -248,7 +244,7 @@ describe("Client", () => {
           compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
         },
       });
-      expect(result).toBe(data);
+      expect(result).toBe(tokenBalances);
     });
 
     test("Should return null if client app responds with status outside the successful range", async () => {
@@ -271,8 +267,17 @@ describe("Client", () => {
 
     test("Should return object if client app responds successfully", async () => {
       // Arrange
-      const data = {};
-      const res = { data };
+      const tokenBalances = {
+        "0xa8473bef03cbe50229a39718cbdc1fdee2f26b1a": [
+          {
+            balance: 200000,
+            tokenId:
+              "0x0000000000000000000000000000000000000000000000000000000000000000",
+          },
+        ],
+      };
+      const balance = tokenBalances;
+      const res = { data: { balance } };
       (axios.get as jest.Mock).mockResolvedValue(res);
 
       // Act
@@ -284,13 +289,13 @@ describe("Client", () => {
           compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
         },
       });
-      expect(result).toBe(data);
+      expect(result).toBe(tokenBalances);
     });
 
     test("Should return null if client app responds with status outside the successful range", async () => {
       // Arrange
       (axios.get as jest.Mock).mockRejectedValue(
-        new Error("Axios error at commitment/pending-deposit"),
+        new Error("Axios error at commitment/balance"),
       );
 
       // Act
