@@ -32,6 +32,7 @@ const logger = parentLogger.child({
  * @param {string} fee The amount in Wei to pay a proposer for the tx
  * @param {string} recipientNightfallAddress Recipient zkpKeys.compressedZkpPublicKey
  * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
+ * @throws {NightfallSdkError} Error while broadcasting on-chain tx
  * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
  */
 export async function createAndSubmitTransfer(

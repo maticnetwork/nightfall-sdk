@@ -27,7 +27,7 @@ const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
  * @param {string} unsignedTx The contents of the tx (sent in data)
  * @param {Web3} web3 web3js instance
  * @param {string} fee The amount in Wei to pay a proposer for the tx
- * @returns {Promise<TransactionReceipt>} Will resolve into a web3 Eth tx receipt
+ * @returns {Promise<TransactionReceipt>}
  */
 export async function submitTransaction(
   senderEthAddress: string,

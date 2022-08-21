@@ -204,6 +204,7 @@ describe("Client", () => {
 
   describe("Method getPendingDeposits", () => {
     const url = dummyUrl + "/commitment/pending-deposit";
+    const tokenContractAddresses: string[] = [];
 
     test("Should return object if client app responds successfully", async () => {
       // Arrange
@@ -222,29 +223,19 @@ describe("Client", () => {
       (axios.get as jest.Mock).mockResolvedValue(res);
 
       // Act
-      const result = await client.getPendingDeposits(zkpKeys);
+      const result = await client.getPendingDeposits(
+        zkpKeys,
+        tokenContractAddresses,
+      );
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith(url, {
         params: {
           compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+          ercList: tokenContractAddresses,
         },
       });
       expect(result).toBe(tokenBalances);
-    });
-
-    test("Should return null if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.get as jest.Mock).mockRejectedValue(
-        new Error("Axios error at commitment/pending-deposit"),
-      );
-
-      // Act
-      const result = await client.getPendingDeposits(zkpKeys);
-
-      // Assert
-      expect(axios.get).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
     });
   });
 

@@ -39,6 +39,10 @@ import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
 import type { Commitment } from "../nightfall/types";
+import {
+  OffChainTransactionReceipt,
+  OnChainTransactionReceipts,
+} from "../transactions/types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -157,9 +161,11 @@ class User {
    * @param {String} options.tokenErcStandard
    * @param {String} options.value
    * @param {String} [options.feeWei]
-   * @returns {Object}
+   * @returns {Promise<OnChainTransactionReceipts>}
    */
-  async makeDeposit(options: UserMakeDeposit) {
+  async makeDeposit(
+    options: UserMakeDeposit,
+  ): Promise<OnChainTransactionReceipts> {
     logger.debug({ options }, "User :: makeDeposit");
 
     makeDepositOptions.validate(options);
@@ -228,9 +234,11 @@ class User {
    * @param {String} [options.feeWei]
    * @param {String} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
-   * @returns {Promise}
+   * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
    */
-  async makeTransfer(options: UserMakeTransfer) {
+  async makeTransfer(
+    options: UserMakeTransfer,
+  ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug(options, "User :: makeTransfer");
 
     makeTransferOptions.validate(options);
