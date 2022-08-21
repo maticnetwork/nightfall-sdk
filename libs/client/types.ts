@@ -1,12 +1,6 @@
 import type { TransactionReceiptL2 } from "../nightfall/types";
 
-interface TransactionResponseData {
-  txDataToSign: string;
+export interface TransactionResponseData {
+  txDataToSign?: string; // only if on-chain
   transaction: TransactionReceiptL2;
-}
-
-export type DepositResponseData = TransactionResponseData;
-
-export interface TransferResponseData extends TransactionResponseData {
-  salts: string[];
 }

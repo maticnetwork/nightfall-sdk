@@ -6,7 +6,7 @@ import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
-import type { TransactionReceipts } from "./types";
+import type { OnChainTransactionReceipts } from "./types";
 import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
@@ -28,10 +28,10 @@ const logger = parentLogger.child({
  * @param {string} value The amount in Wei of the token to be deposited
  * @param {string} fee The amount in Wei to pay a proposer for the tx
  * @throws {NightfallSdkError} Error while broadcasting tx
- * @returns {Promise<TransactionReceipts>} Will resolve into an object containing L1, L2 tx receipts
+ * @returns {Promise<OnChainTransactionReceipts>}
  */
 export async function createAndSubmitDeposit(
-  token: any, // Token,
+  token: any,
   ownerEthAddress: string,
   ownerEthPrivateKey: string,
   ownerZkpKeys: NightfallZkpKeys,
@@ -40,12 +40,12 @@ export async function createAndSubmitDeposit(
   client: Client,
   value: string,
   fee: string,
-): Promise<TransactionReceipts> {
+): Promise<OnChainTransactionReceipts> {
   logger.debug("createAndSubmitDeposit");
 
   const resData = await client.deposit(token, ownerZkpKeys, value, fee);
-  const unsignedTx = resData.txDataToSign;
   const txReceiptL2 = resData.transaction;
+  const unsignedTx = resData.txDataToSign;
   logger.debug({ unsignedTx }, "Deposit tx, unsigned");
 
   let txReceipt: TransactionReceipt;

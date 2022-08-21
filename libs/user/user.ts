@@ -101,6 +101,7 @@ class User {
   // Set when transacting
   token: any;
   nightfallDepositTxHashes: string[] = [];
+  nightfallTransferTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
 
   constructor(options: UserConstructor) {
@@ -206,7 +207,7 @@ class User {
       valueWei,
       feeWei,
     );
-    logger.info({ depositReceipts }, "Deposit completed");
+    logger.info({ depositReceipts }, "Deposit completed!");
 
     this.nightfallDepositTxHashes.push(
       depositReceipts.txReceiptL2?.transactionHash,
@@ -225,7 +226,7 @@ class User {
    * @param {String} options.tokenErcStandard
    * @param {String} options.value
    * @param {String} [options.feeWei]
-   * @param {String} options.nightfallRecipientAddress
+   * @param {String} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
    * @returns {Promise}
    */
@@ -239,7 +240,7 @@ class User {
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
     const tokenContractAddress = options.tokenContractAddress.trim();
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
-    const nightfallRecipientAddress = options.nightfallRecipientAddress.trim();
+    const recipientNightfallAddress = options.recipientNightfallAddress.trim();
     const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
@@ -266,16 +267,15 @@ class User {
       this.client,
       valueWei,
       feeWei,
-      nightfallRecipientAddress,
+      recipientNightfallAddress,
       isOffChain,
     );
 
-    if (transferReceipts === null) {
-      logger.error({ transferReceipts }, "Transfer was not completed!");
-      return null;
-    }
+    this.nightfallTransferTxHashes.push(
+      transferReceipts.txReceiptL2?.transactionHash,
+    );
 
-    logger.info({ transferReceipts }, "Transfer was completed!");
+    logger.info({ transferReceipts }, "Transfer completed!");
     return transferReceipts;
   }
 

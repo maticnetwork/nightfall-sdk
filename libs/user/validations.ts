@@ -47,7 +47,7 @@ export const makeTransferOptions = Joi.object({
     .valid(...Object.keys(TOKEN_STANDARDS))
     .required(),
   value: Joi.string().required(),
-  nightfallRecipientAddress: Joi.string().trim().required(), // ISSUE #76
+  recipientNightfallAddress: Joi.string().trim().required(), // ISSUE #76
   feeWei: Joi.string(),
   isOffChain: Joi.boolean(),
 });

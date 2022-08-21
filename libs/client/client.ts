@@ -3,9 +3,9 @@ import type { Commitment } from "../nightfall/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import type { NightfallRecipientData } from "libs/transactions/types";
+import type { RecipientNightfallData } from "libs/transactions/types";
 import { NightfallSdkError } from "../utils/error";
-import { DepositResponseData, TransferResponseData } from "./types";
+import { TransactionResponseData } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -152,23 +152,23 @@ class Client {
   }
 
   /**
-   * Make POST request to start a deposit transaction
+   * Make POST request to create a deposit transaction (tx)
    *
    * @async
    * @method deposit
    * @param {} token An instance of Token holding token data such as contract address
-   * @param {string} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be deposited
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @throws {NightfallSdkError} Bad response
-   * @returns {Promise<DepositResponseData>}} Should resolve into an object containing unsigned L1 tx, L2 tx
+   * @returns {Promise<TransactionResponseData>}
    */
   async deposit(
-    token: any, // Token,
+    token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
-  ): Promise<DepositResponseData> {
+  ): Promise<TransactionResponseData> {
     const endpoint = "deposit";
     logger.debug({ endpoint }, "Calling client at");
 
@@ -190,48 +190,45 @@ class Client {
   }
 
   /**
-   * Perform a POST request to create a transfer transaction
+   * Make POST request to create a transfer transaction (tx)
    *
    * @async
    * @method transfer
-   * @param {} token An instance of Token holding token info such as contract address
+   * @param {} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
-   * @param {NightfallRecipientData} nightfallRecipientData An object with [valueWei] an [recipientCompressedZkpPublicKey]
-   * @param {string} fee The amount in Wei to pay a proposer for the transaction
-   * @param {boolean} isOffChain If true, transaction will be sent to the proposer's API (handled off-chain)
-   * @returns {Promise} Resolves into the Ethereum transaction receipt.
+   * @param {RecipientNightfallData} recipientNightfallData An object with [valueWei] an [recipientCompressedZkpPublicKey]
+   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
+   * @throws {NightfallSdkError} No commitments found or bad response
+   * @returns {Promise<TransactionResponseData>}
    */
   async transfer(
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
-    nightfallRecipientData: NightfallRecipientData,
+    recipientNightfallData: RecipientNightfallData,
     fee: string,
     isOffChain: boolean,
-  ): Promise<TransferResponseData> {
-    logger.debug("Calling client at transfer");
-    let res: AxiosResponse;
+  ): Promise<TransactionResponseData> {
+    const endpoint = "transfer";
+    logger.debug({ endpoint }, "Calling client at");
 
-    try {
-      res = await axios.post(`${this.apiUrl}/transfer`, {
-        ercAddress: token.contractAddress,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
-        rootKey: ownerZkpKeys.rootKey,
-        recipientData: nightfallRecipientData,
-        fee,
-        offchain: isOffChain,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at transfer responded",
-      );
+    const res = await axios.post(`${this.apiUrl}/transfer`, {
+      ercAddress: token.contractAddress,
+      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      rootKey: ownerZkpKeys.rootKey,
+      recipientData: recipientNightfallData,
+      fee,
+      offchain: isOffChain,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `${endpoint} responded`,
+    );
 
-      if (res.data.error && res.data.error === "No suitable commitments") {
-        throw new Error("No suitable commitments were found");
-      }
-    } catch (err) {
-      logger.error(err);
-      return null;
+    if (res.data.error && res.data.error === "No suitable commitments") {
+      throw new NightfallSdkError("No suitable commitments were found");
     }
+
     return res.data;
   }
 

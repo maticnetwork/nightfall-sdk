@@ -28,7 +28,7 @@ export interface UserMakeTransaction {
 export type UserMakeDeposit = UserMakeTransaction;
 
 export interface UserMakeTransfer extends UserMakeTransaction {
-  nightfallRecipientAddress: string;
+  recipientNightfallAddress: string;
   isOffChain?: boolean;
 }
 

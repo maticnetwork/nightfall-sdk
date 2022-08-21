@@ -28,12 +28,16 @@ const main = async () => {
       tokenContractAddress,
       tokenErcStandard,
       value,
-      nightfallRecipientAddress: userRecipient.getNightfallAddress(),
+      recipientNightfallAddress: userRecipient.getNightfallAddress(),
+      // isOffChain: true,
     });
     console.log("Transaction receipts", txReceipts);
 
     // # 4 [OPTIONAL] You can check the transaction hash
-    // COMING SOON
+    console.log(
+      "Nightfall deposit tx hashes",
+      userSender.nightfallTransferTxHashes,
+    );
 
     // # 5 [OPTIONAL] You can check transfers that are not yet in a block
     const pendingTransfers = await userSender.checkPendingTransfers();
