@@ -41,6 +41,10 @@ export interface UserFinaliseWithdrawal {
   withdrawTxHash?: string;
 }
 
+export interface UserCheckBalances {
+  tokenContractAddresses?: string[];
+}
+
 export interface UserExportCommitments {
   listOfCompressedZkpPublicKey: string[];
   pathToExport: string;

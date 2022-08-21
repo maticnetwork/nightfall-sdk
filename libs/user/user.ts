@@ -11,6 +11,7 @@ import {
   UserMakeTransfer,
   UserMakeWithdrawal,
   UserFinaliseWithdrawal,
+  UserCheckBalances,
   UserExportCommitments,
 } from "./types";
 import { Client } from "../client";
@@ -31,6 +32,7 @@ import {
   makeTransferOptions,
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
+  checkBalancesOptions,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
@@ -384,8 +386,19 @@ class User {
    * @method checkPendingDeposits
    * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for deposit transactions that have not been included yet in a Layer2 block
    */
-  async checkPendingDeposits() {
-    return this.client.getPendingDeposits(this.zkpKeys);
+  async checkPendingDeposits(options?: UserCheckBalances) {
+    logger.debug({ options }, "User :: checkPendingDeposits");
+
+    let tokenContractAddresses: string[] = [];
+
+    // If options, validate and format
+    if (options) {
+      checkBalancesOptions.validate(options);
+      tokenContractAddresses =
+        options.tokenContractAddresses?.map((address) => address.trim()) || [];
+    }
+
+    return this.client.getPendingDeposits(this.zkpKeys, tokenContractAddresses);
   }
 
   /**

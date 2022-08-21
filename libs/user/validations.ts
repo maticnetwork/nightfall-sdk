@@ -4,11 +4,13 @@ import { TOKEN_STANDARDS } from "../tokens";
 
 const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
   const isValid = checkAddressChecksum(ethAddress);
-  if (!isValid) return helpers.error("Invalid checksum, review ethAddress");
+  if (!isValid)
+    return helpers.message({ custom: "Invalid checksum, review ethAddress" });
   return ethAddress;
 };
 
 // See https://joi.dev/tester/
+
 const PATTERN_ETH_PRIVATE_KEY = /^0x[0-9a-f]{64}$/;
 export const createOptions = Joi.object({
   blockchainWsUrl: Joi.string().required(),
@@ -71,4 +73,10 @@ export const makeWithdrawalOptions = Joi.object({
 
 export const finaliseWithdrawalOptions = Joi.object({
   withdrawTxHash: Joi.string(),
+});
+
+export const checkBalancesOptions = Joi.object({
+  tokenContractAddresses: Joi.array().items(
+    Joi.string().trim().custom(isChecksum, "custom validation"),
+  ),
 });
