@@ -177,7 +177,9 @@ describe("Client", () => {
 
     test("Should return object if client app responds successfully", async () => {
       // Arrange
-      const data = {};
+      const txDataToSign = {};
+      const transaction = {};
+      const data = { txDataToSign, transaction };
       const res = { data };
       (axios.post as jest.Mock).mockResolvedValue(res);
 
@@ -197,22 +199,6 @@ describe("Client", () => {
         fee,
       });
       expect(result).toBe(data);
-    });
-
-    test("Should return null if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.post as jest.Mock).mockRejectedValue(
-        new Error("Axios error at deposit"),
-      );
-
-      // Act
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const result = await client.deposit(token, zkpKeys, value, fee);
-
-      // Assert
-      expect(axios.post).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
     });
   });
 

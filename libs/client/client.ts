@@ -5,7 +5,7 @@ import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { NightfallRecipientData } from "libs/transactions/types";
 import { NightfallSdkError } from "../utils/error";
-import { TransferResponseData } from "./types";
+import { DepositResponseData, TransferResponseData } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -161,14 +161,14 @@ class Client {
    * @param {string} value The amount in Wei of the token to be deposited
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @throws {NightfallSdkError} Bad response
-   * @returns // TODO
+   * @returns {Promise<DepositResponseData>}} Should resolve into an object containing unsigned L1 tx, L2 tx
    */
   async deposit(
     token: any, // Token,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
-  ) {
+  ): Promise<DepositResponseData> {
     const endpoint = "deposit";
     logger.debug({ endpoint }, "Calling client at");
 

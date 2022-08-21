@@ -1,7 +1,12 @@
 import type { TransactionReceiptL2 } from "../nightfall/types";
 
-export interface TransferResponseData {
+interface TransactionResponseData {
   txDataToSign: string;
   transaction: TransactionReceiptL2;
+}
+
+export type DepositResponseData = TransactionResponseData;
+
+export interface TransferResponseData extends TransactionResponseData {
   salts: string[];
 }
