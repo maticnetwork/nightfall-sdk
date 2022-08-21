@@ -286,23 +286,24 @@ class Client {
     return res.data;
   }
 
-  async getPendingDeposits(zkpKeys: NightfallZkpKeys) {
-    logger.debug("Calling client at commitment/pending-deposit");
-    let res: AxiosResponse;
-    try {
-      res = await axios.get(`${this.apiUrl}/commitment/pending-deposit`, {
-        params: {
-          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
-        },
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at commitment/pending-deposit responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
+  async getPendingDeposits(
+    zkpKeys: NightfallZkpKeys,
+    tokenContractAddresses: string[],
+  ) {
+    const endpoint = "commitment/pending-deposit";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.get(`${this.apiUrl}/commitment/pending-deposit`, {
+      params: {
+        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        ercList: tokenContractAddresses,
+      },
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `${endpoint} responded`,
+    );
+
     return res.data.balance?.[zkpKeys.compressedZkpPublicKey];
   }
 
