@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Client } from "../../../libs/client";
+import { NightfallSdkError } from "../../../libs/utils/error";
 
 jest.mock("axios");
 
@@ -175,7 +176,7 @@ describe("Client", () => {
     const value = "0.01";
     const fee = "11000000000";
 
-    test("Should return object if client app responds successfully", async () => {
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
       // Arrange
       const txDataToSign = {};
       const transaction = {};
@@ -199,6 +200,74 @@ describe("Client", () => {
         fee,
       });
       expect(result).toBe(data);
+    });
+  });
+
+  describe("Method transfer", () => {
+    const url = dummyUrl + "/transfer";
+    const token = {
+      contractAddress: "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae",
+    };
+    const recipientNightfallData = {
+      recipientCompressedZkpPublicKeys: [
+        "0x96f9999c45ded16f8f81c89a7e70ec8eab4fb9298c156d9ce5762ec3b18c3075",
+      ],
+      values: ["0.01"],
+    };
+    const fee = "11000000000";
+    const isOffChain = false;
+
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
+      // Arrange
+      const txDataToSign = {};
+      const transaction = {};
+      const data = { txDataToSign, transaction };
+      const res = { data };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const result = await client.transfer(
+        token,
+        zkpKeys,
+        recipientNightfallData,
+        fee,
+        isOffChain,
+      );
+
+      // Assert
+      expect(axios.post).toHaveBeenCalledWith(url, {
+        ercAddress: token.contractAddress,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        rootKey: zkpKeys.rootKey,
+        recipientData: recipientNightfallData,
+        fee,
+        offchain: isOffChain,
+      });
+      expect(result).toBe(data);
+    });
+
+    test("Should throw an error when no suitable commitments are found", async () => {
+      // Arrange
+      const data = { error: "No suitable commitments" };
+      const res = { data };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act, Assert
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(
+        async () =>
+          await client.transfer(
+            token,
+            zkpKeys,
+            recipientNightfallData,
+            fee,
+            isOffChain,
+          ),
+      ).rejects.toThrow(NightfallSdkError);
+      expect(axios.post).toHaveBeenCalledTimes(1);
     });
   });
 
