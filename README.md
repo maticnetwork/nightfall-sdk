@@ -154,7 +154,7 @@ E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:balan
 
 #### 32Tx rule
 
-<b>This is a rule that applies to Nightfall Protocol on Goerli Testnet and Mainnet.<b>
+**This is a rule that applies to Nightfall Protocol on Goerli Testnet and Mainnet.**
 To learn more about Nightfall protocol on Mainnet and Testnet visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
 
 The 32Tx rule is essentually the same as the `2Tx rule` but with 32 transactions instead of 2.
