@@ -108,7 +108,8 @@ npm install
 To get a good idea of how to interact with Nightfall using the SDK, there are a set of example scripts in `/examples` that allow for a better understanding of the core features of Nightfall.
 
 All of the scripts are explained in short detail below.
-You can try them out using the given commands or you can refer to the package.json scripts. E.g.:
+You can try them out using the given commands or you can refer to the package.json scripts.
+E.g.:
 
 ```bash
 "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true"
@@ -122,9 +123,12 @@ Being a NPM package, the SDK doesn't use environment variables with exception of
 # Contents of .env.ganache
 APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546
 APP_CLIENT_API_URL=http://localhost:8080
+# Nightfall_3 User 1
 APP_ETH_PRIVATE_KEY=0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e
-APP_NIGHTFALL_MNEMONIC=
-APP_TOKEN_ADDRESS_1=0x4f3c4F8D4575Cf73c2FAf9F36cc505e19E65B9C0
+APP_NIGHTFALL_MNEMONIC=your Nightfall mnemonic
+# Nightfall_3 ERC20Mock contract address in ganache
+# Make sure to monitor the local deployment and double-check the contract address
+APP_TOKEN_ADDRESS_1=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a
 ```
 
 ```
@@ -146,15 +150,14 @@ To use the example scripts and the SDK correctly, one needs to have a good under
 <b>This is a rule that applies to Nightfall Protocol on Ganache.<b>
 
 Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal(not finalise-withdrawal) are finalised.
-ex. Making 1 deposit won't change the state of Nightfall. Running the `eg:nf-balances:ganache` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
+E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:balances:ganache` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
 
 #### 32Tx rule
 
 <b>This is a rule that applies to Nightfall Protocol on Goerli Testnet and Mainnet.<b>
 To learn more about Nightfall protocol on Mainnet and Testnet visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
 
-Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 32 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal(not finalise-withdrawal) are finalised.
-ex. Making 1 deposit won't change the state of Nightfall. Running the `eg:nf-balances:goerli` script won't show any updated balance with the new deposit. Another 31 transactions should be submitted to the network
+The 32Tx rule is essentually the same as the `2Tx rule` but with 32 transactions instead of 2.
 
 #### Nightfall keys
 
@@ -199,7 +202,7 @@ npm run-script eg:finalise-withdrawal:[network]
 Check your L2 balances.
 
 ```
-npm run-script eg:nf-balances:[network]
+npm run-script eg:balances:[network]
 ```
 
 #### Export commitments
