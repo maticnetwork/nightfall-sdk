@@ -147,14 +147,14 @@ To use the example scripts and the SDK correctly, one needs to have a good under
 
 #### 2Tx rule
 
-<b>This is a rule that applies to Nightfall Protocol on Ganache.<b>
+**This is a rule that applies to Nightfall Protocol on Ganache.**
 
 Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal(not finalise-withdrawal) are finalised.
 E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:balances:ganache` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
 
 #### 32Tx rule
 
-<b>This is a rule that applies to Nightfall Protocol on Goerli Testnet and Mainnet.<b>
+**This is a rule that applies to Nightfall Protocol on Goerli Testnet and Mainnet.**
 To learn more about Nightfall protocol on Mainnet and Testnet visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
 
 The 32Tx rule is essentually the same as the `2Tx rule` but with 32 transactions instead of 2.
