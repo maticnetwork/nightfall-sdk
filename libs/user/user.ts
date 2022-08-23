@@ -278,12 +278,12 @@ class User {
       recipientNightfallAddress,
       isOffChain,
     );
+    logger.info({ transferReceipts }, "Transfer completed!");
 
     this.nightfallTransferTxHashes.push(
       transferReceipts.txReceiptL2?.transactionHash,
     );
 
-    logger.info({ transferReceipts }, "Transfer completed!");
     return transferReceipts;
   }
 
@@ -297,11 +297,13 @@ class User {
    * @param {String} options.tokenErcStandard
    * @param {String} options.value
    * @param {String} [options.feeWei]
-   * @param {String} options.ethRecipientAddress
+   * @param {String} options.recipientEthAddress
    * @param {Boolean} [options.isOffChain]
-   * @returns {Object}
+   * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
    */
-  async makeWithdrawal(options: UserMakeWithdrawal) {
+  async makeWithdrawal(
+    options: UserMakeWithdrawal,
+  ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug({ options }, "User :: makeWithdrawal");
 
     makeWithdrawalOptions.validate(options);
@@ -311,7 +313,7 @@ class User {
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
     const tokenContractAddress = options.tokenContractAddress.trim();
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
-    const ethRecipientAddress = options.ethRecipientAddress.trim();
+    const recipientEthAddress = options.recipientEthAddress.trim();
     const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
@@ -339,15 +341,13 @@ class User {
       this.client,
       valueWei,
       feeWei,
-      ethRecipientAddress,
+      recipientEthAddress,
       isOffChain,
     );
-
-    if (withdrawalReceipts === null) return null;
-    logger.info({ withdrawalReceipts }, "Withdrawal completed");
+    logger.info({ withdrawalReceipts }, "Withdrawal completed!");
 
     this.nightfallWithdrawalTxHashes.push(
-      withdrawalReceipts.txL2?.transactionHash,
+      withdrawalReceipts.txReceiptL2?.transactionHash,
     );
 
     return withdrawalReceipts;

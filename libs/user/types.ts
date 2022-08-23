@@ -33,7 +33,7 @@ export interface UserMakeTransfer extends UserMakeTransaction {
 }
 
 export interface UserMakeWithdrawal extends UserMakeTransaction {
-  ethRecipientAddress: string;
+  recipientEthAddress: string;
   isOffChain?: boolean;
 }
 

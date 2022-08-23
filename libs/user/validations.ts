@@ -63,7 +63,7 @@ export const makeWithdrawalOptions = Joi.object({
     .valid(...Object.keys(TOKEN_STANDARDS))
     .required(),
   value: Joi.string().required(),
-  ethRecipientAddress: Joi.string()
+  recipientEthAddress: Joi.string()
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),

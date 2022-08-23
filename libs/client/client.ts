@@ -232,35 +232,45 @@ class Client {
     return res.data;
   }
 
+  /**
+   * Make POST request to create a withdrawal transaction (tx)
+   *
+   * @async
+   * @method withdraw
+   * @param {} token An instance of Token holding token data such as contract address
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string} value The amount in Wei of the token to be withdrawn
+   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
   async withdraw(
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
-    ethRecipientAddress: string,
+    recipientEthAddress: string,
     isOffChain: boolean,
-  ) {
-    logger.debug("Calling client at withdraw");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/withdraw`, {
-        ercAddress: token.contractAddress,
-        tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
-        rootKey: ownerZkpKeys.rootKey,
-        recipientAddress: ethRecipientAddress,
-        value,
-        fee,
-        offchain: isOffChain,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at withdraw responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
+  ): Promise<TransactionResponseData> {
+    const endpoint = "withdraw";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/withdraw`, {
+      ercAddress: token.contractAddress,
+      tokenType: token.ercStandard,
+      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      rootKey: ownerZkpKeys.rootKey,
+      recipientAddress: recipientEthAddress,
+      value,
+      fee,
+      offchain: isOffChain,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `${endpoint} responded`,
+    );
+
     return res.data;
   }
 
