@@ -85,7 +85,7 @@ class Client {
     const res = await axios.get(`${this.apiUrl}/${endpoint}`);
     logger.info(
       { status: res.status, data: res.data },
-      `${endpoint} responded`,
+      `Client at ${endpoint} responded`,
     );
 
     return res.data.address;
@@ -183,7 +183,7 @@ class Client {
     });
     logger.info(
       { status: res.status, data: res.data },
-      `${endpoint} responded`,
+      `Client at ${endpoint} responded`,
     );
 
     return res.data;
@@ -212,7 +212,7 @@ class Client {
     const endpoint = "transfer";
     logger.debug({ endpoint }, "Calling client at");
 
-    const res = await axios.post(`${this.apiUrl}/transfer`, {
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenId: "0x00", // ISSUE #32 && ISSUE #58
       rootKey: ownerZkpKeys.rootKey,
@@ -222,7 +222,7 @@ class Client {
     });
     logger.info(
       { status: res.status, data: res.data },
-      `${endpoint} responded`,
+      `Client at ${endpoint} responded`,
     );
 
     if (res.data.error && res.data.error === "No suitable commitments") {
@@ -256,7 +256,7 @@ class Client {
     const endpoint = "withdraw";
     logger.debug({ endpoint }, "Calling client at");
 
-    const res = await axios.post(`${this.apiUrl}/withdraw`, {
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
       tokenId: "0x00", // ISSUE #32 && ISSUE #58
@@ -268,28 +268,34 @@ class Client {
     });
     logger.info(
       { status: res.status, data: res.data },
-      `${endpoint} responded`,
+      `Client at ${endpoint} responded`,
     );
 
     return res.data;
   }
 
   // DOCS find the L2 block containing the L2 transaction hash
+  /**
+   * Make POST request to finalise previously initiated withdrawal (tx)
+   *
+   * @async
+   * @method finaliseWithdrawal
+   * @param {string} withdrawTxHash Tx hash in Layer2 of the previously initiated withdrawal
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
   async finaliseWithdrawal(withdrawTxHash: string) {
-    logger.debug("Calling client at finalise-withdrawal");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/finalise-withdrawal`, {
-        transactionHash: withdrawTxHash,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at withdraw responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
+    const endpoint = "finalise-withdrawal";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      transactionHash: withdrawTxHash,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
     return res.data;
   }
 
@@ -308,7 +314,7 @@ class Client {
     });
     logger.info(
       { status: res.status, data: res.data },
-      `${endpoint} responded`,
+      `Client at ${endpoint} responded`,
     );
 
     return res.data.balance?.[zkpKeys.compressedZkpPublicKey];

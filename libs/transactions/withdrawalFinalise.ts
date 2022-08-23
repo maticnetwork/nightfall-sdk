@@ -4,40 +4,52 @@ import { parentLogger } from "../utils";
 import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { TransactionReceipt } from "web3-core";
+import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
+/**
+ * Handle the flow for finalising previously initiated withdrawal transaction (tx)
+ *
+ * @async
+ * @function createAndSubmitFinaliseWithdrawal
+ * @param {string} ownerEthAddress Eth address sending the contents of the tx
+ * @param {string} ownerEthPrivateKey Eth private key of the sender to sign the tx
+ * @param {string} shieldContractAddress Address of the Shield smart contract
+ * @param {Web3} web3 web3js instance
+ * @param {Client} client An instance of Client to interact with the API
+ * @param {string} withdrawTxHash Tx hash in Layer2 of the previously initiated withdrawal
+ * @throws {NightfallSdkError} Error while broadcasting tx
+ * @returns {Promise<TransactionReceipt>}
+ */
 export async function createAndSubmitFinaliseWithdrawal(
-  ownerAddress: string,
-  ownerPrivateKey: string,
+  ownerEthAddress: string,
+  ownerEthPrivateKey: string,
   shieldContractAddress: string,
   web3: Web3,
   client: Client,
   withdrawTxHash: string,
-) {
-  logger.debug("createAndSubmitDeposit");
+): Promise<TransactionReceipt> {
+  logger.debug("createAndSubmitFinaliseWithdrawal");
 
   const resData = await client.finaliseWithdrawal(withdrawTxHash);
-  // resData null signals that something went wrong in the Client
-  if (resData === null) return;
-
   const unsignedTx = resData.txDataToSign;
   logger.debug({ unsignedTx }, "Finalise withdrawal tx, unsigned");
 
   let txReceipt: TransactionReceipt;
   try {
     txReceipt = await submitTransaction(
-      ownerAddress,
-      ownerPrivateKey,
+      ownerEthAddress,
+      ownerEthPrivateKey,
       shieldContractAddress,
       unsignedTx,
       web3,
     );
   } catch (err) {
-    logger.child({ unsignedTx }).error(err);
-    return null;
+    logger.child({ resData }).error(err);
+    throw new NightfallSdkError(err.message);
   }
-  return { txL1: txReceipt };
+  return txReceipt;
 }

@@ -43,6 +43,8 @@ import {
   OffChainTransactionReceipt,
   OnChainTransactionReceipts,
 } from "../transactions/types";
+import { NightfallSdkError } from "../utils/error";
+import type { TransactionReceipt } from "web3-core";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -122,7 +124,7 @@ class User {
    *
    * @async
    * @method checkStatus
-   * @returns {Object}
+   * @returns {Promise<>}
    */
   async checkStatus() {
     logger.debug("User :: checkStatus");
@@ -360,20 +362,22 @@ class User {
    * @method finaliseWithdrawal
    * @param {UserFinaliseWithdrawal} options
    * @param {String} options.withdrawTxHash
-   * @returns {TransactionReceipt}
+   * @returns {Promise<TransactionReceipt>}
    */
-  async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
+  async finaliseWithdrawal(
+    options: UserFinaliseWithdrawal,
+  ): Promise<TransactionReceipt> {
     logger.debug({ options }, "User :: finaliseWithdrawal");
     finaliseWithdrawalOptions.validate(options);
 
-    // If no withdrawTxHash was given, use the latest
+    // If no withdrawTxHash was given, try to use the latest
     const withdrawTxHash =
       options.withdrawTxHash?.trim() ||
       this.nightfallWithdrawalTxHashes[
         this.nightfallWithdrawalTxHashes.length - 1
       ];
     if (!withdrawTxHash)
-      throw new Error("Could not find any withdrawal tx hash");
+      throw new NightfallSdkError("Could not find any withdrawal tx hash");
 
     logger.info({ withdrawTxHash }, "Finalise withdrawal with tx hash");
 
@@ -392,7 +396,7 @@ class User {
    *
    * @async
    * @method checkPendingDeposits
-   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for deposit transactions that have not been included yet in a Layer2 block
+   * @returns {Promise<>} - This promise resolves into an object containing the aggregated value per token, for deposit transactions that have not been included yet in a Layer2 block
    */
   async checkPendingDeposits(options?: UserCheckBalances) {
     logger.debug({ options }, "User :: checkPendingDeposits");
@@ -414,7 +418,7 @@ class User {
    *
    * @async
    * @method checkNightfallBalances
-   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for commitments available in Layer2
+   * @returns {Promise<>} - This promise resolves into an object containing the aggregated value per token, for commitments available in Layer2
    */
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
@@ -425,7 +429,7 @@ class User {
    *
    * @async
    * @method checkPendingTransfers
-   * @returns {Promise}  - This promise resolves into an object whose properties are the
+   * @returns {Promise<>}  - This promise resolves into an object whose properties are the
     addresses of the ERC contracts of the tokens held by this account in Layer 2. The
     value of each propery is the number of tokens pending spent (transfer & withdraw)
     from that contract. 
@@ -443,7 +447,7 @@ class User {
    * @param {String[]} options.listOfCompressedZkpPublicKey
    * @param {String} options.pathToExport
    * @param {String} options.fileName
-   * @returns {Promise}
+   * @returns {Promise<void | null>}
    */
   async exportCommitments(
     options: UserExportCommitments,
