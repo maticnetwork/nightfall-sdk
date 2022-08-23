@@ -1,6 +1,7 @@
-import { ERROR_INVALID_COMMITMENT_TYPE } from "../messages/commitments";
 import { Commitment } from "../types";
 
+const ERROR_INVALID_COMMITMENT_TYPE =
+  "Your file do not correspond a ICommitment[] type.";
 /**
  *
  * @function isCommitmentType should verify if the object received is of a Commitment type.

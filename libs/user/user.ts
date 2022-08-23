@@ -40,7 +40,6 @@ import exportFile from "../utils/exportFile";
 import { Commitment } from "../types";
 import readAndValidateFile from "../utils/readAndValidateFile";
 import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
-import { ERROR_COMMITMENT_NOT_MATCH_MNEMONIC } from "../messages/commitments";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -491,8 +490,12 @@ class User {
     );
 
     if (!isCommitmentsFromMnemonicReturn) {
-      logger.error(ERROR_COMMITMENT_NOT_MATCH_MNEMONIC);
-      throw new Error(ERROR_COMMITMENT_NOT_MATCH_MNEMONIC);
+      logger.error(
+        "At least one of the commitments in this list does not match with the compressedZkpPublicKey!",
+      );
+      throw new Error(
+        "At least one of the commitments in this list does not match with the compressedZkpPublicKey!",
+      );
     }
 
     const response = await this.client.saveCommitments(listOfCommitments);
@@ -506,8 +509,8 @@ class User {
       );
     }
 
-    logger.info(response.data);
-    return response.data;
+    logger.info(response);
+    return response;
   }
 
   close() {
