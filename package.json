@@ -49,7 +49,6 @@
   "main": "index.mjs",
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "pre-commit": "git cz",
     "prettier": "prettier --check .",
     "test:ganache": "DOTENV_CONFIG_PATH=./examples/.env.ganache jest --setupFiles dotenv/config",
     "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
