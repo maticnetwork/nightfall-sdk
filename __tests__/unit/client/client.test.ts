@@ -271,6 +271,73 @@ describe("Client", () => {
     });
   });
 
+  describe("Method withdraw", () => {
+    const url = dummyUrl + "/withdraw";
+    const token = {
+      contractAddress: "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae",
+      ercStandard: "ERC20",
+    };
+    const value = "0.01";
+    const fee = "11000000000";
+    const recipientEthAddress = "0x0recipientEthAddress";
+    const isOffChain = false;
+
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
+      // Arrange
+      const txDataToSign = {};
+      const transaction = {};
+      const data = { txDataToSign, transaction };
+      const res = { data };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const result = await client.withdraw(
+        token,
+        zkpKeys,
+        value,
+        fee,
+        recipientEthAddress,
+        isOffChain,
+      );
+
+      // Assert
+      expect(axios.post).toHaveBeenCalledWith(url, {
+        ercAddress: token.contractAddress,
+        tokenType: token.ercStandard,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        rootKey: zkpKeys.rootKey,
+        recipientAddress: recipientEthAddress,
+        value,
+        fee,
+        offchain: isOffChain,
+      });
+      expect(result).toBe(data);
+    });
+  });
+
+  describe("Method finaliseWithdrawal", () => {
+    const url = dummyUrl + "/finalise-withdrawal";
+    const withdrawTxHash = "0x0thitroboatututututu";
+
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
+      // Arrange
+      const txDataToSign = {};
+      const res = { data: txDataToSign };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      const result = await client.finaliseWithdrawal(withdrawTxHash);
+
+      // Assert
+      expect(axios.post).toHaveBeenCalledWith(url, {
+        transactionHash: withdrawTxHash,
+      });
+      expect(result).toBe(txDataToSign);
+    });
+  });
+
   describe("Method getPendingDeposits", () => {
     const url = dummyUrl + "/commitment/pending-deposit";
     const tokenContractAddresses: string[] = [];
