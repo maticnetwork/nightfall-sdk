@@ -274,7 +274,6 @@ class Client {
     return res.data;
   }
 
-  // DOCS find the L2 block containing the L2 transaction hash
   /**
    * Make POST request to finalise previously initiated withdrawal (tx)
    *

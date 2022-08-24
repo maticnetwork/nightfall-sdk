@@ -1,11 +1,15 @@
 import {
   createAndSubmitDeposit,
   createAndSubmitTransfer,
+  createAndSubmitWithdrawal,
+  createAndSubmitFinaliseWithdrawal,
 } from "../../../libs/transactions";
 import { submitTransaction } from "../../../libs/transactions/helpers/submit";
 import { NightfallSdkError } from "../../../libs/utils/error";
-import { depositReceipts } from "../../../__mocks__/mockDepositTxReceipts";
-import { transferReceipts } from "../../../__mocks__/mockTransferTxReceipts";
+import { depositReceipts } from "../../../__mocks__/mockTxDepositReceipts";
+import { transferReceipts } from "../../../__mocks__/mockTxTransferReceipts";
+import { withdrawalReceipts } from "../../../__mocks__/mockTxWithdrawalReceipts";
+import { txReceipt } from "../../../__mocks__/mockTxWithdrawalFinaliseReceipt";
 
 jest.mock("../../../libs/transactions/helpers/submit");
 
@@ -20,6 +24,8 @@ describe("Transactions", () => {
   const mockedClient = {
     deposit: jest.fn(),
     transfer: jest.fn(),
+    withdraw: jest.fn(),
+    finaliseWithdrawal: jest.fn(),
   };
 
   describe("Deposit", () => {
@@ -32,7 +38,9 @@ describe("Transactions", () => {
 
     test("Should fail if client throws a Nightfall error", () => {
       // Arrange
-      mockedClient.deposit.mockRejectedValue(new NightfallSdkError("Oops"));
+      mockedClient.deposit.mockRejectedValue(
+        new NightfallSdkError("Oops, client failed at deposit"),
+      );
 
       // Act, Assert
       expect(
@@ -54,7 +62,7 @@ describe("Transactions", () => {
       expect(mockedClient.deposit).toHaveBeenCalledTimes(1);
     });
 
-    test("Should throw an error if an exception is caught when submitting tx", () => {
+    test.skip("Should throw an error if an exception is caught when submitting tx", () => {
       // Arrange
       const mockedDepositResData = {
         txDataToSign: unsignedTx,
@@ -150,7 +158,9 @@ describe("Transactions", () => {
 
     test("Should fail if client throws a Nightfall error", () => {
       // Arrange
-      mockedClient.transfer.mockRejectedValue(new NightfallSdkError("Oops"));
+      mockedClient.transfer.mockRejectedValue(
+        new NightfallSdkError("Oops, client failed at transfer"),
+      );
 
       // Act, Assert
       expect(
@@ -184,6 +194,7 @@ describe("Transactions", () => {
       (submitTransaction as jest.Mock).mockRejectedValueOnce(
         new Error("Web3 failed at sending signed transfer tx"),
       );
+
       // Act, Assert
       expect(
         async () =>
@@ -253,7 +264,6 @@ describe("Transactions", () => {
         shieldContractAddress,
         unsignedTx,
         web3,
-        fee,
       );
       expect(txReceipts).toStrictEqual({ txReceipt, txReceiptL2 });
     });
@@ -280,6 +290,8 @@ describe("Transactions", () => {
         recipientNightfallAddress,
         isOffChain,
       );
+
+      // Assert
       expect(mockedClient.transfer).toHaveBeenCalledWith(
         token,
         ownerZkpKeys,
@@ -289,6 +301,262 @@ describe("Transactions", () => {
       );
       expect(submitTransaction).not.toHaveBeenCalled();
       expect(txReceipts).toStrictEqual({ txReceiptL2 });
+    });
+  });
+
+  describe("Withdrawal", () => {
+    const value = "100000000000000";
+    const fee = "10";
+    const recipientEthAddress = "0x0recipientEthAddress";
+    // eslint-disable-next-line prefer-const
+    let isOffChain = true;
+
+    const unsignedTx =
+      "0x5af3107a400000000000000000000000000000000000000000000000000...";
+    const { txReceipt, txReceiptL2 } = withdrawalReceipts;
+
+    test("Should fail if client throws a Nightfall error", () => {
+      // Arrange
+      mockedClient.withdraw.mockRejectedValue(
+        new NightfallSdkError("Oops, client failed at withdrawal"),
+      );
+
+      // Act, Assert
+      expect(
+        async () =>
+          await createAndSubmitWithdrawal(
+            token,
+            ownerEthAddress,
+            ownerEthPrivateKey,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            ownerZkpKeys,
+            shieldContractAddress,
+            web3,
+            mockedClient,
+            value,
+            fee,
+            recipientEthAddress,
+            isOffChain,
+          ),
+      ).rejects.toThrow(NightfallSdkError);
+      expect(mockedClient.withdraw).toHaveBeenCalledTimes(1);
+    });
+
+    test.skip("Should throw an error if an exception is caught when submitting on-chain tx", () => {
+      // Arrange
+      const mockedWithdrawResData = {
+        txDataToSign: unsignedTx,
+        transaction: txReceiptL2,
+      };
+      mockedClient.withdraw.mockResolvedValue(mockedWithdrawResData);
+      (submitTransaction as jest.Mock).mockRejectedValueOnce(
+        new Error("Web3 failed at sending signed withdrawal tx"),
+      );
+
+      // Act, Assert
+      expect(
+        async () =>
+          await createAndSubmitWithdrawal(
+            token,
+            ownerEthAddress,
+            ownerEthPrivateKey,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            ownerZkpKeys,
+            shieldContractAddress,
+            web3,
+            mockedClient,
+            value,
+            fee,
+            recipientEthAddress,
+            isOffChain,
+          ),
+      ).rejects.toThrow(NightfallSdkError);
+      expect(mockedClient.withdraw).toHaveBeenCalledWith(
+        token,
+        ownerZkpKeys,
+        value,
+        fee,
+        recipientEthAddress,
+        isOffChain,
+      );
+      // expect(submitTransaction).toHaveBeenCalledTimes(1); // TODO
+    });
+
+    test.skip("Should return an instance of <OnChainTransactionReceipts> when submitting on-chain tx", async () => {
+      // Arrange
+      const mockedWithdrawResData = {
+        txDataToSign: unsignedTx,
+        transaction: txReceiptL2,
+      };
+      mockedClient.withdraw.mockResolvedValue(mockedWithdrawResData);
+      (submitTransaction as jest.Mock).mockResolvedValueOnce(txReceipt);
+
+      // Act
+      const txReceipts = await await createAndSubmitWithdrawal(
+        token,
+        ownerEthAddress,
+        ownerEthPrivateKey,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        ownerZkpKeys,
+        shieldContractAddress,
+        web3,
+        mockedClient,
+        value,
+        fee,
+        recipientEthAddress,
+        isOffChain,
+      );
+
+      // Assert
+      expect(mockedClient.withdraw).toHaveBeenCalledWith(
+        token,
+        ownerZkpKeys,
+        value,
+        fee,
+        recipientEthAddress,
+        isOffChain,
+      );
+      expect(submitTransaction).toHaveBeenCalledWith(
+        ownerEthAddress,
+        ownerEthPrivateKey,
+        shieldContractAddress,
+        unsignedTx,
+        web3,
+      );
+      expect(txReceipts).toStrictEqual({ txReceipt, txReceiptL2 });
+    });
+
+    test("Should return an instance of <OffChainTransactionReceipt> when sending off-chain tx", async () => {
+      // Arrange
+      isOffChain = true;
+      const mockedWithdrawResData = { transaction: txReceiptL2 };
+      mockedClient.withdraw.mockResolvedValue(mockedWithdrawResData);
+
+      // Act
+      const txReceipts = await createAndSubmitWithdrawal(
+        token,
+        ownerEthAddress,
+        ownerEthPrivateKey,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        ownerZkpKeys,
+        shieldContractAddress,
+        web3,
+        mockedClient,
+        value,
+        fee,
+        recipientEthAddress,
+        isOffChain,
+      );
+
+      // Assert
+      expect(mockedClient.withdraw).toHaveBeenCalledWith(
+        token,
+        ownerZkpKeys,
+        value,
+        fee,
+        recipientEthAddress,
+        isOffChain,
+      );
+      expect(submitTransaction).not.toHaveBeenCalled();
+      expect(txReceipts).toStrictEqual({ txReceiptL2 });
+    });
+  });
+
+  describe("Finalise withdrawal", () => {
+    const withdrawTxHash = "0x0withdrawTxHash";
+
+    const unsignedTx =
+      "0xa334229a00000000000000000000000000000000000000000000000000000...";
+
+    test("Should fail if client throws a Nightfall error", () => {
+      // Arrange
+      mockedClient.finaliseWithdrawal.mockRejectedValue(
+        new NightfallSdkError("Oops, client failed at finalise-withdrawal"),
+      );
+
+      // Act, Assert
+      expect(
+        async () =>
+          await createAndSubmitFinaliseWithdrawal(
+            ownerEthAddress,
+            ownerEthPrivateKey,
+            shieldContractAddress,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            web3,
+            mockedClient,
+            withdrawTxHash,
+          ),
+      ).rejects.toThrow(NightfallSdkError);
+      expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledTimes(1);
+    });
+
+    test.skip("Should throw an error if an exception is caught when submitting tx", () => {
+      // Arrange
+      const mockedFinaliseWithdrawalResData = { txDataToSign: unsignedTx };
+      mockedClient.finaliseWithdrawal.mockResolvedValue(
+        mockedFinaliseWithdrawalResData,
+      );
+      (submitTransaction as jest.Mock).mockRejectedValueOnce(
+        new Error("Web3 failed at sending signed finalise-withdrawal tx"),
+      );
+
+      // Act, Assert
+      expect(
+        async () =>
+          await createAndSubmitFinaliseWithdrawal(
+            ownerEthAddress,
+            ownerEthPrivateKey,
+            shieldContractAddress,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            web3,
+            mockedClient,
+            withdrawTxHash,
+          ),
+      ).rejects.toThrow(NightfallSdkError);
+      expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledWith(
+        withdrawTxHash,
+      );
+      // expect(submitTransaction).toHaveBeenCalledTimes(1); // TODO
+    });
+
+    test("Should return an instance of <TransactionReceipt>", async () => {
+      // Arrange
+      const mockedFinaliseWithdrawalResData = { txDataToSign: unsignedTx };
+      mockedClient.finaliseWithdrawal.mockResolvedValue(
+        mockedFinaliseWithdrawalResData,
+      );
+      (submitTransaction as jest.Mock).mockResolvedValueOnce(txReceipt);
+
+      // Act
+      const result = await createAndSubmitFinaliseWithdrawal(
+        ownerEthAddress,
+        ownerEthPrivateKey,
+        shieldContractAddress,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        web3,
+        mockedClient,
+        withdrawTxHash,
+      );
+
+      // Assert
+      expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledWith(
+        withdrawTxHash,
+      );
+      expect(submitTransaction).toHaveBeenCalledWith(
+        ownerEthAddress,
+        ownerEthPrivateKey,
+        shieldContractAddress,
+        unsignedTx,
+        web3,
+      );
+      expect(result).toStrictEqual(txReceipt);
     });
   });
 });
