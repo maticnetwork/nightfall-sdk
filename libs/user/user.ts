@@ -475,39 +475,13 @@ class User {
     fileName: string,
     compressedZkpPublicKey: string,
   ) {
-    const listOfCommitments: Commitment[] | Error = await readAndValidateFile(
+    const listOfCommitments: Commitment[] = await readAndValidateFile(
       `${pathToExport}${fileName}`,
     );
 
-    if (listOfCommitments instanceof Error) {
-      logger.error(listOfCommitments);
-      throw listOfCommitments;
-    }
-
-    const isCommitmentsFromMnemonicReturn = await isCommitmentsFromMnemonic(
-      listOfCommitments,
-      compressedZkpPublicKey,
-    );
-
-    if (!isCommitmentsFromMnemonicReturn) {
-      logger.error(
-        "At least one of the commitments in this list does not match with the compressedZkpPublicKey!",
-      );
-      throw new Error(
-        "At least one of the commitments in this list does not match with the compressedZkpPublicKey!",
-      );
-    }
+    await isCommitmentsFromMnemonic(listOfCommitments, compressedZkpPublicKey);
 
     const response = await this.client.saveCommitments(listOfCommitments);
-
-    if (!response) {
-      logger.error(
-        "All commitments of this list already exists in the database!",
-      );
-      throw new Error(
-        "All commitments of this list already exists in the database!",
-      );
-    }
 
     logger.info(response);
     return response;

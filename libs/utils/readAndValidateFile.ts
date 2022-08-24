@@ -9,18 +9,15 @@ import { Commitment } from "libs/types";
  */
 const readAndValidateFile = async (
   pathFileName: string,
-): Promise<Commitment[] | Error> => {
+): Promise<Commitment[]> => {
   const file = fs.readFileSync(pathFileName);
-  try {
-    const commitments: Commitment[] = JSON.parse(file.toString("utf8"));
-    // Verify if file in in the correct format
-    // for (const commitment of commitments) {
-    //   isCommitmentType(commitment);
-    // }
-    return commitments;
-  } catch (err) {
-    return err;
-  }
+
+  const commitments: Commitment[] = JSON.parse(file.toString("utf8"));
+  // Verify if file in in the correct format
+  // for (const commitment of commitments) {
+  //   isCommitmentType(commitment);
+  // }
+  return commitments;
 };
 
 export default readAndValidateFile;
