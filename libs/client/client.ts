@@ -279,16 +279,16 @@ class Client {
    *
    * @async
    * @method finaliseWithdrawal
-   * @param {string} withdrawTxHash Tx hash in Layer2 of the previously initiated withdrawal
+   * @param {string} withdrawTxHashL2 Tx hash in Layer2 of the previously initiated withdrawal
    * @throws {NightfallSdkError} Bad response
    * @returns {Promise<TransactionResponseData>}
    */
-  async finaliseWithdrawal(withdrawTxHash: string) {
+  async finaliseWithdrawal(withdrawTxHashL2: string) {
     const endpoint = "finalise-withdrawal";
     logger.debug({ endpoint }, "Calling client at");
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
-      transactionHash: withdrawTxHash,
+      transactionHash: withdrawTxHashL2,
     });
     logger.info(
       { status: res.status, data: res.data },

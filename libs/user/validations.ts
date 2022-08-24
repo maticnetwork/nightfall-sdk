@@ -72,7 +72,7 @@ export const makeWithdrawalOptions = Joi.object({
 });
 
 export const finaliseWithdrawalOptions = Joi.object({
-  withdrawTxHash: Joi.string(),
+  withdrawTxHashL2: Joi.string(),
 });
 
 export const checkBalancesOptions = Joi.object({

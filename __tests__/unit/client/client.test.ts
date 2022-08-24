@@ -319,7 +319,7 @@ describe("Client", () => {
 
   describe("Method finaliseWithdrawal", () => {
     const url = dummyUrl + "/finalise-withdrawal";
-    const withdrawTxHash = "0x0thitroboatututututu";
+    const withdrawTxHashL2 = "0x0thitroboatututututu";
 
     test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
       // Arrange
@@ -328,11 +328,11 @@ describe("Client", () => {
       (axios.post as jest.Mock).mockResolvedValue(res);
 
       // Act
-      const result = await client.finaliseWithdrawal(withdrawTxHash);
+      const result = await client.finaliseWithdrawal(withdrawTxHashL2);
 
       // Assert
       expect(axios.post).toHaveBeenCalledWith(url, {
-        transactionHash: withdrawTxHash,
+        transactionHash: withdrawTxHashL2,
       });
       expect(result).toBe(txDataToSign);
     });

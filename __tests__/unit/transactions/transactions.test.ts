@@ -467,7 +467,7 @@ describe("Transactions", () => {
   });
 
   describe("Finalise withdrawal", () => {
-    const withdrawTxHash = "0x0withdrawTxHash";
+    const withdrawTxHashL2 = "0x0aaabbbcd";
 
     const unsignedTx =
       "0xa334229a00000000000000000000000000000000000000000000000000000...";
@@ -489,7 +489,7 @@ describe("Transactions", () => {
             // @ts-ignore
             web3,
             mockedClient,
-            withdrawTxHash,
+            withdrawTxHashL2,
           ),
       ).rejects.toThrow(NightfallSdkError);
       expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledTimes(1);
@@ -516,11 +516,11 @@ describe("Transactions", () => {
             // @ts-ignore
             web3,
             mockedClient,
-            withdrawTxHash,
+            withdrawTxHashL2,
           ),
       ).rejects.toThrow(NightfallSdkError);
       expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledWith(
-        withdrawTxHash,
+        withdrawTxHashL2,
       );
       // expect(submitTransaction).toHaveBeenCalledTimes(1); // TODO
     });
@@ -542,12 +542,12 @@ describe("Transactions", () => {
         // @ts-ignore
         web3,
         mockedClient,
-        withdrawTxHash,
+        withdrawTxHashL2,
       );
 
       // Assert
       expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledWith(
-        withdrawTxHash,
+        withdrawTxHashL2,
       );
       expect(submitTransaction).toHaveBeenCalledWith(
         ownerEthAddress,

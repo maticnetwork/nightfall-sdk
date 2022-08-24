@@ -191,7 +191,7 @@ npm run-script eg:withdrawal:[network]
 
 ##### Finalise withdrawal
 
-After initiating a withdrawal you will get a `withdrawTxHash`. To finalise a withdrawal should update `withdrawTxHash` in `/txWithdrawalFinalise.ts`. Then by executing the script below, you will finalise the withdrawal and get the funds back to L1.
+After initiating a withdrawal you will get a `withdrawTxHashL2`. To finalise a withdrawal you should update `withdrawTxHashL2` in `/txWithdrawalFinalise.ts`. Run the script after the cooling off period to get the funds back to L1.
 
 ```
 npm run-script eg:finalise-withdrawal:[network]

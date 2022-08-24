@@ -20,7 +20,7 @@ const logger = parentLogger.child({
  * @param {string} shieldContractAddress Address of the Shield smart contract
  * @param {Web3} web3 web3js instance
  * @param {Client} client An instance of Client to interact with the API
- * @param {string} withdrawTxHash Tx hash in Layer2 of the previously initiated withdrawal
+ * @param {string} withdrawTxHashL2 Tx hash in Layer2 of the previously initiated withdrawal
  * @throws {NightfallSdkError} Error while broadcasting tx
  * @returns {Promise<TransactionReceipt>}
  */
@@ -30,11 +30,11 @@ export async function createAndSubmitFinaliseWithdrawal(
   shieldContractAddress: string,
   web3: Web3,
   client: Client,
-  withdrawTxHash: string,
+  withdrawTxHashL2: string,
 ): Promise<TransactionReceipt> {
   logger.debug("createAndSubmitFinaliseWithdrawal");
 
-  const resData = await client.finaliseWithdrawal(withdrawTxHash);
+  const resData = await client.finaliseWithdrawal(withdrawTxHashL2);
   const unsignedTx = resData.txDataToSign;
   logger.debug({ unsignedTx }, "Finalise withdrawal tx, unsigned");
 

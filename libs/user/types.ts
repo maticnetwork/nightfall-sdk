@@ -38,7 +38,7 @@ export interface UserMakeWithdrawal extends UserMakeTransaction {
 }
 
 export interface UserFinaliseWithdrawal {
-  withdrawTxHash?: string;
+  withdrawTxHashL2?: string;
 }
 
 export interface UserCheckBalances {

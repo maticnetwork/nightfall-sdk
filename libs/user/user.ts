@@ -361,7 +361,7 @@ class User {
    * @async
    * @method finaliseWithdrawal
    * @param {UserFinaliseWithdrawal} options
-   * @param {String} options.withdrawTxHash
+   * @param {String} options.withdrawTxHashL2
    * @returns {Promise<TransactionReceipt>}
    */
   async finaliseWithdrawal(
@@ -370,16 +370,16 @@ class User {
     logger.debug({ options }, "User :: finaliseWithdrawal");
     finaliseWithdrawalOptions.validate(options);
 
-    // If no withdrawTxHash was given, try to use the latest
-    const withdrawTxHash =
-      options.withdrawTxHash?.trim() ||
+    // If no withdrawTxHashL2 was given, try to use the latest
+    const withdrawTxHashL2 =
+      options.withdrawTxHashL2?.trim() ||
       this.nightfallWithdrawalTxHashes[
         this.nightfallWithdrawalTxHashes.length - 1
       ];
-    if (!withdrawTxHash)
+    if (!withdrawTxHashL2)
       throw new NightfallSdkError("Could not find any withdrawal tx hash");
 
-    logger.info({ withdrawTxHash }, "Finalise withdrawal with tx hash");
+    logger.info({ withdrawTxHashL2 }, "Finalise withdrawal with tx hash");
 
     return createAndSubmitFinaliseWithdrawal(
       this.ethAddress,
@@ -387,7 +387,7 @@ class User {
       this.shieldContractAddress,
       this.web3Websocket.web3,
       this.client,
-      withdrawTxHash,
+      withdrawTxHashL2,
     );
   }
 
