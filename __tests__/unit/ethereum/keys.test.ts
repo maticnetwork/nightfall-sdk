@@ -1,4 +1,5 @@
 import { getEthAccountAddress } from "../../../libs/ethereum";
+import { NightfallSdkError } from "../../../libs/utils/error";
 
 describe("Ethereum Keys", () => {
   describe("Get Ethereum address from private key", () => {
@@ -32,17 +33,16 @@ describe("Ethereum Keys", () => {
         throw new Error("invalid eth private key");
       });
 
-      // Act
+      // Act, Assert
       const ethPrivateKey = "0xc8aec";
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const result = getEthAccountAddress(ethPrivateKey, mockedWeb3);
-
-      // Assert
+      expect(() => getEthAccountAddress(ethPrivateKey, mockedWeb3)).toThrow(
+        NightfallSdkError,
+      );
       expect(mockedWeb3.eth.accounts.privateKeyToAccount).toHaveBeenCalledTimes(
         1,
       );
-      expect(result).toBeNull();
     });
   });
 });
