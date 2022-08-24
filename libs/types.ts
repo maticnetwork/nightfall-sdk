@@ -19,6 +19,16 @@ interface Commitment {
   blockNumber: number;
 }
 
+interface CommitmentSibling {
+  isMember: boolean;
+  path: SiblingPath[];
+}
+
+interface SiblingPath {
+  dir: string;
+  value: string;
+}
+
 interface Transaction {
   fee: string;
   historicRootBlockNumberL2: string[];
@@ -40,4 +50,4 @@ interface TransferReponseData {
   transaction: Transaction;
   salts: string[];
 }
-export { Commitment, Transaction, TransferReponseData };
+export { Commitment, Transaction, TransferReponseData, SiblingPath };

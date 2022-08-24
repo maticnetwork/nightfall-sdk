@@ -355,7 +355,6 @@ class Client {
    * @param listOfCompressedZkpPublicKey a list of compressed zkp publick keys derivated from
    * the user mnemonic.
    * @returns all the commitments existent for this compressed pkds.
-   * @author luizoamorim
    */
   async getCommitmentsByCompressedZkpPublicKey(
     listOfCompressedZkpPublicKey: string[],
@@ -376,6 +375,29 @@ class Client {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
     }
+  }
+
+  /**
+   *
+   * Do the communications with commitments/save endpoint
+   *
+   * @async
+   * @method saveCommitments
+   * @param listOfCommitments a list of commitments to be saved in the database.
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<string>} Success message
+   */
+  async saveCommitments(listOfCommitments: Commitment[]) {
+    logger.debug("commitment/save", "Calling client at");
+    const res = await axios.post(
+      `${this.apiUrl}/commitment/save`,
+      listOfCommitments,
+    );
+    logger.info(
+      { status: res.status, data: res.data },
+      `commitment/save responded`,
+    );
+    return res.data;
   }
 }
 

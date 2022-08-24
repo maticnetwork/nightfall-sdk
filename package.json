@@ -57,12 +57,14 @@
     "eg:finalise-withdrawal:ganache": "ts-node -r dotenv/config examples/txWithdrawalFinalise.ts dotenv_config_path=./examples/.env.ganache",
     "eg:balances:ganache": "ts-node -r dotenv/config examples/balances.ts dotenv_config_path=./examples/.env.ganache",
     "eg:export-commitments:ganache": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.ganache",
+    "eg:import-commitments:ganache": "ts-node -r dotenv/config examples/importCommitments.ts dotenv_config_path=./examples/.env.ganache",
     "eg:deposit:goerli": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.goerli dotenv_config_debug=true",
     "eg:transfer:goerli": "ts-node -r dotenv/config examples/txTransfer.ts dotenv_config_path=./examples/.env.goerli",
     "eg:withdrawal:goerli": "ts-node -r dotenv/config examples/txWithdrawal.ts dotenv_config_path=./examples/.env.goerli",
     "eg:finalise-withdrawal:goerli": "ts-node -r dotenv/config examples/txWithdrawalFinalise.ts dotenv_config_path=./examples/.env.goerli",
     "eg:balances:goerli": "ts-node -r dotenv/config examples/balances.ts dotenv_config_path=./examples/.env.goerli",
-    "eg:export-commitments:goerli": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.goerli"
+    "eg:export-commitments:goerli": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.goerli",
+    "eg:import-commitments:goerli": "ts-node -r dotenv/config examples/importCommitments.ts dotenv_config_path=./examples/.env.goerli"
   },
   "config": {
     "commitizen": {
