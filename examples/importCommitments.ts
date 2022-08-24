@@ -14,11 +14,11 @@ const main = async () => {
       nightfallMnemonic: config.nightfallMnemonic,
     });
 
-    await user.importAndSaveCommitments(
-      "./",
-      "commitmentsBackup.json",
-      user.zkpKeys.compressedZkpPublicKey,
-    );
+    await user.importAndSaveCommitments({
+      pathToImport: "./",
+      fileName: "commitmentsBackup.json",
+      compressedZkpPublicKey: user.zkpKeys.compressedZkpPublicKey,
+    });
   } catch (error) {
     console.log(error);
     process.exit(1);

@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import {
   CONTRACT_SHIELD,
   TX_FEE_ETH_WEI_DEFAULT,
@@ -13,6 +14,7 @@ import {
   UserFinaliseWithdrawal,
   UserExportCommitments,
   TransferReceipts,
+  UserImportCommitments,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -38,7 +40,6 @@ import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
 import { Commitment } from "../types";
-import readAndValidateFile from "../utils/readAndValidateFile";
 import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
 
 const logger = parentLogger.child({
@@ -461,30 +462,30 @@ class User {
    * @async
    * @method importAndSaveCommitments should coverage the import commitments flow.
    * - Should read and validate a file with commitments.
-   * - Verify if all the commitments read are of the ICommitment type (This verification is within readAndValidateFile function).
    * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
    * - If all verifications pass, should send the commitments to the client to be saved
    *  in the database.
-   * @param pathToExport the path to export the file.
-   * @param fileName the name of the file.
-   * @param compressedZkpPublicKey the key derivated from user mnemonic.
-   * @returns the enpoint response.data that is an json with a success message.
+   * @param {UserImportCommitments} options
+   * @param {String} options.compressedZkpPublicKey
+   * @param {String} options.pathToExport
+   * @param {String} options.fileName
+   * @returns {Promise<String>}
    */
-  async importAndSaveCommitments(
-    pathToExport: string,
-    fileName: string,
-    compressedZkpPublicKey: string,
-  ) {
-    const listOfCommitments: Commitment[] = await readAndValidateFile(
-      `${pathToExport}${fileName}`,
-    );
+  async importAndSaveCommitments(options: UserImportCommitments) {
+    const file = fs.readFileSync(`${options.pathToImport}${options.fileName}`);
+    const listOfCommitments: Commitment[] = JSON.parse(file.toString("utf8"));
 
-    await isCommitmentsFromMnemonic(listOfCommitments, compressedZkpPublicKey);
+    await isCommitmentsFromMnemonic(
+      listOfCommitments,
+      options.compressedZkpPublicKey,
+    );
 
     const response = await this.client.saveCommitments(listOfCommitments);
 
-    logger.info(response);
-    return response;
+    const { successMessage } = response;
+
+    logger.info(successMessage);
+    return successMessage;
   }
 
   close() {

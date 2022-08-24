@@ -49,6 +49,12 @@ export interface UserExportCommitments {
   fileName: string;
 }
 
+export interface UserImportCommitments {
+  pathToImport: string;
+  fileName: string;
+  compressedZkpPublicKey: string;
+}
+
 export interface TransferReceipts {
   txL1: TransactionReceipt;
   txL2: Transaction;

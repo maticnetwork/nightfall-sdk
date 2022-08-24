@@ -1,6 +1,7 @@
 import path from "path";
 import { Commitment } from "libs/types";
 import { parentLogger } from "../utils";
+import { NightfallSdkError } from "./error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -25,7 +26,7 @@ async function isCommitmentsFromMnemonic(
       logger.error(
         "At least one of the commitments in this list does not match with the compressedZkpPublicKey!",
       );
-      throw new Error(
+      throw new NightfallSdkError(
         "At least one of the commitments in this list does not match with the compressedZkpPublicKey!",
       );
     }
