@@ -46,10 +46,15 @@
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
-  "main": "index.mjs",
+  "main": "dist/libs/user/index.js",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
+    "build": "tsc",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
+    "prepare": "husky install",
     "test:ganache": "DOTENV_CONFIG_PATH=./examples/.env.ganache jest --setupFiles dotenv/config",
     "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
     "eg:transfer:ganache": "ts-node -r dotenv/config examples/txTransfer.ts dotenv_config_path=./examples/.env.ganache",
