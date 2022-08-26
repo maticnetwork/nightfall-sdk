@@ -1,12 +1,10 @@
 import { UserFactory } from "../libs/user";
 import { config } from "./appConfig";
 
-/**
- * @function main a script to test the import commitments flow
- */
 const main = async () => {
   let user;
   try {
+    // # 1 Create an instance of User
     user = await UserFactory.create({
       blockchainWsUrl: config.blockchainWsUrl,
       clientApiUrl: config.clientApiUrl,
@@ -14,6 +12,7 @@ const main = async () => {
       nightfallMnemonic: config.nightfallMnemonic,
     });
 
+    // # 2 Import commitments in JSON format from `pathToImport`
     await user.importAndSaveCommitments({
       pathToImport: "./",
       fileName: "commitmentsBackup.json",
@@ -24,6 +23,7 @@ const main = async () => {
     process.exit(1);
   } finally {
     user.close();
+    console.log("Bye bye");
   }
 };
 

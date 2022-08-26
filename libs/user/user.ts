@@ -47,7 +47,7 @@ import {
 } from "../transactions/types";
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
-import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
+import isCommitmentsFromMnemonic from "../nightfall/isCommitmentFromMnemonic";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -123,7 +123,7 @@ class User {
   }
 
   /**
-   *  Allow to check the status of the User running
+   *  Allow user to check the status of the User running
    *
    * @async
    * @method checkStatus
@@ -140,7 +140,7 @@ class User {
    * Allow user to retrieve the Nightfall Mnemonic  - Keep this private
    *
    * @method getNightfallMnemonic
-   * @returns {String} Nightfall mnemonic
+   * @returns {string} Nightfall mnemonic
    */
   getNightfallMnemonic(): string {
     return this.nightfallMnemonic;
@@ -150,7 +150,7 @@ class User {
    * Allow user to retrieve Nightfall Layer2 address
    *
    * @method getNightfallAddress
-   * @returns {String} Nightfall Layer2 address
+   * @returns {string} Nightfall Layer2 address
    */
   getNightfallAddress(): string {
     return this.zkpKeys?.compressedZkpPublicKey;
@@ -162,10 +162,10 @@ class User {
    * @async
    * @method makeDeposit
    * @param {UserMakeDeposit} options
-   * @param {String} options.tokenContractAddress
-   * @param {String} options.tokenErcStandard
-   * @param {String} options.value
-   * @param {String} [options.feeWei]
+   * @param {string} options.tokenContractAddress
+   * @param {string} options.tokenErcStandard
+   * @param {string} options.value
+   * @param {string} [options.feeWei]
    * @returns {Promise<OnChainTransactionReceipts>}
    */
   async makeDeposit(
@@ -233,11 +233,11 @@ class User {
    * @async
    * @method makeTransfer
    * @param {UserMakeTransfer} options
-   * @param {String} options.tokenContractAddress
-   * @param {String} options.tokenErcStandard
-   * @param {String} options.value
-   * @param {String} [options.feeWei]
-   * @param {String} options.recipientNightfallAddress
+   * @param {string} options.tokenContractAddress
+   * @param {string} options.tokenErcStandard
+   * @param {string} options.value
+   * @param {string} [options.feeWei]
+   * @param {string} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
    * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
    */
@@ -298,11 +298,11 @@ class User {
    * @async
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
-   * @param {String} options.tokenContractAddress
-   * @param {String} options.tokenErcStandard
-   * @param {String} options.value
-   * @param {String} [options.feeWei]
-   * @param {String} options.recipientEthAddress
+   * @param {string} options.tokenContractAddress
+   * @param {string} options.tokenErcStandard
+   * @param {string} options.value
+   * @param {string} [options.feeWei]
+   * @param {string} options.recipientEthAddress
    * @param {Boolean} [options.isOffChain]
    * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
    */
@@ -364,7 +364,7 @@ class User {
    * @async
    * @method finaliseWithdrawal
    * @param {UserFinaliseWithdrawal} options
-   * @param {String} options.withdrawTxHashL2
+   * @param {string} options.withdrawTxHashL2
    * @returns {Promise<TransactionReceipt>}
    */
   async finaliseWithdrawal(
@@ -442,14 +442,14 @@ class User {
   }
 
   /**
-   * Allow user to export the commitments
+   * Allow user to export commitments
    *
    * @async
    * @method exportCommitments
    * @param {UserExportCommitments} options
    * @param {String[]} options.listOfCompressedZkpPublicKey
-   * @param {String} options.pathToExport
-   * @param {String} options.fileName
+   * @param {string} options.pathToExport
+   * @param {string} options.fileName
    * @returns {Promise<void | null>}
    */
   async exportCommitments(
@@ -482,18 +482,15 @@ class User {
   }
 
   /**
+   * Allow user to import commitments
    *
    * @async
-   * @method importAndSaveCommitments should coverage the import commitments flow.
-   * - Should read and validate a file with commitments.
-   * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
-   * - If all verifications pass, should send the commitments to the client to be saved
-   *  in the database.
+   * @method importAndSaveCommitments
    * @param {UserImportCommitments} options
-   * @param {String} options.compressedZkpPublicKey
-   * @param {String} options.pathToExport
-   * @param {String} options.fileName
-   * @returns {Promise<String>}
+   * @param {string} options.compressedZkpPublicKey
+   * @param {string} options.pathToImport
+   * @param {string} options.fileName
+   * @returns {Promise<string>}
    */
   async importAndSaveCommitments(options: UserImportCommitments) {
     const file = fs.readFileSync(`${options.pathToImport}${options.fileName}`);
@@ -505,13 +502,15 @@ class User {
     );
 
     const response = await this.client.saveCommitments(listOfCommitments);
-
     const { successMessage } = response;
-
     logger.info(successMessage);
+
     return successMessage;
   }
 
+  /**
+   * Close user blockchain connection
+   */
   close() {
     logger.debug("User :: close");
     this.web3Websocket.close();
