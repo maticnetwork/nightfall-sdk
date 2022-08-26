@@ -50,6 +50,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
+    "prepare": "husky install",
     "test:ganache": "DOTENV_CONFIG_PATH=./examples/.env.ganache jest --setupFiles dotenv/config",
     "test:goerli": "DOTENV_CONFIG_PATH=./examples/.env.goerli jest --setupFiles dotenv/config",
     "eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
