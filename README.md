@@ -24,7 +24,9 @@ To learn more about transactions, commitments and other core Nightfall features 
 
 #### What is a Nightfall Client?
 
-The Nightfall Client is a key part of the architecture. It is the part which generates zero-knowledge proofs, stores zero-knowledge commitments and interacts with the contracts. The SDK uses Nightfall Client to interact with the Nightfall Protocol. To be able to use the SDK one must have a running instance of the Client.
+The Nightfall Client is a key part of the architecture. It is the part which generates zero-knowledge proofs, stores zero-knowledge commitments and interacts with the contracts. The SDK uses Nightfall Client to interact with the Nightfall Protocol.
+
+**To be able to use the SDK one must have a running instance of the Client**.
 
 #### Setup a Client locally (Ganache)
 
@@ -74,9 +76,7 @@ BLOCKCHAIN_URL=your web3 url provider to access the blockchain
 ./start-client
 ```
 
-## NEW - Install SDK from NPM
-
-After the client setup you can use the SDK.
+## Install SDK from NPM
 
 ### Install
 
@@ -87,7 +87,7 @@ npm install @nightfall-sdk
 ### Import
 
 ```bash
-import {UserFactory} from 'nightfall-sdk'
+import { UserFactory } from 'nightfall-sdk';
 ```
 
 ### Create a deposit
@@ -110,7 +110,7 @@ import {UserFactory} from 'nightfall-sdk'
 
 Check out the [example scripts](https://github.com/maticnetwork/nightfall-sdk#example-scripts) for a better understanding on how to use the SDK to its capacity.
 
-## SDK Setup
+## Play with the SDK repository
 
 If you don't install the SDK from NPM you can do it manually by cloning the repository from Github.
 
