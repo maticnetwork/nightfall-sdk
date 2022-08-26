@@ -16,7 +16,7 @@ More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/in
 - Transfer ERC20 token commitments on Polygon Nightfall L2
 - Withdraw ERC20 token commitments from Polygon Nightfall L2 to Ethereum L1
 - Check ERC20 balances on Polygon Nightfall L2
-- Safely export ERC20 transaction commitments from and to Polygon Nightfall L2
+- Safely export/import ERC20 transaction commitments from and to Polygon Nightfall L2
 
 To learn more about transactions, commitments and other core Nightfall features go to the [Protocol Docs](https://docs.polygon.technology/docs/category/nightfall-protocol/).
 
@@ -114,7 +114,7 @@ You can try them out using the given commands or you can refer to the package.js
 E.g.:
 
 ```bash
-"eg:deposit:ganache": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true"
+"eg:ganache:deposit": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true"
 ```
 
 #### Environment setup
@@ -152,14 +152,14 @@ To use the example scripts and the SDK correctly, one needs to have a good under
 **This is a rule that applies to Nightfall Protocol on Ganache.**
 
 Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal(not finalise-withdrawal) are finalised.
-E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:balances:ganache` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
+E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:ganache:balances` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
 
 #### 32Tx rule
 
 **This is a rule that applies to Nightfall Protocol on Goerli Testnet and Mainnet.**
 To learn more about Nightfall protocol on Mainnet and Testnet visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
 
-The 32Tx rule is essentually the same as the `2Tx rule` but with 32 transactions instead of 2.
+The 32Tx rule is essentially the same as the `2Tx rule` but with 32 transactions instead of 2.
 
 #### Nightfall keys
 
@@ -172,7 +172,7 @@ You can run the example scripts on the following networks: `network = ganache`, 
 #### Make a deposit
 
 ```
-npm run-script eg:deposit:[network]
+npm run-script eg:[network]:deposit
 ```
 
 #### Make a transfer
@@ -180,7 +180,7 @@ npm run-script eg:deposit:[network]
 For making a transfer an already existing account with ERC20 balance is required. For testing purposes, this can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
 
 ```
-npm run-script eg:transfer:[network]
+npm run-script eg:[network]:transfer
 ```
 
 #### Make a withdrawal
@@ -188,7 +188,7 @@ npm run-script eg:transfer:[network]
 For making a withdrawal an already existing account with ERC20 balance is required. For testing purposes, this can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
 
 ```
-npm run-script eg:withdrawal:[network]
+npm run-script eg:[network]:withdrawal
 ```
 
 ##### Finalise withdrawal
@@ -196,7 +196,7 @@ npm run-script eg:withdrawal:[network]
 After initiating a withdrawal you will get a `withdrawTxHashL2`. To finalise a withdrawal you should update `withdrawTxHashL2` in `/txWithdrawalFinalise.ts`. Run the script after the cooling off period to get the funds back to L1.
 
 ```
-npm run-script eg:finalise-withdrawal:[network]
+npm run-script eg:[network]:finalise-withdrawal
 ```
 
 #### Check L2 balances
@@ -204,7 +204,7 @@ npm run-script eg:finalise-withdrawal:[network]
 Check your L2 balances.
 
 ```
-npm run-script eg:balances:[network]
+npm run-script eg:[network]:balances
 ```
 
 #### Export commitments
@@ -212,7 +212,15 @@ npm run-script eg:balances:[network]
 For safety reasons, you can export your commitments and prevent losing them. While you have an exported copy of your Nightfall L2 commitments you can always import them, use them in Nightfall or withdraw them to Ethereum L1.
 
 ```
-npm run-script eg:export-commitments:[network]
+npm run-script eg:[network]:export-commitments
+```
+
+#### Import commitments
+
+TBC
+
+```
+npm run-script eg:[network]:import-commitments
 ```
 
 ## Using the SDK
