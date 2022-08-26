@@ -1,7 +1,7 @@
 import fs from "fs";
 import { UserFactory } from "../../../libs/user";
 import { Client } from "../../../libs/client";
-import { Commitment } from "../../../libs/types";
+import type { Commitment } from "../../../libs/nightfall/types";
 
 const options = {
   blockchainWsUrl: process.env.APP_BLOCKCHAIN_WEBSOCKET_URL,

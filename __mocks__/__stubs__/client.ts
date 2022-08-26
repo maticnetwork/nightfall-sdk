@@ -1,4 +1,4 @@
-import { Commitment } from "libs/types";
+import type { Commitment } from "../../libs/nightfall/types";
 ("../../libs/types");
 import Client from "../../libs/client/client";
 import mockCommitments from "../mockCommitments";

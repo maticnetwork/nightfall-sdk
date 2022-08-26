@@ -21,29 +21,26 @@ const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
  * 
  * @async
  * @function submitTransaction
- * @param {string} senderAddress Eth address sending the contents of the tx
- * @param {string} senderPrivateKey Eth private key of the sender to sign the tx
- * @param {string} recipientAddress Eth address receiving the contents of the tx
+ * @param {string} senderEthAddress Eth address sending the contents of the tx
+ * @param {string} senderEthPrivateKey Eth private key of the sender to sign the tx
+ * @param {string} recipientEthAddress Eth address receiving the contents of the tx
  * @param {string} unsignedTx The contents of the tx (sent in data)
  * @param {Web3} web3 web3js instance
  * @param {string} fee The amount in Wei to pay a proposer for the tx
- * @returns {Promise<TransactionReceipt>} Will resolve into a web3 tx receipt
+ * @returns {Promise<TransactionReceipt>}
  */
 export async function submitTransaction(
-  senderAddress: string,
-  senderPrivateKey: string,
-  recipientAddress: string,
+  senderEthAddress: string,
+  senderEthPrivateKey: string,
+  recipientEthAddress: string,
   unsignedTx: string,
   web3: Web3,
   fee = "0",
 ): Promise<TransactionReceipt> {
-  const logInput = {
-    from: senderAddress,
-    to: recipientAddress,
-    unsignedTx,
-    fee,
-  };
-  logger.debug({ logInput }, "submitTransaction");
+  logger.debug(
+    { senderEthAddress, recipientEthAddress, unsignedTx, fee },
+    "submitTransaction",
+  );
 
   // Estimate gas
   const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // ISSUE #28
@@ -55,8 +52,8 @@ export async function submitTransaction(
   );
 
   const tx = {
-    from: senderAddress,
-    to: recipientAddress,
+    from: senderEthAddress,
+    to: recipientEthAddress,
     data: unsignedTx,
     value: fee,
     gas,
@@ -65,7 +62,7 @@ export async function submitTransaction(
   logger.debug({ tx }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
     tx,
-    senderPrivateKey,
+    senderEthPrivateKey,
   );
 
   logger.debug({ signedTx }, "Send signedTx...");

@@ -1,10 +1,11 @@
 import axios, { AxiosResponse } from "axios";
-import { Commitment, TransferReponseData } from "libs/types";
+import type { Commitment } from "../nightfall/types";
 import path from "path";
 import { parentLogger } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import type { NightfallRecipientData } from "libs/transactions/types";
+import type { RecipientNightfallData } from "libs/transactions/types";
 import { NightfallSdkError } from "../utils/error";
+import { TransactionResponseData } from "./types";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -40,10 +41,10 @@ class Client {
   }
 
   /**
-   * Perform a GET request at healthcheck to check that API is alive
+   * Make GET request at healthcheck to check that API is alive
    *
    * @method healthCheck
-   * @return {Promise<boolean>} True if API is alive, else false
+   * @returns {Promise<boolean>} Should resolve `true` if API is alive, else `false`
    */
   async healthCheck(): Promise<boolean> {
     logger.debug("Calling client at healthcheck");
@@ -75,7 +76,7 @@ class Client {
    * @method getContractAddress
    * @param {string} contractName The name of the contract for which we need the address
    * @throws {NightfallSdkError} Bad response
-   * @return {Promise<string>} Eth contract address
+   * @returns {Promise<string>} Should resolve into Eth contract address
    */
   async getContractAddress(contractName: string): Promise<string> {
     const endpoint = `contract-address/${contractName}`;
@@ -84,27 +85,26 @@ class Client {
     const res = await axios.get(`${this.apiUrl}/${endpoint}`);
     logger.info(
       { status: res.status, data: res.data },
-      `${endpoint} responded`,
+      `Client at ${endpoint} responded`,
     );
 
     return res.data.address;
   }
 
   /**
-   * Perform a POST request at generate-zkp-keys to get a set of Zero-knowledge proof keys
-   * given a valid mnemonic, and the addressIndex
+   * Make POST request at generate-zkp-keys to get a set of Zero-knowledge proof keys
    *
    * @method generateZkpKeysFromMnemonic
    * @param {string} validMnemonic A valid bip39 mnemonic
-   * @param {number} addressIndex 0
-   * @return {Promise<null | NightfallZkpKeys>} A set of keys if request is successful, else null
+   * @param {number} addressIndex Pass `0` to generate the first account
+   * @returns {Promise<null | NightfallZkpKeys>} Should resolve into a set of keys if request is successful, else `null`
    */
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
   ): Promise<null | NightfallZkpKeys> {
     const logInput = { validMnemonic, addressIndex };
-    logger.debug(logInput, "Calling client at generate-zkp-keys");
+    logger.debug("Calling client at generate-zkp-keys");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/generate-zkp-keys`, {
@@ -123,11 +123,11 @@ class Client {
   }
 
   /**
-   * Perform a POST request to subscribe to incoming viewing keys
+   * Make POST request to subscribe to incoming viewing keys
    *
    * @method subscribeToIncomingViewingKeys
    * @param {NightfallZkpKeys} zkpKeys A set of Zero-knowledge proof keys
-   * @return {Promise<null | string>} Status "success" if request is successful, else null
+   * @returns {Promise<null | string>} Should resolve `string` (success) if request is successful, else `null`
    */
   async subscribeToIncomingViewingKeys(
     zkpKeys: NightfallZkpKeys,
@@ -150,149 +150,181 @@ class Client {
     return res.data;
   }
 
+  /**
+   * Make POST request to create a deposit transaction (tx)
+   *
+   * @async
+   * @method deposit
+   * @param {*} token An instance of Token holding token data such as contract address
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string} value The amount in Wei of the token to be deposited
+   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
   async deposit(
-    token: any, // Token,
+    token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
-  ) {
-    logger.debug("Calling client at deposit");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/deposit`, {
-        ercAddress: token.contractAddress,
-        tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
-        compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
-        nullifierKey: ownerZkpKeys.nullifierKey,
-        value,
-        fee,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at deposit responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
+  ): Promise<TransactionResponseData> {
+    const endpoint = "deposit";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      ercAddress: token.contractAddress,
+      tokenType: token.ercStandard,
+      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
+      nullifierKey: ownerZkpKeys.nullifierKey,
+      value,
+      fee,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
     return res.data;
   }
 
   /**
-   * Perform a POST request to create a transfer transaction
+   * Make POST request to create a transfer transaction (tx)
    *
    * @async
    * @method transfer
-   * @param {} token An instance of Token holding token info such as contract address
+   * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
-   * @param {NightfallRecipientData} nightfallRecipientData An object with [valueWei] an [recipientCompressedZkpPublicKey]
-   * @param {string} fee The amount in Wei to pay a proposer for the transaction
-   * @param {boolean} isOffChain If true, transaction will be sent to the proposer's API (handled off-chain)
-   * @returns {Promise} Resolves into the Ethereum transaction receipt.
+   * @param {RecipientNightfallData} recipientNightfallData An object with [valueWei], [recipientCompressedZkpPublicKey]
+   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
+   * @throws {NightfallSdkError} No commitments found or bad response
+   * @returns {Promise<TransactionResponseData>}
    */
   async transfer(
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
-    nightfallRecipientData: NightfallRecipientData,
+    recipientNightfallData: RecipientNightfallData,
     fee: string,
     isOffChain: boolean,
-  ): Promise<TransferReponseData> {
-    logger.debug("Calling client at transfer");
-    let res: AxiosResponse;
+  ): Promise<TransactionResponseData> {
+    const endpoint = "transfer";
+    logger.debug({ endpoint }, "Calling client at");
 
-    try {
-      res = await axios.post(`${this.apiUrl}/transfer`, {
-        ercAddress: token.contractAddress,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
-        rootKey: ownerZkpKeys.rootKey,
-        recipientData: nightfallRecipientData,
-        fee,
-        offchain: isOffChain,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at transfer responded",
-      );
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      ercAddress: token.contractAddress,
+      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      rootKey: ownerZkpKeys.rootKey,
+      recipientData: recipientNightfallData,
+      fee,
+      offchain: isOffChain,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
 
-      if (res.data.error && res.data.error === "No suitable commitments") {
-        throw new Error("No suitable commitments were found");
-      }
-    } catch (err) {
-      logger.error(err);
-      return null;
+    if (res.data.error && res.data.error === "No suitable commitments") {
+      throw new NightfallSdkError("No suitable commitments were found");
     }
+
     return res.data;
   }
 
+  /**
+   * Make POST request to create a withdrawal transaction (tx)
+   *
+   * @async
+   * @method withdraw
+   * @param {*} token An instance of Token holding token data such as contract address
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string} value The amount in Wei of the token to be withdrawn
+   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
   async withdraw(
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
     fee: string,
-    ethRecipientAddress: string,
+    recipientEthAddress: string,
     isOffChain: boolean,
+  ): Promise<TransactionResponseData> {
+    const endpoint = "withdraw";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      ercAddress: token.contractAddress,
+      tokenType: token.ercStandard,
+      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      rootKey: ownerZkpKeys.rootKey,
+      recipientAddress: recipientEthAddress,
+      value,
+      fee,
+      offchain: isOffChain,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
+    return res.data;
+  }
+
+  /**
+   * Make POST request to finalise previously initiated withdrawal (tx)
+   *
+   * @async
+   * @method finaliseWithdrawal
+   * @param {string} withdrawTxHashL2 Tx hash in Layer2 of the previously initiated withdrawal
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
+  async finaliseWithdrawal(withdrawTxHashL2: string) {
+    const endpoint = "finalise-withdrawal";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      transactionHash: withdrawTxHashL2,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
+    return res.data;
+  }
+
+  /**
+   * Make GET request to get aggregated value for deposits that have not settled in L2 yet
+   *
+   * @async
+   * @method getPendingDeposits
+   * @param {NightfallZkpKeys} zkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string[]} tokenContractAddresses A list of token addresses
+   * @throws {NightfallSdkError} Bad response
+   * @returns {*}
+   */
+  async getPendingDeposits(
+    zkpKeys: NightfallZkpKeys,
+    tokenContractAddresses: string[],
   ) {
-    logger.debug("Calling client at withdraw");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/withdraw`, {
-        ercAddress: token.contractAddress,
-        tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
-        rootKey: ownerZkpKeys.rootKey,
-        recipientAddress: ethRecipientAddress,
-        value,
-        fee,
-        offchain: isOffChain,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at withdraw responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
-    return res.data;
-  }
+    const endpoint = "commitment/pending-deposit";
+    logger.debug({ endpoint }, "Calling client at");
 
-  // DOCS find the L2 block containing the L2 transaction hash
-  async finaliseWithdrawal(withdrawTxHash: string) {
-    logger.debug("Calling client at finalise-withdrawal");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/finalise-withdrawal`, {
-        transactionHash: withdrawTxHash,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at withdraw responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
-    return res.data;
-  }
+    const res = await axios.get(`${this.apiUrl}/commitment/pending-deposit`, {
+      params: {
+        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+        ercList: tokenContractAddresses,
+      },
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
 
-  async getPendingDeposits(zkpKeys: NightfallZkpKeys) {
-    logger.debug("Calling client at commitment/pending-deposit");
-    let res: AxiosResponse;
-    try {
-      res = await axios.get(`${this.apiUrl}/commitment/pending-deposit`, {
-        params: {
-          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
-        },
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at commitment/pending-deposit responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
     return res.data.balance?.[zkpKeys.compressedZkpPublicKey];
   }
 
@@ -316,18 +348,6 @@ class Client {
     return res.data.balance;
   }
 
-  /**
-   * @method getLayer2PendingSpentBalances Make the call for the enpoint that is responsible to return
-   * the balance of pending spent commitments from transfer and withdraw for each ERC address
-   * @param {string[]} ercList - an array of ERC smart contracts
-   * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
-   * should filter the pending spent balances by compressed zkp public key
-   * @param {NightfallZkpKeys} zkpKeys - A set of Zero-knowledge proof keys
-   * @returns {Promise} This promise resolves into an object whose properties are the
-    addresses of the ERC contracts of the tokens held by this account in Layer 2. The
-    value of each propery is the number of tokens pending spent (transfer & withdraw)
-    from that contract. TODO review
-   */
   async getPendingTransfers(zkpKeys: NightfallZkpKeys) {
     logger.debug("Calling client at commitment/pending-spent");
     let res: AxiosResponse;
@@ -349,16 +369,16 @@ class Client {
   }
 
   /**
+   * Make POST request to get all commitments filtered by many Nightfall addresses
    *
-   * @method getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
-   * endpoint to get all commitments by compressed pkd.
-   * @param listOfCompressedZkpPublicKey a list of compressed zkp publick keys derivated from
-   * the user mnemonic.
-   * @returns all the commitments existent for this compressed pkds.
+   * @method getCommitmentsByCompressedZkpPublicKey
+   * @param {string[]} listOfCompressedZkpPublicKey list of compressedZkpPublicKeys (Nightfall address)
+   * @throws {NightfallSdkError}
+   * @returns {Promise<null | Commitment[]>} Should resolve into a list of all existing commitments if request is successful, else `null`
    */
   async getCommitmentsByCompressedZkpPublicKey(
     listOfCompressedZkpPublicKey: string[],
-  ): Promise<Commitment[]> {
+  ): Promise<null | Commitment[]> {
     try {
       if (
         listOfCompressedZkpPublicKey &&
@@ -370,7 +390,9 @@ class Client {
         );
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
-      throw new Error("You should pass at least one compressedZkpPublicKey");
+      throw new NightfallSdkError(
+        "You should pass at least one compressedZkpPublicKey",
+      );
     } catch (err) {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
@@ -379,24 +401,27 @@ class Client {
 
   /**
    *
-   * Do the communications with commitments/save endpoint
+   * Make POST request to import a list of commitments
    *
    * @async
    * @method saveCommitments
-   * @param listOfCommitments a list of commitments to be saved in the database.
+   * @param {Commitment[]} listOfCommitments a list of commitments to be saved in the database
    * @throws {NightfallSdkError} Bad response
-   * @return {Promise<string>} Success message
+   * @return {Promise<string>} Should resolve `string` (successMessage)
    */
   async saveCommitments(listOfCommitments: Commitment[]) {
-    logger.debug("commitment/save", "Calling client at");
+    const endpoint = "commitment/save";
+    logger.debug({ endpoint }, "Calling client at");
+
     const res = await axios.post(
-      `${this.apiUrl}/commitment/save`,
+      `${this.apiUrl}/${endpoint}`,
       listOfCommitments,
     );
     logger.info(
       { status: res.status, data: res.data },
-      `commitment/save responded`,
+      `Client at ${endpoint} responded`,
     );
+
     return res.data;
   }
 }

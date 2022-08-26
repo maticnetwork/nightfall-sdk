@@ -1,4 +1,4 @@
-import isCommitmentsFromMnemonic from "../../../libs/utils/isCommitmentFromMnemonic";
+import isCommitmentsFromMnemonic from "../../../libs/nightfall/isCommitmentFromMnemonic";
 import mockCommitmentsSameCompressedZkpPK from "../../../__mocks__/mockCommitmentsSameCompressedZkpPK";
 import mockCompressedZkpPublicKey from "../../../__mocks__/mockCompressedZkpPublicKey";
 import mockCommitments from "../../../__mocks__/mockCommitments";
