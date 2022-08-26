@@ -127,7 +127,7 @@ class User {
    *
    * @async
    * @method checkStatus
-   * @returns {Promise<>}
+   * @returns {Promise<*>}
    */
   async checkStatus() {
     logger.debug("User :: checkStatus");
@@ -399,7 +399,9 @@ class User {
    *
    * @async
    * @method checkPendingDeposits
-   * @returns {Promise<>} - This promise resolves into an object containing the aggregated value per token, for deposit transactions that have not been included yet in a Layer2 block
+   * @param {UserCheckBalances} [options]
+   * @param {string[]} [options.tokenContractAddresses] A list of token addresses
+   * @returns {Promise<*>} Should resolve into an object containing the aggregated value per token, for deposit tx that have not been included yet in a Layer2 block
    */
   async checkPendingDeposits(options?: UserCheckBalances) {
     logger.debug({ options }, "User :: checkPendingDeposits");
@@ -421,7 +423,7 @@ class User {
    *
    * @async
    * @method checkNightfallBalances
-   * @returns {Promise<>} - This promise resolves into an object containing the aggregated value per token, for commitments available in Layer2
+   * @returns {Promise<*>} Should resolve into an object containing the aggregated value per token, for commitments available in Layer2
    */
   async checkNightfallBalances() {
     return this.client.getNightfallBalances(this.zkpKeys);
@@ -432,10 +434,7 @@ class User {
    *
    * @async
    * @method checkPendingTransfers
-   * @returns {Promise<>}  - This promise resolves into an object whose properties are the
-    addresses of the ERC contracts of the tokens held by this account in Layer 2. The
-    value of each propery is the number of tokens pending spent (transfer & withdraw)
-    from that contract. 
+   * @returns {Promise<*>}
    */
   async checkPendingTransfers() {
     return this.client.getPendingTransfers(this.zkpKeys);

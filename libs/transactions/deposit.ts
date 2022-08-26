@@ -18,7 +18,7 @@ const logger = parentLogger.child({
  *
  * @async
  * @function createAndSubmitDeposit
- * @param {} token An instance of Token holding token data such as contract address
+ * @param {*} token An instance of Token holding token data such as contract address
  * @param {string} ownerEthAddress Eth address sending the contents of the deposit
  * @param {string} ownerEthPrivateKey Eth private key of the sender to sign the tx
  * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys

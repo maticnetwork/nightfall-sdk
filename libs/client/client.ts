@@ -41,10 +41,10 @@ class Client {
   }
 
   /**
-   * Perform a GET request at healthcheck to check that API is alive
+   * Make GET request at healthcheck to check that API is alive
    *
    * @method healthCheck
-   * @returns {Promise<boolean>} True if API is alive, else false
+   * @returns {Promise<boolean>} Should resolve `true` if API is alive, else `false`
    */
   async healthCheck(): Promise<boolean> {
     logger.debug("Calling client at healthcheck");
@@ -76,7 +76,7 @@ class Client {
    * @method getContractAddress
    * @param {string} contractName The name of the contract for which we need the address
    * @throws {NightfallSdkError} Bad response
-   * @returns {Promise<string>} Eth contract address
+   * @returns {Promise<string>} Should resolve into Eth contract address
    */
   async getContractAddress(contractName: string): Promise<string> {
     const endpoint = `contract-address/${contractName}`;
@@ -92,20 +92,19 @@ class Client {
   }
 
   /**
-   * Perform a POST request at generate-zkp-keys to get a set of Zero-knowledge proof keys
-   * given a valid mnemonic, and the addressIndex
+   * Make POST request at generate-zkp-keys to get a set of Zero-knowledge proof keys
    *
    * @method generateZkpKeysFromMnemonic
    * @param {string} validMnemonic A valid bip39 mnemonic
-   * @param {number} addressIndex 0
-   * @returns {Promise<null | NightfallZkpKeys>} A set of keys if request is successful, else null
+   * @param {number} addressIndex Pass `0` to generate the first account
+   * @returns {Promise<null | NightfallZkpKeys>} Should resolve into a set of keys if request is successful, else `null`
    */
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
   ): Promise<null | NightfallZkpKeys> {
     const logInput = { validMnemonic, addressIndex };
-    logger.debug(logInput, "Calling client at generate-zkp-keys");
+    logger.debug("Calling client at generate-zkp-keys");
     let res: AxiosResponse;
     try {
       res = await axios.post(`${this.apiUrl}/generate-zkp-keys`, {
@@ -124,11 +123,11 @@ class Client {
   }
 
   /**
-   * Perform a POST request to subscribe to incoming viewing keys
+   * Make POST request to subscribe to incoming viewing keys
    *
    * @method subscribeToIncomingViewingKeys
    * @param {NightfallZkpKeys} zkpKeys A set of Zero-knowledge proof keys
-   * @returns {Promise<null | string>} Status "success" if request is successful, else null
+   * @returns {Promise<null | string>} Should resolve `string` (success) if request is successful, else `null`
    */
   async subscribeToIncomingViewingKeys(
     zkpKeys: NightfallZkpKeys,
@@ -156,7 +155,7 @@ class Client {
    *
    * @async
    * @method deposit
-   * @param {} token An instance of Token holding token data such as contract address
+   * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be deposited
    * @param {string} fee The amount in Wei to pay a proposer for the tx
@@ -194,7 +193,7 @@ class Client {
    *
    * @async
    * @method transfer
-   * @param {} token An instance of Token holding token data such as contract address
+   * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {RecipientNightfallData} recipientNightfallData An object with [valueWei], [recipientCompressedZkpPublicKey]
    * @param {string} fee The amount in Wei to pay a proposer for the tx
@@ -237,7 +236,7 @@ class Client {
    *
    * @async
    * @method withdraw
-   * @param {} token An instance of Token holding token data such as contract address
+   * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be withdrawn
    * @param {string} fee The amount in Wei to pay a proposer for the tx
@@ -298,6 +297,16 @@ class Client {
     return res.data;
   }
 
+  /**
+   * Make GET request to get aggregated value for deposits that have not settled in L2 yet
+   *
+   * @async
+   * @method getPendingDeposits
+   * @param {NightfallZkpKeys} zkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string[]} tokenContractAddresses A list of token addresses
+   * @throws {NightfallSdkError} Bad response
+   * @returns {*}
+   */
   async getPendingDeposits(
     zkpKeys: NightfallZkpKeys,
     tokenContractAddresses: string[],
@@ -339,18 +348,6 @@ class Client {
     return res.data.balance;
   }
 
-  /**
-   * @method getLayer2PendingSpentBalances Make the call for the enpoint that is responsible to return
-   * the balance of pending spent commitments from transfer and withdraw for each ERC address
-   * @param {string[]} ercList - an array of ERC smart contracts
-   * @param {boolean} shouldFilterByCompressedZkpPublicKey - a boolean value that will define in the endpoint if the query
-   * should filter the pending spent balances by compressed zkp public key
-   * @param {NightfallZkpKeys} zkpKeys - A set of Zero-knowledge proof keys
-   * @returns {Promise} This promise resolves into an object whose properties are the
-    addresses of the ERC contracts of the tokens held by this account in Layer 2. The
-    value of each propery is the number of tokens pending spent (transfer & withdraw)
-    from that contract. TODO review
-   */
   async getPendingTransfers(zkpKeys: NightfallZkpKeys) {
     logger.debug("Calling client at commitment/pending-spent");
     let res: AxiosResponse;
@@ -372,16 +369,16 @@ class Client {
   }
 
   /**
+   * Make POST request to get all commitments filtered by many Nightfall addresses
    *
-   * @method getCommitmentsByCompressedZkpPublicKey does the communication with the nightfall client
-   * endpoint to get all commitments by compressed pkd.
-   * @param listOfCompressedZkpPublicKey a list of compressed zkp publick keys derivated from
-   * the user mnemonic.
-   * @returns all the commitments existent for this compressed pkds.
+   * @method getCommitmentsByCompressedZkpPublicKey
+   * @param {string[]} listOfCompressedZkpPublicKey list of compressedZkpPublicKeys (Nightfall address)
+   * @throws {NightfallSdkError}
+   * @returns {Promise<null | Commitment[]>} Should resolve into a list of all existing commitments if request is successful, else `null`
    */
   async getCommitmentsByCompressedZkpPublicKey(
     listOfCompressedZkpPublicKey: string[],
-  ): Promise<Commitment[]> {
+  ): Promise<null | Commitment[]> {
     try {
       if (
         listOfCompressedZkpPublicKey &&
@@ -393,7 +390,9 @@ class Client {
         );
         return response.data.commitmentsByListOfCompressedZkpPublicKey;
       }
-      throw new Error("You should pass at least one compressedZkpPublicKey");
+      throw new NightfallSdkError(
+        "You should pass at least one compressedZkpPublicKey",
+      );
     } catch (err) {
       logger.child({ listOfCompressedZkpPublicKey }).error(err);
       return null;
@@ -402,24 +401,27 @@ class Client {
 
   /**
    *
-   * Do the communications with commitments/save endpoint
+   * Make POST request to import a list of commitments
    *
    * @async
    * @method saveCommitments
-   * @param listOfCommitments a list of commitments to be saved in the database.
+   * @param {Commitment[]} listOfCommitments a list of commitments to be saved in the database
    * @throws {NightfallSdkError} Bad response
-   * @return {Promise<string>} Success message
+   * @return {Promise<string>} Should resolve `string` (successMessage)
    */
   async saveCommitments(listOfCommitments: Commitment[]) {
-    logger.debug("commitment/save", "Calling client at");
+    const endpoint = "commitment/save";
+    logger.debug({ endpoint }, "Calling client at");
+
     const res = await axios.post(
-      `${this.apiUrl}/commitment/save`,
+      `${this.apiUrl}/${endpoint}`,
       listOfCommitments,
     );
     logger.info(
       { status: res.status, data: res.data },
-      `commitment/save responded`,
+      `Client at ${endpoint} responded`,
     );
+
     return res.data;
   }
 }
