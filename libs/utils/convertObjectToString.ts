@@ -4,7 +4,6 @@
  * in a string format.
  * @param obj an object.
  * @returns a JSON strigify of the object received in the parameter.
- * @author luizoamorim
  */
 const convertObjectToString = (obj: object) => {
   if (typeof obj !== "object") {

@@ -50,3 +50,9 @@ export interface UserExportCommitments {
   pathToExport: string;
   fileName: string;
 }
+
+export interface UserImportCommitments {
+  pathToImport: string;
+  fileName: string;
+  compressedZkpPublicKey: string;
+}

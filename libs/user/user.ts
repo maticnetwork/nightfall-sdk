@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import {
   CONTRACT_SHIELD,
   TX_FEE_ETH_WEI_DEFAULT,
@@ -13,6 +14,7 @@ import {
   UserFinaliseWithdrawal,
   UserCheckBalances,
   UserExportCommitments,
+  UserImportCommitments,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -45,6 +47,7 @@ import {
 } from "../transactions/types";
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
+import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -476,6 +479,37 @@ class User {
       logger.child({ options }).error(err);
       return null;
     }
+  }
+
+  /**
+   *
+   * @async
+   * @method importAndSaveCommitments should coverage the import commitments flow.
+   * - Should read and validate a file with commitments.
+   * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
+   * - If all verifications pass, should send the commitments to the client to be saved
+   *  in the database.
+   * @param {UserImportCommitments} options
+   * @param {String} options.compressedZkpPublicKey
+   * @param {String} options.pathToExport
+   * @param {String} options.fileName
+   * @returns {Promise<String>}
+   */
+  async importAndSaveCommitments(options: UserImportCommitments) {
+    const file = fs.readFileSync(`${options.pathToImport}${options.fileName}`);
+    const listOfCommitments: Commitment[] = JSON.parse(file.toString("utf8"));
+
+    await isCommitmentsFromMnemonic(
+      listOfCommitments,
+      options.compressedZkpPublicKey,
+    );
+
+    const response = await this.client.saveCommitments(listOfCommitments);
+
+    const { successMessage } = response;
+
+    logger.info(successMessage);
+    return successMessage;
   }
 
   close() {
