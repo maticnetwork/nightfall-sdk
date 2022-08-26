@@ -1,10 +1,11 @@
-import fs from "fs";
 import path from "path";
 import type Web3 from "web3";
 import type { Contract } from "web3-eth-contract";
 import { parentLogger } from "../utils";
-import { TOKEN_STANDARDS, ABIS_PATH, APPROVE_AMOUNT } from "./constants";
+import { APPROVE_AMOUNT } from "./constants";
 import type { TokenOptions } from "./types";
+import erc20Abi from "./abis/ERC20.json";
+import type { AbiItem } from "web3-utils";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -63,14 +64,7 @@ class Token {
 
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
-
-    const rootPath = path.resolve();
-    const abiFile = TOKEN_STANDARDS[this.ercStandard];
-    const abiPath = path.join(rootPath, ABIS_PATH, abiFile);
-    logger.debug({ path: abiPath }, "Read contract file at");
-
-    const abi = fs.readFileSync(abiPath, { encoding: "utf8" });
-    return JSON.parse(abi);
+    return erc20Abi as unknown as AbiItem;
   }
 
   // ISSUE #32 && ISSUE #58
