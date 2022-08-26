@@ -209,7 +209,7 @@ npm run-script eg:[network]:balances
 
 #### Export commitments
 
-For safety reasons, you can export your commitments and prevent losing them. While you have an exported copy of your Nightfall L2 commitments you can always import them, use them in Nightfall or withdraw them to Ethereum L1.
+For safety reasons, you can export your commitments and prevent losing them. While you have an exported copy of your Nightfall L2 commitments you can always import them to use them in Nightfall or withdraw them to Ethereum L1.
 
 ```
 npm run-script eg:[network]:export-commitments
@@ -217,7 +217,7 @@ npm run-script eg:[network]:export-commitments
 
 #### Import commitments
 
-TBC
+The import commitment functionality provides a safe import of already exported Nightfall commitments. Note that the commitments are being exported in a file and the same file should be used for importing them. To make sure that the commitments are being imported successfully run `eg:[network]:balances` and check the updated balance.
 
 ```
 npm run-script eg:[network]:import-commitments
