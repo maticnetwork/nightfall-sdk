@@ -20,14 +20,6 @@ More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/in
 
 To learn more about transactions, commitments and other core Nightfall features go to the [Protocol Docs](https://docs.polygon.technology/docs/category/nightfall-protocol/).
 
-## Requirements
-
-To use the Nightfall SDK one must be aligned with the following requirements:
-
-### Node
-
-This project uses Node.js 16.15.1. There is an `.nvmrc` file for those using [nvm](https://github.com/nvm-sh/nvm).
-
 ### Nightfall Client
 
 #### What is a Nightfall Client?
@@ -40,7 +32,7 @@ To use the SDK locally, set up and run the entire Nightfall project. The Client 
 
 You will also need a running proposer, therefore you should use two terminals, one for running Nightfall and one for the Proposer.
 
-##### Setup and run Polygon Nightfall
+Setup and run Polygon Nightfall
 
 ```bash
 git clone https://github.com/EYBlockchain/nightfall_3.git
@@ -49,7 +41,7 @@ cd nightfall_3
 ./start-nightfall -g
 ```
 
-##### Start the Proposer
+Start the Proposer
 
 ```bash
 cd nightfall_3/apps/proposer
@@ -57,7 +49,7 @@ npm install
 npm run start
 ```
 
-#### Setup a Client in testnet (Goerli)
+Setup a Client in testnet (Goerli)
 
 To use the SDK on a testnet you should only have a running Client, other parts of the infrastructure like the Proposer are provided.
 
@@ -67,7 +59,7 @@ cd nightfall_3/nightfall-client
 
 ```
 
-##### Setup
+Setup
 
 Rename `client-example.env` to `.client.env` and update the contents as following:
 
@@ -76,15 +68,51 @@ ETH_NETWORK=goerli
 BLOCKCHAIN_URL=your web3 url provider to access the blockchain
 ```
 
-##### Start client
+#### Start client
 
 ```bash
 ./start-client
 ```
 
+## NEW - Install SDK from NPM
+
+After the client setup you can use the SDK.
+
+### Install
+
+```bash
+npm install @nightfall-sdk
+```
+
+### Import
+
+```bash
+import {UserFactory} from 'nightfall-sdk'
+```
+
+### Create a deposit
+
+```bash
+
+    # Initialize a Nightfall User
+    user = await UserFactory.create({userOptions});
+
+    # Make a deposit
+    const tokenContractAddress = config.tokenContractAddress;
+    const tokenErcStandard = "ERC20";
+    const value = "0.0001";
+    const txReceipts = await user.makeDeposit({
+      tokenContractAddress,
+      tokenErcStandard,
+      value,
+    });
+```
+
+Check out the [example scripts](https://github.com/maticnetwork/nightfall-sdk#example-scripts) for a better understanding on how to use the SDK to its capacity.
+
 ## SDK Setup
 
-Now that you are finished with setting up Nightfall, let’s set up the SDK.
+If you don't install the SDK from NPM you can do it manually by cloning the repository from Github.
 
 ### Clone the repository
 
@@ -191,7 +219,7 @@ For making a withdrawal an already existing account with ERC20 balance is requir
 npm run-script eg:[network]:withdrawal
 ```
 
-##### Finalise withdrawal
+#### Finalise withdrawal
 
 After initiating a withdrawal you will get a `withdrawTxHashL2`. To finalise a withdrawal you should update `withdrawTxHashL2` in `/txWithdrawalFinalise.ts`. Run the script after the cooling off period to get the funds back to L1.
 
@@ -217,7 +245,7 @@ npm run-script eg:[network]:export-commitments
 
 #### Import commitments
 
-The import commitment functionality provides a safe import of already exported Nightfall commitments. Note that the commitments are being exported in a file and the same file should be used for importing them. To make sure that the commitments are being imported successfully run `eg:[network]:balances` and check the updated balance.
+The import commitment functionality provides a safe import of already exported Nightfall commitments. Note that the commitments are being exported in a file and the same file should be used for importing them. To make sure that the commitments are being imported successfully run `eg:[network]:balances` a check the updated balance.
 
 ```
 npm run-script eg:[network]:import-commitments
