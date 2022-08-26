@@ -1,21 +1,20 @@
 import path from "path";
-import { Commitment } from "libs/types";
+import { Commitment } from "./types";
 import { parentLogger } from "../utils";
-import { NightfallSdkError } from "./error";
+import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 /**
+ * Verify if all commitments in the list belong to the user compressed zkp public key
  *
  * @async
- * @function isCommitmentsFromMnemonic should verify if all commitments in the list
- * belongs to the compressed zkp public key.
- * @param listOfCommitments a list of commitments to be verified.
- * @param compressedZkpPublicKey the compressed key derivated from the mnemonic that shall be
- * in the environment variables.
- * @throws a new Error if one of the commitments doesn't match with the user compressedZkpPublicKey
- * @returns true if all commitments match with the user compressedZkpPublicKey.
+ * @function isCommitmentsFromMnemonic
+ * @param {Commitment[]} listOfCommitments a list of commitments to be verified.
+ * @param {string} compressedZkpPublicKey the compressed key derivated from the mnemonic
+ * @throws {NightfallSdkError} if one of the commitments doesn't match with the user compressedZkpPublicKey
+ * @returns {Promise<boolean>} Should resolve `true` if all commitments match with the user compressedZkpPublicKey
  */
 async function isCommitmentsFromMnemonic(
   listOfCommitments: Commitment[],

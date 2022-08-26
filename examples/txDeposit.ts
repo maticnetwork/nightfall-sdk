@@ -21,12 +21,12 @@ const main = async () => {
     console.log("API Client, blockchain ws statuses", status);
 
     // # 4 Make deposit
-    const tokenAddress = config.tokenAddress;
-    const tokenStandard = "ERC20";
+    const tokenContractAddress = config.tokenContractAddress;
+    const tokenErcStandard = "ERC20";
     const value = "0.0001";
     const txReceipts = await user.makeDeposit({
-      tokenAddress,
-      tokenStandard,
+      tokenContractAddress,
+      tokenErcStandard,
       value,
     });
     console.log("Transaction receipts", txReceipts);

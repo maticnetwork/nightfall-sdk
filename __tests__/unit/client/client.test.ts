@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Client } from "../../../libs/client";
+import { NightfallSdkError } from "../../../libs/utils/error";
 
 jest.mock("axios");
 
@@ -175,9 +176,11 @@ describe("Client", () => {
     const value = "0.01";
     const fee = "11000000000";
 
-    test("Should return object if client app responds successfully", async () => {
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
       // Arrange
-      const data = {};
+      const txDataToSign = {};
+      const transaction = {};
+      const data = { txDataToSign, transaction };
       const res = { data };
       (axios.post as jest.Mock).mockResolvedValue(res);
 
@@ -198,26 +201,146 @@ describe("Client", () => {
       });
       expect(result).toBe(data);
     });
+  });
 
-    test("Should return null if client app responds with status outside the successful range", async () => {
+  describe("Method transfer", () => {
+    const url = dummyUrl + "/transfer";
+    const token = {
+      contractAddress: "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae",
+    };
+    const recipientNightfallData = {
+      recipientCompressedZkpPublicKeys: [
+        "0x96f9999c45ded16f8f81c89a7e70ec8eab4fb9298c156d9ce5762ec3b18c3075",
+      ],
+      values: ["0.01"],
+    };
+    const fee = "11000000000";
+    const isOffChain = false;
+
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
       // Arrange
-      (axios.post as jest.Mock).mockRejectedValue(
-        new Error("Axios error at deposit"),
-      );
+      const txDataToSign = {};
+      const transaction = {};
+      const data = { txDataToSign, transaction };
+      const res = { data };
+      (axios.post as jest.Mock).mockResolvedValue(res);
 
       // Act
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const result = await client.deposit(token, zkpKeys, value, fee);
+      const result = await client.transfer(
+        token,
+        zkpKeys,
+        recipientNightfallData,
+        fee,
+        isOffChain,
+      );
 
       // Assert
+      expect(axios.post).toHaveBeenCalledWith(url, {
+        ercAddress: token.contractAddress,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        rootKey: zkpKeys.rootKey,
+        recipientData: recipientNightfallData,
+        fee,
+        offchain: isOffChain,
+      });
+      expect(result).toBe(data);
+    });
+
+    test("Should throw an error when no suitable commitments are found", async () => {
+      // Arrange
+      const data = { error: "No suitable commitments" };
+      const res = { data };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act, Assert
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      expect(
+        async () =>
+          await client.transfer(
+            token,
+            zkpKeys,
+            recipientNightfallData,
+            fee,
+            isOffChain,
+          ),
+      ).rejects.toThrow(NightfallSdkError);
       expect(axios.post).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
+    });
+  });
+
+  describe("Method withdraw", () => {
+    const url = dummyUrl + "/withdraw";
+    const token = {
+      contractAddress: "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae",
+      ercStandard: "ERC20",
+    };
+    const value = "0.01";
+    const fee = "11000000000";
+    const recipientEthAddress = "0x0recipientEthAddress";
+    const isOffChain = false;
+
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
+      // Arrange
+      const txDataToSign = {};
+      const transaction = {};
+      const data = { txDataToSign, transaction };
+      const res = { data };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const result = await client.withdraw(
+        token,
+        zkpKeys,
+        value,
+        fee,
+        recipientEthAddress,
+        isOffChain,
+      );
+
+      // Assert
+      expect(axios.post).toHaveBeenCalledWith(url, {
+        ercAddress: token.contractAddress,
+        tokenType: token.ercStandard,
+        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        rootKey: zkpKeys.rootKey,
+        recipientAddress: recipientEthAddress,
+        value,
+        fee,
+        offchain: isOffChain,
+      });
+      expect(result).toBe(data);
+    });
+  });
+
+  describe("Method finaliseWithdrawal", () => {
+    const url = dummyUrl + "/finalise-withdrawal";
+    const withdrawTxHashL2 = "0x0thitroboatututututu";
+
+    test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
+      // Arrange
+      const txDataToSign = {};
+      const res = { data: txDataToSign };
+      (axios.post as jest.Mock).mockResolvedValue(res);
+
+      // Act
+      const result = await client.finaliseWithdrawal(withdrawTxHashL2);
+
+      // Assert
+      expect(axios.post).toHaveBeenCalledWith(url, {
+        transactionHash: withdrawTxHashL2,
+      });
+      expect(result).toBe(txDataToSign);
     });
   });
 
   describe("Method getPendingDeposits", () => {
     const url = dummyUrl + "/commitment/pending-deposit";
+    const tokenContractAddresses: string[] = [];
 
     test("Should return object if client app responds successfully", async () => {
       // Arrange
@@ -236,29 +359,19 @@ describe("Client", () => {
       (axios.get as jest.Mock).mockResolvedValue(res);
 
       // Act
-      const result = await client.getPendingDeposits(zkpKeys);
+      const result = await client.getPendingDeposits(
+        zkpKeys,
+        tokenContractAddresses,
+      );
 
       // Assert
       expect(axios.get).toHaveBeenCalledWith(url, {
         params: {
           compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+          ercList: tokenContractAddresses,
         },
       });
       expect(result).toBe(tokenBalances);
-    });
-
-    test("Should return null if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.get as jest.Mock).mockRejectedValue(
-        new Error("Axios error at commitment/pending-deposit"),
-      );
-
-      // Act
-      const result = await client.getPendingDeposits(zkpKeys);
-
-      // Assert
-      expect(axios.get).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
     });
   });
 

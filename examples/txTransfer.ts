@@ -21,19 +21,23 @@ const main = async () => {
     });
 
     // # 3 Make transfer
-    const tokenAddress = config.tokenAddress;
-    const tokenStandard = "ERC20";
+    const tokenContractAddress = config.tokenContractAddress;
+    const tokenErcStandard = "ERC20";
     const value = "0.0001";
     const txReceipts = await userSender.makeTransfer({
-      tokenAddress,
-      tokenStandard,
+      tokenContractAddress,
+      tokenErcStandard,
       value,
-      nightfallRecipientAddress: userRecipient.getNightfallAddress(),
+      recipientNightfallAddress: userRecipient.getNightfallAddress(),
+      // isOffChain: true,
     });
     console.log("Transaction receipts", txReceipts);
 
     // # 4 [OPTIONAL] You can check the transaction hash
-    // COMING SOON
+    console.log(
+      "Nightfall deposit tx hashes",
+      userSender.nightfallTransferTxHashes,
+    );
 
     // # 5 [OPTIONAL] You can check transfers that are not yet in a block
     const pendingTransfers = await userSender.checkPendingTransfers();

@@ -12,8 +12,8 @@ import {
   UserMakeTransfer,
   UserMakeWithdrawal,
   UserFinaliseWithdrawal,
+  UserCheckBalances,
   UserExportCommitments,
-  TransferReceipts,
   UserImportCommitments,
 } from "./types";
 import { Client } from "../client";
@@ -34,13 +34,20 @@ import {
   makeTransferOptions,
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
+  checkBalancesOptions,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
 import convertObjectToString from "../utils/convertObjectToString";
 import exportFile from "../utils/exportFile";
-import { Commitment } from "../types";
-import isCommitmentsFromMnemonic from "../utils/isCommitmentFromMnemonic";
+import type { Commitment } from "../nightfall/types";
+import {
+  OffChainTransactionReceipt,
+  OnChainTransactionReceipts,
+} from "../transactions/types";
+import { NightfallSdkError } from "../utils/error";
+import type { TransactionReceipt } from "web3-core";
+import isCommitmentsFromMnemonic from "../nightfall/isCommitmentFromMnemonic";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -103,6 +110,7 @@ class User {
   // Set when transacting
   token: any;
   nightfallDepositTxHashes: string[] = [];
+  nightfallTransferTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
 
   constructor(options: UserConstructor) {
@@ -115,11 +123,11 @@ class User {
   }
 
   /**
-   *  Allow to check the status of the User running
+   *  Allow user to check client API availability and blockchain ws connection
    *
    * @async
    * @method checkStatus
-   * @returns {Object}
+   * @returns {Promise<*>}
    */
   async checkStatus() {
     logger.debug("User :: checkStatus");
@@ -132,9 +140,10 @@ class User {
    * Allow user to retrieve the Nightfall Mnemonic  - Keep this private
    *
    * @method getNightfallMnemonic
-   * @return {String} Nightfall mnemonic
+   * @returns {string} Nightfall mnemonic
    */
   getNightfallMnemonic(): string {
+    logger.debug("User :: getNightfallMnemonic");
     return this.nightfallMnemonic;
   }
 
@@ -142,9 +151,10 @@ class User {
    * Allow user to retrieve Nightfall Layer2 address
    *
    * @method getNightfallAddress
-   * @returns {String} Nightfall Layer2 address
+   * @returns {string} Nightfall Layer2 address
    */
   getNightfallAddress(): string {
+    logger.debug("User :: getNightfallAddress");
     return this.zkpKeys?.compressedZkpPublicKey;
   }
 
@@ -154,13 +164,15 @@ class User {
    * @async
    * @method makeDeposit
    * @param {UserMakeDeposit} options
-   * @param {String} options.tokenAddress
-   * @param {String} options.tokenStandard
-   * @param {String} options.value
-   * @param {String} [options.feeWei]
-   * @returns {Object}
+   * @param {string} options.tokenContractAddress
+   * @param {string} options.tokenErcStandard
+   * @param {string} options.value
+   * @param {string} [options.feeWei]
+   * @returns {Promise<OnChainTransactionReceipts>}
    */
-  async makeDeposit(options: UserMakeDeposit) {
+  async makeDeposit(
+    options: UserMakeDeposit,
+  ): Promise<OnChainTransactionReceipts> {
     logger.debug({ options }, "User :: makeDeposit");
 
     makeDepositOptions.validate(options);
@@ -168,14 +180,14 @@ class User {
     // Format options
     const value = options.value.trim();
     const feeWei = options.feeWei?.trim() || TX_FEE_ETH_WEI_DEFAULT;
-    const tokenAddress = options.tokenAddress.trim();
-    const tokenStandard = options.tokenStandard.trim().toUpperCase();
+    const tokenContractAddress = options.tokenContractAddress.trim();
+    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress) {
+    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
-        address: tokenAddress,
-        ercStandard: tokenStandard,
+        contractAddress: tokenContractAddress,
+        ercStandard: tokenErcStandard,
         web3: this.web3Websocket.web3,
       });
     }
@@ -194,8 +206,7 @@ class User {
       this.web3Websocket.web3,
       valueWei,
     );
-    if (approvalReceipt === null) return null;
-    logger.info({ approvalReceipt }, "Approval completed");
+    if (approvalReceipt) logger.info({ approvalReceipt }, "Approval completed");
 
     // Deposit
     const depositReceipts = await createAndSubmitDeposit(
@@ -209,10 +220,11 @@ class User {
       valueWei,
       feeWei,
     );
-    if (depositReceipts === null) return null;
-    logger.info({ depositReceipts }, "Deposit completed");
+    logger.info({ depositReceipts }, "Deposit completed!");
 
-    this.nightfallDepositTxHashes.push(depositReceipts.txL2?.transactionHash);
+    this.nightfallDepositTxHashes.push(
+      depositReceipts.txReceiptL2?.transactionHash,
+    );
 
     return depositReceipts;
   }
@@ -223,15 +235,17 @@ class User {
    * @async
    * @method makeTransfer
    * @param {UserMakeTransfer} options
-   * @param {String} options.tokenAddress
-   * @param {String} options.tokenStandard
-   * @param {String} options.value
-   * @param {String} [options.feeWei]
-   * @param {String} options.nightfallRecipientAddress
+   * @param {string} options.tokenContractAddress
+   * @param {string} options.tokenErcStandard
+   * @param {string} options.value
+   * @param {string} [options.feeWei]
+   * @param {string} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
-   * @returns {Promise}
+   * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
    */
-  async makeTransfer(options: UserMakeTransfer): Promise<TransferReceipts> {
+  async makeTransfer(
+    options: UserMakeTransfer,
+  ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug(options, "User :: makeTransfer");
 
     makeTransferOptions.validate(options);
@@ -239,16 +253,16 @@ class User {
     // Format options
     const value = options.value.trim();
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenAddress = options.tokenAddress.trim();
-    const tokenStandard = options.tokenStandard.trim().toUpperCase();
-    const nightfallRecipientAddress = options.nightfallRecipientAddress.trim();
+    const tokenContractAddress = options.tokenContractAddress.trim();
+    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
+    const recipientNightfallAddress = options.recipientNightfallAddress.trim();
     const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress) {
+    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
-        address: tokenAddress,
-        ercStandard: tokenStandard,
+        contractAddress: tokenContractAddress,
+        ercStandard: tokenErcStandard,
         web3: this.web3Websocket.web3,
       });
     }
@@ -268,16 +282,15 @@ class User {
       this.client,
       valueWei,
       feeWei,
-      nightfallRecipientAddress,
+      recipientNightfallAddress,
       isOffChain,
     );
+    logger.info({ transferReceipts }, "Transfer completed!");
 
-    if (transferReceipts === null) {
-      logger.error({ transferReceipts }, "Transfer was not completed!");
-      return null;
-    }
+    this.nightfallTransferTxHashes.push(
+      transferReceipts.txReceiptL2?.transactionHash,
+    );
 
-    logger.info({ transferReceipts }, "Transfer was completed!");
     return transferReceipts;
   }
 
@@ -287,15 +300,17 @@ class User {
    * @async
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
-   * @param {String} options.tokenAddress
-   * @param {String} options.tokenStandard
-   * @param {String} options.value
-   * @param {String} [options.feeWei]
-   * @param {String} options.ethRecipientAddress
+   * @param {string} options.tokenContractAddress
+   * @param {string} options.tokenErcStandard
+   * @param {string} options.value
+   * @param {string} [options.feeWei]
+   * @param {string} options.recipientEthAddress
    * @param {Boolean} [options.isOffChain]
-   * @returns {Object}
+   * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
    */
-  async makeWithdrawal(options: UserMakeWithdrawal) {
+  async makeWithdrawal(
+    options: UserMakeWithdrawal,
+  ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug({ options }, "User :: makeWithdrawal");
 
     makeWithdrawalOptions.validate(options);
@@ -303,16 +318,16 @@ class User {
     // Format options
     const value = options.value.trim();
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenAddress = options.tokenAddress.trim();
-    const tokenStandard = options.tokenStandard.trim().toUpperCase();
-    const ethRecipientAddress = options.ethRecipientAddress.trim();
+    const tokenContractAddress = options.tokenContractAddress.trim();
+    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
+    const recipientEthAddress = options.recipientEthAddress.trim();
     const isOffChain = options.isOffChain || false;
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenAddress !== this.token.contractAddress) {
+    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
       this.token = await TokenFactory.create({
-        address: tokenAddress,
-        ercStandard: tokenStandard,
+        contractAddress: tokenContractAddress,
+        ercStandard: tokenErcStandard,
         web3: this.web3Websocket.web3,
       });
     }
@@ -333,15 +348,13 @@ class User {
       this.client,
       valueWei,
       feeWei,
-      ethRecipientAddress,
+      recipientEthAddress,
       isOffChain,
     );
-
-    if (withdrawalReceipts === null) return null;
-    logger.info({ withdrawalReceipts }, "Withdrawal completed");
+    logger.info({ withdrawalReceipts }, "Withdrawal completed!");
 
     this.nightfallWithdrawalTxHashes.push(
-      withdrawalReceipts.txL2?.transactionHash,
+      withdrawalReceipts.txReceiptL2?.transactionHash,
     );
 
     return withdrawalReceipts;
@@ -353,23 +366,25 @@ class User {
    * @async
    * @method finaliseWithdrawal
    * @param {UserFinaliseWithdrawal} options
-   * @param {String} options.withdrawTxHash
-   * @returns {TransactionReceipt}
+   * @param {string} options.withdrawTxHashL2
+   * @returns {Promise<TransactionReceipt>}
    */
-  async finaliseWithdrawal(options: UserFinaliseWithdrawal) {
+  async finaliseWithdrawal(
+    options: UserFinaliseWithdrawal,
+  ): Promise<TransactionReceipt> {
     logger.debug({ options }, "User :: finaliseWithdrawal");
     finaliseWithdrawalOptions.validate(options);
 
-    // If no withdrawTxHash was given, use the latest
-    const withdrawTxHash =
-      options.withdrawTxHash?.trim() ||
+    // If no withdrawTxHashL2 was given, try to use the latest
+    const withdrawTxHashL2 =
+      options.withdrawTxHashL2?.trim() ||
       this.nightfallWithdrawalTxHashes[
         this.nightfallWithdrawalTxHashes.length - 1
       ];
-    if (!withdrawTxHash)
-      throw new Error("Could not find any withdrawal tx hash");
+    if (!withdrawTxHashL2)
+      throw new NightfallSdkError("Could not find any withdrawal tx hash");
 
-    logger.info({ withdrawTxHash }, "Finalise withdrawal with tx hash");
+    logger.info({ withdrawTxHashL2 }, "Finalise withdrawal with tx hash");
 
     return createAndSubmitFinaliseWithdrawal(
       this.ethAddress,
@@ -377,7 +392,7 @@ class User {
       this.shieldContractAddress,
       this.web3Websocket.web3,
       this.client,
-      withdrawTxHash,
+      withdrawTxHashL2,
     );
   }
 
@@ -386,20 +401,34 @@ class User {
    *
    * @async
    * @method checkPendingDeposits
-   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for deposit transactions that have not been included yet in a Layer2 block
+   * @param {UserCheckBalances} [options]
+   * @param {string[]} [options.tokenContractAddresses] A list of token addresses
+   * @returns {Promise<*>} Should resolve into an object containing the aggregated value per token, for deposit tx that have not been included yet in a Layer2 block
    */
-  async checkPendingDeposits() {
-    return this.client.getPendingDeposits(this.zkpKeys);
+  async checkPendingDeposits(options?: UserCheckBalances) {
+    logger.debug({ options }, "User :: checkPendingDeposits");
+
+    let tokenContractAddresses: string[] = [];
+
+    // If options, validate and format
+    if (options) {
+      checkBalancesOptions.validate(options);
+      tokenContractAddresses =
+        options.tokenContractAddresses?.map((address) => address.trim()) || [];
+    }
+
+    return this.client.getPendingDeposits(this.zkpKeys, tokenContractAddresses);
   }
 
   /**
-   * Allow user to get the total Nightfall Layer2 balance of its commitements
+   * Allow user to get the total Nightfall Layer2 balance of its commitments
    *
    * @async
    * @method checkNightfallBalances
-   * @returns {Promise} - This promise resolves into an object containing the aggregated value per token, for commitments available in Layer2
+   * @returns {Promise<*>} Should resolve into an object containing the aggregated value per token, for commitments available in Layer2
    */
   async checkNightfallBalances() {
+    logger.debug("User :: checkNightfallBalances");
     return this.client.getNightfallBalances(this.zkpKeys);
   }
 
@@ -408,29 +437,28 @@ class User {
    *
    * @async
    * @method checkPendingTransfers
-   * @returns {Promise}  - This promise resolves into an object whose properties are the
-    addresses of the ERC contracts of the tokens held by this account in Layer 2. The
-    value of each propery is the number of tokens pending spent (transfer & withdraw)
-    from that contract. 
+   * @returns {Promise<*>}
    */
   async checkPendingTransfers() {
+    logger.debug("User :: checkPendingTransfers");
     return this.client.getPendingTransfers(this.zkpKeys);
   }
 
   /**
-   * Allow user to export the commitments
+   * Allow user to export commitments
    *
    * @async
    * @method exportCommitments
    * @param {UserExportCommitments} options
    * @param {String[]} options.listOfCompressedZkpPublicKey
-   * @param {String} options.pathToExport
-   * @param {String} options.fileName
-   * @returns {Promise}
+   * @param {string} options.pathToExport
+   * @param {string} options.fileName
+   * @returns {Promise<void | null>}
    */
   async exportCommitments(
     options: UserExportCommitments,
   ): Promise<void | null> {
+    logger.debug({ options }, "User :: exportCommitments");
     try {
       const allCommitmentsByCompressedZkpPublicKey: Commitment[] =
         await this.client.getCommitmentsByCompressedZkpPublicKey(
@@ -458,20 +486,18 @@ class User {
   }
 
   /**
+   * Allow user to import commitments
    *
    * @async
-   * @method importAndSaveCommitments should coverage the import commitments flow.
-   * - Should read and validate a file with commitments.
-   * - Verify if all the commitments belongs to the user compressedZkpPublicKey.
-   * - If all verifications pass, should send the commitments to the client to be saved
-   *  in the database.
+   * @method importAndSaveCommitments
    * @param {UserImportCommitments} options
-   * @param {String} options.compressedZkpPublicKey
-   * @param {String} options.pathToExport
-   * @param {String} options.fileName
-   * @returns {Promise<String>}
+   * @param {string} options.compressedZkpPublicKey
+   * @param {string} options.pathToImport
+   * @param {string} options.fileName
+   * @returns {Promise<string>}
    */
   async importAndSaveCommitments(options: UserImportCommitments) {
+    logger.debug({ options }, "User :: importAndSaveCommitments");
     const file = fs.readFileSync(`${options.pathToImport}${options.fileName}`);
     const listOfCommitments: Commitment[] = JSON.parse(file.toString("utf8"));
 
@@ -481,13 +507,15 @@ class User {
     );
 
     const response = await this.client.saveCommitments(listOfCommitments);
-
     const { successMessage } = response;
-
     logger.info(successMessage);
+
     return successMessage;
   }
 
+  /**
+   * Close user blockchain ws connection
+   */
   close() {
     logger.debug("User :: close");
     this.web3Websocket.close();
