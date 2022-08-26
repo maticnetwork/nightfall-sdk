@@ -1,26 +1,27 @@
-import axios from "axios";
-import Queue from "queue";
-import Web3 from "web3";
-import WebSocket from "ws";
-import ReconnectingWebSocket from "reconnecting-websocket";
-import EventEmitter from "events";
-// import logger from '../../common-files/utils/logger.mjs';
-import { approve } from "./tokens.mjs";
-import erc20 from "./abis/ERC20.mjs";
-import erc721 from "./abis/ERC721.mjs";
-import erc1155 from "./abis/ERC1155.mjs";
+import axios from 'axios';
+import Queue from 'queue';
+import Web3 from 'web3';
+import WebSocket from 'ws';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import EventEmitter from 'events';
+import logger from '../../common-files/utils/logger.mjs';
+import { approve } from './tokens.mjs';
+import erc20 from './abis/ERC20.mjs';
+import erc721 from './abis/ERC721.mjs';
+import erc1155 from './abis/ERC1155.mjs';
 
 import {
   DEFAULT_BLOCK_STAKE,
   DEFAULT_PROPOSER_BOND,
-  DEFAULT_FEE,
+  DEFAULT_FEE_ETH,
+  DEFAULT_FEE_MATIC,
   WEBSOCKET_PING_TIME,
   GAS_MULTIPLIER,
   GAS,
   GAS_PRICE,
   GAS_PRICE_MULTIPLIER,
   GAS_ESTIMATE_ENDPOINT,
-} from "./constants.mjs";
+} from './constants.mjs';
 
 // TODO when SDK is refactored such that these functions are split by user, proposer and challenger,
 // then there will only be one queue here. The constructor does not need to initialise clientBaseUrl
@@ -69,7 +70,9 @@ class Nf3 {
 
   zkpKeys;
 
-  defaultFee = DEFAULT_FEE;
+  defaultFeeEth = DEFAULT_FEE_ETH;
+
+  defaultFeeMatic = DEFAULT_FEE_MATIC;
 
   PROPOSER_BOND = DEFAULT_PROPOSER_BOND;
 
@@ -251,11 +254,7 @@ class Nf3 {
   This can be found using the getContractAddress convenience function.
   @returns {Promise} This will resolve into a transaction receipt.
   */
-  async submitTransaction(
-    unsignedTransaction,
-    contractAddress = this.shieldContractAddress,
-    fee = this.defaultFee,
-  ) {
+  async submitTransaction(unsignedTransaction, contractAddress = this.shieldContractAddress, fee) {
     // estimate the gasPrice
     const gasPrice = await this.estimateGasPrice();
     // Estimate the gasLimit
@@ -367,7 +366,7 @@ class Nf3 {
     @param {object} keys - The ZKP private key set.
     @returns {Promise} Resolves into the Ethereum transaction receipt.
     */
-  async deposit(ercAddress, tokenType, value, tokenId, fee = this.defaultFee) {
+  async deposit(ercAddress, tokenType, value, tokenId, fee = this.defaultFeeEth) {
     let txDataToSign;
     try {
       txDataToSign = await approve(
@@ -407,7 +406,7 @@ class Nf3 {
           );
           resolve(receipt);
         } catch (err) {
-          logger.error('Deposit transaction failed');
+          // logger.error('Deposit transaction failed');
           reject(err);
         }
       });
@@ -439,7 +438,7 @@ class Nf3 {
     value,
     tokenId,
     compressedZkpPublicKey,
-    fee = this.defaultFee,
+    fee = this.defaultFeeMatic,
   ) {
     const res = await axios.post(`${this.clientBaseUrl}/transfer`, {
       offchain,
@@ -462,7 +461,7 @@ class Nf3 {
             const receipt = await this.submitTransaction(
               res.data.txDataToSign,
               this.shieldContractAddress,
-              fee,
+              0,
             );
             resolve(receipt);
           } catch (err) {
@@ -501,7 +500,7 @@ class Nf3 {
     value,
     tokenId,
     recipientAddress,
-    fee = this.defaultFee,
+    fee = this.defaultFeeMatic,
   ) {
     const res = await axios.post(`${this.clientBaseUrl}/withdraw`, {
       offchain,
@@ -521,7 +520,7 @@ class Nf3 {
             const receipt = await this.submitTransaction(
               res.data.txDataToSign,
               this.shieldContractAddress,
-              fee,
+              0,
             );
             resolve(receipt);
           } catch (err) {
@@ -910,7 +909,9 @@ class Nf3 {
             );
             blockProposeEmitter.emit('receipt', receipt, block, transactions);
           } catch (err) {
+            // block proposed is reverted. Send transactions back to mempool
             blockProposeEmitter.emit('error', err, block, transactions);
+            await axios.get(`${this.optimistBaseUrl}/block/reset-localblock`);
           }
         });
       }
