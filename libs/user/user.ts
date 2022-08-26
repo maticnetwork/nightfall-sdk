@@ -123,7 +123,7 @@ class User {
   }
 
   /**
-   *  Allow user to check the status of the User running
+   *  Allow user to check client API availability and blockchain ws connection
    *
    * @async
    * @method checkStatus
@@ -143,6 +143,7 @@ class User {
    * @returns {string} Nightfall mnemonic
    */
   getNightfallMnemonic(): string {
+    logger.debug("User :: getNightfallMnemonic");
     return this.nightfallMnemonic;
   }
 
@@ -153,6 +154,7 @@ class User {
    * @returns {string} Nightfall Layer2 address
    */
   getNightfallAddress(): string {
+    logger.debug("User :: getNightfallAddress");
     return this.zkpKeys?.compressedZkpPublicKey;
   }
 
@@ -426,6 +428,7 @@ class User {
    * @returns {Promise<*>} Should resolve into an object containing the aggregated value per token, for commitments available in Layer2
    */
   async checkNightfallBalances() {
+    logger.debug("User :: checkNightfallBalances");
     return this.client.getNightfallBalances(this.zkpKeys);
   }
 
@@ -437,6 +440,7 @@ class User {
    * @returns {Promise<*>}
    */
   async checkPendingTransfers() {
+    logger.debug("User :: checkPendingTransfers");
     return this.client.getPendingTransfers(this.zkpKeys);
   }
 
@@ -454,6 +458,7 @@ class User {
   async exportCommitments(
     options: UserExportCommitments,
   ): Promise<void | null> {
+    logger.debug({ options }, "User :: exportCommitments");
     try {
       const allCommitmentsByCompressedZkpPublicKey: Commitment[] =
         await this.client.getCommitmentsByCompressedZkpPublicKey(
@@ -492,6 +497,7 @@ class User {
    * @returns {Promise<string>}
    */
   async importAndSaveCommitments(options: UserImportCommitments) {
+    logger.debug({ options }, "User :: importAndSaveCommitments");
     const file = fs.readFileSync(`${options.pathToImport}${options.fileName}`);
     const listOfCommitments: Commitment[] = JSON.parse(file.toString("utf8"));
 
@@ -508,7 +514,7 @@ class User {
   }
 
   /**
-   * Close user blockchain connection
+   * Close user blockchain ws connection
    */
   close() {
     logger.debug("User :: close");
