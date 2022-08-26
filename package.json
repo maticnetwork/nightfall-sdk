@@ -8,6 +8,15 @@
     "nightfall_3",
     "nf3"
   ],
+  "main": "dist/cjs/libs/user/index.js",
+  "module": "dist/libs/user/index.js",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maticnetwork/nightfall-sdk.git"
+  },
   "author": "Polygon Nightfall",
   "license": "",
   "dependencies": {
@@ -46,12 +55,10 @@
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
-  "main": "dist/libs/user/index.js",
-  "files": [
-    "dist/**/*"
-  ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf /dist && npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc",
+    "build:cjs": "tsc --module CommonJS -outDir dist/cjs",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
     "prepare": "husky install",
