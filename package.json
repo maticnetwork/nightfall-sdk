@@ -9,7 +9,7 @@
     "nf3"
   ],
   "main": "dist/cjs/libs/user/index.js",
-  "module": "dist/esm/libs/user/index.js",
+  "module": "dist/libs/user/index.js",
   "files": [
     "dist"
   ],
