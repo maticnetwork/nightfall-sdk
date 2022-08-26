@@ -18,7 +18,7 @@
     "url": "https://github.com/maticnetwork/nightfall-sdk.git"
   },
   "author": "Polygon Nightfall",
-  "license": "",
+  "license": "Apache-2.0",
   "dependencies": {
     "axios": "^0.27.2",
     "bip39": "^3.0.4",
