@@ -62,43 +62,6 @@ describe("Transactions", () => {
       expect(mockedClient.deposit).toHaveBeenCalledTimes(1);
     });
 
-    test.skip("Should throw an error if an exception is caught when submitting tx", () => {
-      // Arrange
-      const mockedDepositResData = {
-        txDataToSign: unsignedTx,
-        transaction: txReceiptL2,
-      };
-      mockedClient.deposit.mockResolvedValue(mockedDepositResData);
-      (submitTransaction as jest.Mock).mockRejectedValueOnce(
-        new Error("Web3 failed at sending signed deposit tx"),
-      );
-
-      // Act, Assert
-      expect(
-        async () =>
-          await createAndSubmitDeposit(
-            token,
-            ownerEthAddress,
-            ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
-            shieldContractAddress,
-            web3,
-            mockedClient,
-            value,
-            fee,
-          ),
-      ).rejects.toThrow(NightfallSdkError);
-      expect(mockedClient.deposit).toHaveBeenCalledWith(
-        token,
-        ownerZkpKeys,
-        value,
-        fee,
-      );
-      // expect(submitTransaction).toHaveBeenCalledTimes(1); // TODO
-    });
-
     test("Should return an instance of <OnChainTransactionReceipts>", async () => {
       // Arrange
       const mockedDepositResData = {
@@ -184,90 +147,6 @@ describe("Transactions", () => {
       expect(mockedClient.transfer).toHaveBeenCalledTimes(1);
     });
 
-    test.skip("Should throw an error if an exception is caught when submitting on-chain tx", () => {
-      // Arrange
-      const mockedTransferResData = {
-        txDataToSign: unsignedTx,
-        transaction: txReceiptL2,
-      };
-      mockedClient.transfer.mockResolvedValue(mockedTransferResData);
-      (submitTransaction as jest.Mock).mockRejectedValueOnce(
-        new Error("Web3 failed at sending signed transfer tx"),
-      );
-
-      // Act, Assert
-      expect(
-        async () =>
-          await createAndSubmitTransfer(
-            token,
-            ownerEthAddress,
-            ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
-            shieldContractAddress,
-            web3,
-            mockedClient,
-            value,
-            fee,
-            recipientNightfallAddress,
-            isOffChain,
-          ),
-      ).rejects.toThrow(NightfallSdkError);
-      expect(mockedClient.transfer).toHaveBeenCalledWith(
-        token,
-        ownerZkpKeys,
-        recipientNightfallData,
-        fee,
-        isOffChain,
-      );
-      // expect(submitTransaction).toHaveBeenCalledTimes(1); // TODO
-    });
-
-    test.skip("Should return an instance of <OnChainTransactionReceipts> when submitting on-chain tx", async () => {
-      // Arrange
-      const mockedTransferResData = {
-        txDataToSign: unsignedTx,
-        transaction: txReceiptL2,
-      };
-      mockedClient.transfer.mockResolvedValue(mockedTransferResData);
-      (submitTransaction as jest.Mock).mockResolvedValueOnce(txReceipt);
-
-      // Act
-      const txReceipts = await createAndSubmitTransfer(
-        token,
-        ownerEthAddress,
-        ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
-        shieldContractAddress,
-        web3,
-        mockedClient,
-        value,
-        fee,
-        recipientNightfallAddress,
-        isOffChain,
-      );
-
-      // Assert
-      expect(mockedClient.transfer).toHaveBeenCalledWith(
-        token,
-        ownerZkpKeys,
-        recipientNightfallData,
-        fee,
-        isOffChain,
-      );
-      expect(submitTransaction).toHaveBeenCalledWith(
-        ownerEthAddress,
-        ownerEthPrivateKey,
-        shieldContractAddress,
-        unsignedTx,
-        web3,
-      );
-      expect(txReceipts).toStrictEqual({ txReceipt, txReceiptL2 });
-    });
-
     test("Should return an instance of <OffChainTransactionReceipt> when sending off-chain tx", async () => {
       // Arrange
       isOffChain = true;
@@ -343,92 +222,6 @@ describe("Transactions", () => {
       expect(mockedClient.withdraw).toHaveBeenCalledTimes(1);
     });
 
-    test.skip("Should throw an error if an exception is caught when submitting on-chain tx", () => {
-      // Arrange
-      const mockedWithdrawResData = {
-        txDataToSign: unsignedTx,
-        transaction: txReceiptL2,
-      };
-      mockedClient.withdraw.mockResolvedValue(mockedWithdrawResData);
-      (submitTransaction as jest.Mock).mockRejectedValueOnce(
-        new Error("Web3 failed at sending signed withdrawal tx"),
-      );
-
-      // Act, Assert
-      expect(
-        async () =>
-          await createAndSubmitWithdrawal(
-            token,
-            ownerEthAddress,
-            ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
-            shieldContractAddress,
-            web3,
-            mockedClient,
-            value,
-            fee,
-            recipientEthAddress,
-            isOffChain,
-          ),
-      ).rejects.toThrow(NightfallSdkError);
-      expect(mockedClient.withdraw).toHaveBeenCalledWith(
-        token,
-        ownerZkpKeys,
-        value,
-        fee,
-        recipientEthAddress,
-        isOffChain,
-      );
-      // expect(submitTransaction).toHaveBeenCalledTimes(1); // TODO
-    });
-
-    test.skip("Should return an instance of <OnChainTransactionReceipts> when submitting on-chain tx", async () => {
-      // Arrange
-      const mockedWithdrawResData = {
-        txDataToSign: unsignedTx,
-        transaction: txReceiptL2,
-      };
-      mockedClient.withdraw.mockResolvedValue(mockedWithdrawResData);
-      (submitTransaction as jest.Mock).mockResolvedValueOnce(txReceipt);
-
-      // Act
-      const txReceipts = await await createAndSubmitWithdrawal(
-        token,
-        ownerEthAddress,
-        ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
-        shieldContractAddress,
-        web3,
-        mockedClient,
-        value,
-        fee,
-        recipientEthAddress,
-        isOffChain,
-      );
-
-      // Assert
-      expect(mockedClient.withdraw).toHaveBeenCalledWith(
-        token,
-        ownerZkpKeys,
-        value,
-        fee,
-        recipientEthAddress,
-        isOffChain,
-      );
-      expect(submitTransaction).toHaveBeenCalledWith(
-        ownerEthAddress,
-        ownerEthPrivateKey,
-        shieldContractAddress,
-        unsignedTx,
-        web3,
-      );
-      expect(txReceipts).toStrictEqual({ txReceipt, txReceiptL2 });
-    });
-
     test("Should return an instance of <OffChainTransactionReceipt> when sending off-chain tx", async () => {
       // Arrange
       isOffChain = true;
@@ -493,36 +286,6 @@ describe("Transactions", () => {
           ),
       ).rejects.toThrow(NightfallSdkError);
       expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledTimes(1);
-    });
-
-    test.skip("Should throw an error if an exception is caught when submitting tx", () => {
-      // Arrange
-      const mockedFinaliseWithdrawalResData = { txDataToSign: unsignedTx };
-      mockedClient.finaliseWithdrawal.mockResolvedValue(
-        mockedFinaliseWithdrawalResData,
-      );
-      (submitTransaction as jest.Mock).mockRejectedValueOnce(
-        new Error("Web3 failed at sending signed finalise-withdrawal tx"),
-      );
-
-      // Act, Assert
-      expect(
-        async () =>
-          await createAndSubmitFinaliseWithdrawal(
-            ownerEthAddress,
-            ownerEthPrivateKey,
-            shieldContractAddress,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            web3,
-            mockedClient,
-            withdrawTxHashL2,
-          ),
-      ).rejects.toThrow(NightfallSdkError);
-      expect(mockedClient.finaliseWithdrawal).toHaveBeenCalledWith(
-        withdrawTxHashL2,
-      );
-      // expect(submitTransaction).toHaveBeenCalledTimes(1); // TODO
     });
 
     test("Should return an instance of <TransactionReceipt>", async () => {
