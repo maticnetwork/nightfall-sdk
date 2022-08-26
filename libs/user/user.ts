@@ -195,7 +195,7 @@ class User {
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
-    logger.info({ valueWei, feeWei }, "Value and fee in Wei");
+    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
     // Deposit tx might need approval
     const approvalReceipt = await createAndSubmitApproval(
@@ -270,7 +270,7 @@ class User {
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
-    logger.info({ valueWei, feeWei }, "Value and fee in Wei");
+    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
     const transferReceipts = await createAndSubmitTransfer(
       this.token,
@@ -335,7 +335,7 @@ class User {
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
-    logger.info({ valueWei, feeWei }, "Value and fee in Wei");
+    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
     // Withdrawal
     const withdrawalReceipts = await createAndSubmitWithdrawal(

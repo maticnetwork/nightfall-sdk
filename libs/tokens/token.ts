@@ -67,7 +67,7 @@ class Token {
     const rootPath = path.resolve();
     const abiFile = TOKEN_STANDARDS[this.ercStandard];
     const abiPath = path.join(rootPath, ABIS_PATH, abiFile);
-    logger.info({ path: abiPath }, "Read contract file at");
+    logger.debug({ path: abiPath }, "Read contract file at");
 
     const abi = fs.readFileSync(abiPath, { encoding: "utf8" });
     return JSON.parse(abi);
