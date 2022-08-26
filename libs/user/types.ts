@@ -15,7 +15,7 @@ export interface UserConstructor {
   ethPrivateKey: string;
   ethAddress: string;
   nightfallMnemonic: string;
-  zkpKeys: any; // TODO NightfallZkpKeys might have to be declared as class??;
+  zkpKeys: any;
 }
 
 export interface UserMakeTransaction {
