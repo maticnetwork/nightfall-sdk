@@ -1,6 +1,6 @@
 import pino from "pino";
 
-const LOGGER_DEFAULT_LEVEL = "debug";
+const LOGGER_DEFAULT_LEVEL = process.env.LOG_LEVEL || "info";
 const LOGGER_TIME_STRING = "yyyy-mm-dd HH:MM:ss";
 
 const logger = pino({

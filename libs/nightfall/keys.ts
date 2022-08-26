@@ -21,7 +21,7 @@ export function validateOrCreateNfMnemonic(
   logger.debug("validateOrCreateNfMnemonic");
   if (!mnemonic) {
     mnemonic = createMnemonic();
-    logger.info("New mnemonic created successfully");
+    logger.debug("New mnemonic created successfully");
   } else {
     try {
       validateNfMnemonic(mnemonic);
@@ -29,7 +29,7 @@ export function validateOrCreateNfMnemonic(
       logger.child({ mnemonic }).error(err, "Error while validating mnemonic");
       return null;
     }
-    logger.info("Valid mnemonic");
+    logger.debug("Valid mnemonic");
   }
   return mnemonic;
 }
