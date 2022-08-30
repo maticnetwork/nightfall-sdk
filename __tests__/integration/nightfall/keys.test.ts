@@ -44,12 +44,11 @@ describe("Create Zero-knowledge proof keys and subscribe to incoming keys", () =
     expect(result).toStrictEqual(knownNightfallKeys);
   });
 
-  test("Should return null for invalid mnemonic", async () => {
+  test("Should fail if a Nightfall error is thrown", () => {
     mnemonic = "pepe";
-    const result = await createZkpKeysAndSubscribeToIncomingKeys(
-      mnemonic,
-      client,
-    );
-    expect(result).toBeNull();
+    expect(
+      async () =>
+        await createZkpKeysAndSubscribeToIncomingKeys(mnemonic, client),
+    ).rejects.toThrow();
   });
 });

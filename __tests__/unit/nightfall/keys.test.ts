@@ -3,6 +3,7 @@ import {
   validateNfMnemonic,
 } from "../../../libs/nightfall/helpers";
 import { validateOrCreateNfMnemonic } from "../../../libs/nightfall/keys";
+import { NightfallSdkError } from "../../../libs/utils/error";
 
 jest.mock("../../../libs/nightfall/helpers", () => {
   const originalModule = jest.requireActual("../../../libs/nightfall/helpers");
@@ -47,18 +48,17 @@ describe("Nightfall Keys", () => {
       expect(newNfMnemonic).toBe(FAKE_MNEMONIC);
     });
 
-    test("Should return null if mnemonic is not bip39 valid", () => {
+    test("Should throw an error if mnemonic is not bip39 valid", () => {
       // Arrange
       (validateNfMnemonic as jest.Mock).mockImplementation(() => {
         throw new Error("invalid mnemonic");
       });
 
-      // Act
-      const newNfMnemonic = validateOrCreateNfMnemonic(FAKE_MNEMONIC);
-
-      // Assert
+      // Act, Assert
+      expect(() => validateOrCreateNfMnemonic(FAKE_MNEMONIC)).toThrow(
+        NightfallSdkError,
+      );
       expect(validateNfMnemonic).toHaveBeenCalled();
-      expect(newNfMnemonic).toBeNull();
     });
   });
 });
