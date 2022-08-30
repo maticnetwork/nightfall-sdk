@@ -44,31 +44,16 @@ describe("Client", () => {
       expect(result).toBeTruthy();
     });
 
-    test("Should return false if client app responds with status other than 200", async () => {
+    test("Should throw an error when client app responds with status other than 200", () => {
       // Arrange
       const res = { data: "ko", status: 201 };
       (axios.get as jest.Mock).mockResolvedValue(res);
 
-      // Act
-      const result = await client.healthCheck();
-
-      // Assert
-      expect(axios.get).toHaveBeenCalledTimes(1);
-      expect(result).toBeFalsy();
-    });
-
-    test("Should return false if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.get as jest.Mock).mockRejectedValue(
-        new Error("Axios error at healthcheck"),
+      // Act, Assert
+      expect(async () => await client.healthCheck()).rejects.toThrow(
+        NightfallSdkError,
       );
-
-      // Act
-      const result = await client.healthCheck();
-
-      // Assert
       expect(axios.get).toHaveBeenCalledTimes(1);
-      expect(result).toBeFalsy();
     });
   });
 
@@ -113,23 +98,6 @@ describe("Client", () => {
       expect(axios.post).toHaveBeenCalledWith(url, { mnemonic, addressIndex });
       expect(result).toBe(zkpKeys);
     });
-
-    test("Should return null if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.post as jest.Mock).mockRejectedValue(
-        new Error("Axios error at generate-zkp-keys"),
-      );
-
-      // Act
-      const result = await client.generateZkpKeysFromMnemonic(
-        mnemonic,
-        addressIndex,
-      );
-
-      // Assert
-      expect(axios.post).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
-    });
   });
 
   describe("Method subscribeToIncomingViewingKeys", () => {
@@ -150,20 +118,6 @@ describe("Client", () => {
         nullifierKeys: [zkpKeys.nullifierKey],
       });
       expect(result).toBe(msg);
-    });
-
-    test("Should return null if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.post as jest.Mock).mockRejectedValue(
-        new Error("Axios error at incoming-viewing-key"),
-      );
-
-      // Act
-      const result = await client.subscribeToIncomingViewingKeys(zkpKeys);
-
-      // Assert
-      expect(axios.post).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
     });
   });
 
@@ -193,7 +147,7 @@ describe("Client", () => {
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        tokenId: "0x00", // ISSUE #32 && ISSUE #54
         value,
         compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
         nullifierKey: zkpKeys.nullifierKey,
@@ -239,7 +193,7 @@ describe("Client", () => {
       // Assert
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        tokenId: "0x00", // ISSUE #32 && ISSUE #54
         rootKey: zkpKeys.rootKey,
         recipientData: recipientNightfallData,
         fee,
@@ -248,7 +202,7 @@ describe("Client", () => {
       expect(result).toBe(data);
     });
 
-    test("Should throw an error when no suitable commitments are found", async () => {
+    test("Should throw an error when no suitable commitments are found", () => {
       // Arrange
       const data = { error: "No suitable commitments" };
       const res = { data };
@@ -306,7 +260,7 @@ describe("Client", () => {
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #58
+        tokenId: "0x00", // ISSUE #32 && ISSUE #54
         rootKey: zkpKeys.rootKey,
         recipientAddress: recipientEthAddress,
         value,
@@ -403,20 +357,6 @@ describe("Client", () => {
         },
       });
       expect(result).toBe(tokenBalances);
-    });
-
-    test("Should return null if client app responds with status outside the successful range", async () => {
-      // Arrange
-      (axios.get as jest.Mock).mockRejectedValue(
-        new Error("Axios error at commitment/balance"),
-      );
-
-      // Act
-      const result = await client.getNightfallBalances(zkpKeys);
-
-      // Assert
-      expect(axios.get).toHaveBeenCalledTimes(1);
-      expect(result).toBeNull();
     });
   });
 });

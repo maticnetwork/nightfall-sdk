@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import type { Commitment } from "../nightfall/types";
 import path from "path";
 import { parentLogger } from "../utils";
@@ -41,31 +41,26 @@ class Client {
   }
 
   /**
-   * Make GET request at healthcheck to check that API is alive
+   * Make GET request to check that API is alive
    *
    * @method healthCheck
+   * @throws {NightfallSdkError} Response other than 200 or bad response
    * @returns {Promise<boolean>} Should resolve `true` if API is alive, else `false`
    */
   async healthCheck(): Promise<boolean> {
-    logger.debug("Calling client at healthcheck");
-    let res: AxiosResponse;
-    try {
-      res = await axios.get(`${this.apiUrl}/healthcheck`);
-      if (res.status !== 200) {
-        logger.error(
-          { status: res.status },
-          "Client unavailable, healthcheck status is",
-        );
-        return false;
-      }
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at healthcheck responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return false;
+    const endpoint = "healthcheck";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.get(`${this.apiUrl}/${endpoint}`);
+    if (res.status !== 200) {
+      logger.error(res);
+      throw new NightfallSdkError("Sorry, client not available");
     }
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
     return true;
   }
 
@@ -92,33 +87,30 @@ class Client {
   }
 
   /**
-   * Make POST request at generate-zkp-keys to get a set of Zero-knowledge proof keys
+   * Make POST request to get a set of Zero-knowledge proof keys
    *
    * @method generateZkpKeysFromMnemonic
    * @param {string} validMnemonic A valid bip39 mnemonic
    * @param {number} addressIndex Pass `0` to generate the first account
-   * @returns {Promise<null | NightfallZkpKeys>} Should resolve into a set of keys if request is successful, else `null`
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<NightfallZkpKeys>} Should resolve into a set of keys if request is successful
    */
   async generateZkpKeysFromMnemonic(
     validMnemonic: string,
     addressIndex: number,
-  ): Promise<null | NightfallZkpKeys> {
-    const logInput = { validMnemonic, addressIndex };
-    logger.debug("Calling client at generate-zkp-keys");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/generate-zkp-keys`, {
-        mnemonic: validMnemonic,
-        addressIndex,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at generate-zkp-keys responded",
-      );
-    } catch (err) {
-      logger.child(logInput).error(err);
-      return null;
-    }
+  ): Promise<NightfallZkpKeys> {
+    const endpoint = "generate-zkp-keys";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      mnemonic: validMnemonic,
+      addressIndex,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
     return res.data;
   }
 
@@ -127,26 +119,24 @@ class Client {
    *
    * @method subscribeToIncomingViewingKeys
    * @param {NightfallZkpKeys} zkpKeys A set of Zero-knowledge proof keys
-   * @returns {Promise<null | string>} Should resolve `string` (success) if request is successful, else `null`
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<string>} Should resolve `string` (success) if request is successful
    */
   async subscribeToIncomingViewingKeys(
     zkpKeys: NightfallZkpKeys,
-  ): Promise<null | string> {
-    logger.debug({ zkpKeys }, "Calling client at incoming-viewing-key");
-    let res: AxiosResponse;
-    try {
-      res = await axios.post(`${this.apiUrl}/incoming-viewing-key`, {
-        zkpPrivateKeys: [zkpKeys.zkpPrivateKey],
-        nullifierKeys: [zkpKeys.nullifierKey],
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at incoming-viewing-key responded",
-      );
-    } catch (err) {
-      logger.child({ zkpKeys }).error(err);
-      return null;
-    }
+  ): Promise<string> {
+    const endpoint = "incoming-viewing-key";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      zkpPrivateKeys: [zkpKeys.zkpPrivateKey],
+      nullifierKeys: [zkpKeys.nullifierKey],
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
     return res.data;
   }
 
@@ -174,7 +164,7 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      tokenId: "0x00", // ISSUE #32 && ISSUE #54
       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
       nullifierKey: ownerZkpKeys.nullifierKey,
       value,
@@ -213,20 +203,20 @@ class Client {
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      tokenId: "0x00", // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
       fee,
       offchain: isOffChain,
     });
+    if (res.data.error && res.data.error === "No suitable commitments") {
+      logger.error(res);
+      throw new NightfallSdkError("No suitable commitments were found");
+    }
     logger.info(
       { status: res.status, data: res.data },
       `Client at ${endpoint} responded`,
     );
-
-    if (res.data.error && res.data.error === "No suitable commitments") {
-      throw new NightfallSdkError("No suitable commitments were found");
-    }
 
     return res.data;
   }
@@ -258,7 +248,7 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      tokenId: "0x00", // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientAddress: recipientEthAddress,
       value,
@@ -274,7 +264,7 @@ class Client {
   }
 
   /**
-   * Make POST request to finalise previously initiated withdrawal (tx)
+   * Make POST request to finalise a previously initiated withdrawal (tx)
    *
    * @async
    * @method finaliseWithdrawal
@@ -329,42 +319,36 @@ class Client {
   }
 
   async getNightfallBalances(zkpKeys: NightfallZkpKeys) {
-    logger.debug("Calling client at commitment/balance");
-    let res: AxiosResponse;
-    try {
-      res = await axios.get(`${this.apiUrl}/commitment/balance`, {
-        params: {
-          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
-        },
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at commitment/balance responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
+    const endpoint = "commitment/balance";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.get(`${this.apiUrl}/${endpoint}`, {
+      params: {
+        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+      },
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
     return res.data.balance;
   }
 
   async getPendingTransfers(zkpKeys: NightfallZkpKeys) {
-    logger.debug("Calling client at commitment/pending-spent");
-    let res: AxiosResponse;
-    try {
-      res = await axios.get(`${this.apiUrl}/commitment/pending-spent`, {
-        params: {
-          compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
-        },
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        "Client at commitment/pending-spent responded",
-      );
-    } catch (err) {
-      logger.error(err);
-      return null;
-    }
+    const endpoint = "commitment/pending-spent";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.get(`${this.apiUrl}/${endpoint}`, {
+      params: {
+        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
+      },
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
     return res.data.balance?.[zkpKeys.compressedZkpPublicKey];
   }
 
@@ -373,30 +357,30 @@ class Client {
    *
    * @method getCommitmentsByCompressedZkpPublicKey
    * @param {string[]} listOfCompressedZkpPublicKey list of compressedZkpPublicKeys (Nightfall address)
-   * @throws {NightfallSdkError}
-   * @returns {Promise<null | Commitment[]>} Should resolve into a list of all existing commitments if request is successful, else `null`
+   * @throws {NightfallSdkError} No compressedZkpPublicKey given or bad response
+   * @returns {Promise<Commitment[]>} Should resolve into a list of all existing commitments if request is successful
    */
   async getCommitmentsByCompressedZkpPublicKey(
     listOfCompressedZkpPublicKey: string[],
-  ): Promise<null | Commitment[]> {
-    try {
-      if (
-        listOfCompressedZkpPublicKey &&
-        listOfCompressedZkpPublicKey.length > 0
-      ) {
-        const response = await axios.post(
-          `${this.apiUrl}/commitment/compressedZkpPublicKeys`,
-          listOfCompressedZkpPublicKey,
-        );
-        return response.data.commitmentsByListOfCompressedZkpPublicKey;
-      }
+  ): Promise<Commitment[]> {
+    const endpoint = "commitment/compressedZkpPublicKeys";
+    logger.debug({ endpoint }, "Calling client at");
+
+    if (!listOfCompressedZkpPublicKey.length) {
       throw new NightfallSdkError(
         "You should pass at least one compressedZkpPublicKey",
       );
-    } catch (err) {
-      logger.child({ listOfCompressedZkpPublicKey }).error(err);
-      return null;
     }
+    const res = await axios.post(
+      `${this.apiUrl}/${endpoint}`,
+      listOfCompressedZkpPublicKey,
+    );
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
+    return res.data.commitmentsByListOfCompressedZkpPublicKey;
   }
 
   /**
@@ -405,7 +389,7 @@ class Client {
    *
    * @async
    * @method saveCommitments
-   * @param {Commitment[]} listOfCommitments a list of commitments to be saved in the database
+   * @param {Commitment[]} listOfCommitments Commitments to be saved in the database
    * @throws {NightfallSdkError} Bad response
    * @return {Promise<string>} Should resolve `string` (successMessage)
    */
