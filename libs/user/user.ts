@@ -83,7 +83,6 @@ class UserFactory {
       nightfallMnemonic,
       client,
     );
-    if (!nightfallKeys) throw new Error("Unable to generate Nightfall keys");
 
     return new User({
       client,

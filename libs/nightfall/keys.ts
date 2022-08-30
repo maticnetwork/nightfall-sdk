@@ -3,6 +3,7 @@ import { parentLogger } from "../utils";
 import { createMnemonic, validateNfMnemonic } from "./helpers";
 import type { Client } from "../client";
 import type { NightfallKeys } from "./types";
+import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -13,11 +14,10 @@ const logger = parentLogger.child({
  *
  * @function validateOrCreateNfMnemonic
  * @param {string} mnemonic
- * @returns {null|string} mnemonic <string> if the mnemonic is new or given one is valid, else return null
+ * @throws {NightfallSdkError} Given mnemonic is not bip39
+ * @returns {string} mnemonic <string> if the mnemonic is new or given one is valid, else return null
  */
-export function validateOrCreateNfMnemonic(
-  mnemonic: undefined | string,
-): null | string {
+export function validateOrCreateNfMnemonic(mnemonic: undefined | string): string {
   logger.debug("validateOrCreateNfMnemonic");
   if (!mnemonic) {
     mnemonic = createMnemonic();
@@ -27,7 +27,7 @@ export function validateOrCreateNfMnemonic(
       validateNfMnemonic(mnemonic);
     } catch (err) {
       logger.child({ mnemonic }).error(err, "Error while validating mnemonic");
-      return null;
+      throw new NightfallSdkError("Error while validating mnemonic");
     }
     logger.debug("Valid mnemonic");
   }
@@ -40,16 +40,16 @@ export function validateOrCreateNfMnemonic(
  * @function createZkpKeysAndSubscribeToIncomingKeys
  * @param {string} mnemonic
  * @param {Client} client an instance of Client to interact with the API
- * @returns {null|NightfallKeys} NightfallKeys if the mnemonic is new or given one is valid, else return null
+ * @throws {NightfallSdkError} Something went wrong - CHECK
+ * @returns {NightfallKeys} NightfallKeys if the mnemonic is new or given one is valid, else return null
  */
 export async function createZkpKeysAndSubscribeToIncomingKeys(
   mnemonic: undefined | string,
   client: Client,
-): Promise<null | NightfallKeys> {
+): Promise<NightfallKeys> {
   logger.debug("createZkpKeysAndSubscribeToIncomingKeys");
 
   const nightfallMnemonic = validateOrCreateNfMnemonic(mnemonic);
-  if (nightfallMnemonic === null) return null;
 
   logger.info("Generate ZKP keys from mnemonic");
   const mnemonicAddressIdx = 0;
@@ -57,7 +57,6 @@ export async function createZkpKeysAndSubscribeToIncomingKeys(
     nightfallMnemonic,
     mnemonicAddressIdx,
   );
-  if (zkpKeys === null) return null;
 
   logger.info("Subscribe to incoming viewing keys");
   await client.subscribeToIncomingViewingKeys(zkpKeys);
