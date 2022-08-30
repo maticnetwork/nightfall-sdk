@@ -69,7 +69,7 @@ describe("Transactions", () => {
         transaction: txReceiptL2,
       };
       mockedClient.deposit.mockResolvedValue(mockedDepositResData);
-      (submitTransaction as jest.Mock).mockResolvedValueOnce(txReceipt);
+      (submitTransaction as jest.Mock).mockResolvedValue(txReceipt);
 
       // Act
       const txReceipts = await createAndSubmitDeposit(
@@ -294,7 +294,7 @@ describe("Transactions", () => {
       mockedClient.finaliseWithdrawal.mockResolvedValue(
         mockedFinaliseWithdrawalResData,
       );
-      (submitTransaction as jest.Mock).mockResolvedValueOnce(txReceipt);
+      (submitTransaction as jest.Mock).mockResolvedValue(txReceipt);
 
       // Act
       const result = await createAndSubmitFinaliseWithdrawal(
