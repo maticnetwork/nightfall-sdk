@@ -15,7 +15,7 @@ const logger = parentLogger.child({
  * @function validateOrCreateNfMnemonic
  * @param {string} mnemonic
  * @throws {NightfallSdkError} Given mnemonic is not bip39
- * @returns {string} mnemonic <string> if the mnemonic is new or given one is valid, else return null
+ * @returns {string} mnemonic <string> if the mnemonic is new or given one is valid
  */
 export function validateOrCreateNfMnemonic(mnemonic: undefined | string): string {
   logger.debug("validateOrCreateNfMnemonic");
@@ -41,7 +41,7 @@ export function validateOrCreateNfMnemonic(mnemonic: undefined | string): string
  * @param {string} mnemonic
  * @param {Client} client an instance of Client to interact with the API
  * @throws {NightfallSdkError} Something went wrong - CHECK
- * @returns {NightfallKeys} NightfallKeys if the mnemonic is new or given one is valid, else return null
+ * @returns {NightfallKeys} NightfallKeys if the mnemonic is new or given one is valid
  */
 export async function createZkpKeysAndSubscribeToIncomingKeys(
   mnemonic: undefined | string,

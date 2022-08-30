@@ -190,7 +190,6 @@ class User {
         web3: this.web3Websocket.web3,
       });
     }
-    if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
@@ -265,7 +264,6 @@ class User {
         web3: this.web3Websocket.web3,
       });
     }
-    if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);
@@ -330,7 +328,6 @@ class User {
         web3: this.web3Websocket.web3,
       });
     }
-    if (this.token === null) throw new Error("Unable to set token");
 
     // Convert value and fee to wei
     const valueWei = stringValueToWei(value, this.token.decimals);

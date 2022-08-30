@@ -6,6 +6,7 @@ import { APPROVE_AMOUNT } from "./constants";
 import type { TokenOptions } from "./types";
 import erc20Abi from "./abis/ERC20.json";
 import type { AbiItem } from "web3-utils";
+import { NightfallSdkError } from "../utils/error";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -21,7 +22,7 @@ class TokenFactory {
       await token.setTokenDecimals();
     } catch (err) {
       logger.child(options).error(err, "Unable to set token decimals");
-      return null;
+      throw new NightfallSdkError("Unable to set token, couldn't get decimals");
     }
 
     return token;
