@@ -164,7 +164,7 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      tokenId: "0x00", // ISSUE #32 && ISSUE #54
       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
       nullifierKey: ownerZkpKeys.nullifierKey,
       value,
@@ -203,7 +203,7 @@ class Client {
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      tokenId: "0x00", // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
       fee,
@@ -248,7 +248,7 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #58
+      tokenId: "0x00", // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientAddress: recipientEthAddress,
       value,

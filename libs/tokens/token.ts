@@ -68,14 +68,14 @@ class Token {
     return erc20Abi as unknown as AbiItem;
   }
 
-  // ISSUE #32 && ISSUE #58
+  // ISSUE #32 && ISSUE #54
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
     this.decimals = Number(await this.contract.methods.decimals().call());
     logger.info({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
-  // ISSUE #32 && ISSUE #58
+  // ISSUE #32 && ISSUE #54
   // DOCS can throw Errors
   async approveTransaction(owner: string, spender: string, value: string) {
     const logInput = { owner, spender, value };
