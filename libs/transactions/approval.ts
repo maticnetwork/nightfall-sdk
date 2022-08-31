@@ -18,7 +18,7 @@ const logger = parentLogger.child({
  * @function createAndSubmitApproval
  * @param {*} token An instance of Token holding token data such as contract address
  * @param {string} ownerEthAddress Eth address which may own some token balance
- * @param {string} ownerEthPrivateKey Eth private key of the sender to sign the tx
+ * @param {undefined | string} ownerEthPrivateKey Eth private key of the sender to sign the tx
  * @param {string} spenderEthAddress Eth address of the Shield smart contract (spender)
  * @param {Web3} web3 web3js instance
  * @param {string} value The amount in Wei of the token to be deposited later
@@ -28,7 +28,7 @@ const logger = parentLogger.child({
 export async function createAndSubmitApproval(
   token: any, // Token,
   ownerEthAddress: string,
-  ownerEthPrivateKey: string,
+  ownerEthPrivateKey: undefined | string,
   spenderEthAddress: string,
   web3: Web3,
   value: string,

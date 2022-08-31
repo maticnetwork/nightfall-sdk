@@ -22,7 +22,7 @@ const logger = parentLogger.child({
  * @function createAndSubmitWithdrawal
  * @param {*} token An instance of Token holding token data such as contract address
  * @param {string} ownerEthAddress Eth address sending the contents of the withdrawal
- * @param {string} ownerEthPrivateKey Eth private key of the sender to sign the tx
+ * @param {undefined | string} ownerEthPrivateKey Eth private key of the sender to sign the tx
  * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
  * @param {string} shieldContractAddress Address of the Shield smart contract
  * @param {Web3} web3 web3js instance
@@ -37,7 +37,7 @@ const logger = parentLogger.child({
 export async function createAndSubmitWithdrawal(
   token: any,
   ownerAddress: string,
-  ownerPrivateKey: string,
+  ownerEthPrivateKey: undefined | string,
   ownerZkpKeys: NightfallZkpKeys,
   shieldContractAddress: string,
   web3: Web3,
@@ -67,7 +67,7 @@ export async function createAndSubmitWithdrawal(
     try {
       txReceipt = await submitTransaction(
         ownerAddress,
-        ownerPrivateKey,
+        ownerEthPrivateKey,
         shieldContractAddress,
         unsignedTx,
         web3,

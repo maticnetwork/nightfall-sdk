@@ -22,7 +22,7 @@ const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
  * @async
  * @function submitTransaction
  * @param {string} senderEthAddress Eth address sending the contents of the tx
- * @param {string} senderEthPrivateKey Eth private key of the sender to sign the tx
+ * @param {undefined | string} senderEthPrivateKey Eth private key of the sender to sign the tx
  * @param {string} recipientEthAddress Eth address receiving the contents of the tx
  * @param {string} unsignedTx The contents of the tx (sent in data)
  * @param {Web3} web3 web3js instance
@@ -60,16 +60,17 @@ export async function submitTransaction(
     gasPrice,
   };
 
-  if (senderEthPrivateKey) {
-    logger.debug({ tx }, "Sign tx...");
-    const signedTx = await web3.eth.accounts.signTransaction(
-      tx,
-      senderEthPrivateKey,
-    );
-
-    logger.debug({ signedTx }, "Send signedTx...");
-    return web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+  if (!senderEthPrivateKey) {
+    logger.debug({ tx }, "Send tx via MetaMask...");
+    return web3.eth.sendTransaction(tx);
   }
 
-  return web3.eth.sendTransaction(tx);
+  logger.debug({ tx }, "Sign tx...");
+  const signedTx = await web3.eth.accounts.signTransaction(
+    tx,
+    senderEthPrivateKey,
+  );
+
+  logger.debug({ signedTx }, "Send signedTx...");
+  return web3.eth.sendSignedTransaction(signedTx.rawTransaction);
 }
