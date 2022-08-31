@@ -13,14 +13,11 @@ const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
 
 const PATTERN_ETH_PRIVATE_KEY = /^0x[0-9a-f]{64}$/;
 export const createOptions = Joi.object({
-  blockchainWsUrl: Joi.string().required(),
   clientApiUrl: Joi.string().required(),
-  ethereumPrivateKey: Joi.string()
-    .trim()
-    .pattern(PATTERN_ETH_PRIVATE_KEY)
-    .required(),
+  blockchainWsUrl: Joi.string(),
+  ethereumPrivateKey: Joi.string().trim().pattern(PATTERN_ETH_PRIVATE_KEY),
   nightfallMnemonic: Joi.string(),
-});
+}).with("ethereumPrivateKey", "blockchainWsUrl"); // TODO test
 
 export const makeDepositOptions = Joi.object({
   tokenContractAddress: Joi.string()

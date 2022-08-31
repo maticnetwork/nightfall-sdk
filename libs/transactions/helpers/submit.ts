@@ -9,9 +9,9 @@ const logger = parentLogger.child({
 
 const GAS = process.env.GAS || 4000000;
 const GAS_PRICE = process.env.GAS_PRICE || 10000000000;
-const GAS_ESTIMATE_ENDPOINT =
-  process.env.GAS_ESTIMATE_ENDPOINT ||
-  "https://vqxy02tr5e.execute-api.us-east-2.amazonaws.com/production/estimateGas";
+// const GAS_ESTIMATE_ENDPOINT =
+//   process.env.GAS_ESTIMATE_ENDPOINT ||
+//   "https://vqxy02tr5e.execute-api.us-east-2.amazonaws.com/production/estimateGas";
 
 const GAS_MULTIPLIER = Number(process.env.GAS_MULTIPLIER) || 2;
 const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
@@ -31,7 +31,7 @@ const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
  */
 export async function submitTransaction(
   senderEthAddress: string,
-  senderEthPrivateKey: string,
+  senderEthPrivateKey: undefined | string,
   recipientEthAddress: string,
   unsignedTx: string,
   web3: Web3,
@@ -59,12 +59,17 @@ export async function submitTransaction(
     gas,
     gasPrice,
   };
-  logger.debug({ tx }, "Sign tx...");
-  const signedTx = await web3.eth.accounts.signTransaction(
-    tx,
-    senderEthPrivateKey,
-  );
 
-  logger.debug({ signedTx }, "Send signedTx...");
-  return web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+  if (senderEthPrivateKey) {
+    logger.debug({ tx }, "Sign tx...");
+    const signedTx = await web3.eth.accounts.signTransaction(
+      tx,
+      senderEthPrivateKey,
+    );
+
+    logger.debug({ signedTx }, "Send signedTx...");
+    return web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+  }
+
+  return web3.eth.sendTransaction(tx);
 }

@@ -48,6 +48,7 @@ import {
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import isCommitmentsFromMnemonic from "../nightfall/isCommitmentFromMnemonic";
+import Web3 from "web3";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -60,21 +61,46 @@ class UserFactory {
 
     // Format options
     const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
-    const blockchainWsUrl = options.blockchainWsUrl.trim().toLowerCase();
-    const ethPrivateKey = options.ethereumPrivateKey.trim();
-    const nightfallMnemonic = options.nightfallMnemonic?.trim(); // else keep as undefined
+    const blockchainWsUrl = options.blockchainWsUrl?.trim().toLowerCase(); // else keep as undefined
+    const ethPrivateKey = options.ethereumPrivateKey?.trim();
+    const nightfallMnemonic = options.nightfallMnemonic?.trim();
 
-    // Instantiate Client and Web3Websocket
+    // Instantiate Client
     const client = new Client(clientApiUrl);
-    const web3Websocket = new Web3Websocket(blockchainWsUrl);
 
     // Get Shield contract address
     const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
 
-    // Get the Eth account address from private key if it's a valid key
-    const ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
+    // WIP START MetaMask vs web3 ws
+    let web3Websocket: Web3 | Web3Websocket;
+    let ethAddress: string;
+
+    interface window {
+      ethereum?: any; // import type { AbstractProvider } from "web3-core";
+    }
+    console.log("******************0 -- window", window);
+    if (!ethPrivateKey) {
+      console.log("******************1 -- !ethPrivateKey");
+      try {
+        // TODO check is metamask
+        web3Websocket = new Web3((window as window).ethereum);
+        const accounts = await (window as window).ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        console.log("******************2 -- accounts", accounts);
+        ethAddress = accounts[0]; // TODO window.ethereum.on('accountsChanged'... https://ethereum.stackexchange.com/questions/79042/how-can-i-get-the-current-user-account-selected-in-metamask-with-web3-js
+        console.log("******************3 -- accounts[0]", ethAddress);
+      } catch (error) {
+        logger.error(error); // TODO improve
+        throw new NightfallSdkError(error);
+      }
+    } else {
+      web3Websocket = new Web3Websocket(blockchainWsUrl);
+      ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
+    }
+    // END
 
     // Create a set of Zero-knowledge proof keys from a valid mnemonic
     // or from a new mnemonic if none was provided,
@@ -88,7 +114,7 @@ class UserFactory {
       client,
       web3Websocket,
       shieldContractAddress,
-      ethPrivateKey: ethPrivateKey,
+      ethPrivateKey,
       ethAddress,
       nightfallMnemonic: nightfallKeys.nightfallMnemonic,
       zkpKeys: nightfallKeys.zkpKeys,
@@ -99,7 +125,7 @@ class UserFactory {
 class User {
   // Set by constructor
   client: Client;
-  web3Websocket: Web3Websocket;
+  web3Websocket: Web3 | Web3Websocket;
   shieldContractAddress: string;
   ethPrivateKey: string;
   ethAddress: string;
@@ -130,9 +156,9 @@ class User {
    */
   async checkStatus() {
     logger.debug("User :: checkStatus");
-    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
+    // const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo()); // TODO
     const isClientAlive = await this.client.healthCheck();
-    return { isWeb3WsAlive, isClientAlive };
+    return { isClientAlive };
   }
 
   /**
@@ -511,6 +537,7 @@ class User {
 
   /**
    * Close user blockchain ws connection
+   * TODO review post MetaMask changes
    */
   close() {
     logger.debug("User :: close");

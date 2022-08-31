@@ -1,16 +1,17 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
+import Web3 from "web3";
 
 export interface UserFactoryCreate {
-  blockchainWsUrl: string;
   clientApiUrl: string;
-  ethereumPrivateKey: string;
+  blockchainWsUrl?: string;
+  ethereumPrivateKey?: string;
   nightfallMnemonic?: string;
 }
 
 export interface UserConstructor {
   client: Client;
-  web3Websocket: Web3Websocket;
+  web3Websocket: Web3 | Web3Websocket;
   shieldContractAddress: string;
   ethPrivateKey: string;
   ethAddress: string;
