@@ -122,7 +122,7 @@ class UserFactory {
 class User {
   // Set by constructor
   client: Client;
-  web3Websocket: Web3 | Web3Websocket;
+  web3Websocket: Web3Websocket;
   shieldContractAddress: string;
   ethPrivateKey: string;
   ethAddress: string;
