@@ -15,6 +15,7 @@ import {
   UserCheckBalances,
   UserExportCommitments,
   UserImportCommitments,
+  UserBrowser,
 } from "./types";
 import { Client } from "../client";
 import { Web3Websocket, getEthAccountAddress } from "../ethereum";
@@ -48,7 +49,6 @@ import {
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import isCommitmentsFromMnemonic from "../nightfall/isCommitmentFromMnemonic";
-import Web3 from "web3";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -74,19 +74,16 @@ class UserFactory {
     );
 
     // WIP START MetaMask vs web3 ws
-    let web3Websocket: Web3 | Web3Websocket;
+    let web3Websocket: Web3Websocket;
     let ethAddress: string;
 
-    interface window {
-      ethereum?: any; // import type { AbstractProvider } from "web3-core";
-    }
     console.log("******************0 -- window", window);
     if (!ethPrivateKey) {
       console.log("******************1 -- !ethPrivateKey");
       try {
-        // TODO check is metamask
-        web3Websocket = new Web3((window as window).ethereum);
-        const accounts = await (window as window).ethereum.request({
+        // TODO check is metamask (?)
+        web3Websocket = new Web3Websocket();
+        const accounts = await(window as UserBrowser).ethereum.request({
           method: "eth_requestAccounts",
         });
         console.log("******************2 -- accounts", accounts);

@@ -1,6 +1,6 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
-import Web3 from "web3";
+import type { AbstractProvider } from "web3-core";
 
 export interface UserFactoryCreate {
   clientApiUrl: string;
@@ -56,4 +56,8 @@ export interface UserImportCommitments {
   pathToImport: string;
   fileName: string;
   compressedZkpPublicKey: string;
+}
+
+export interface UserBrowser extends Window {
+  ethereum?: AbstractProvider; // TODO
 }

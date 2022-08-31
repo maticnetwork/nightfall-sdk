@@ -1,5 +1,6 @@
 import Web3 from "web3";
 import type { WebsocketProvider } from "web3-core";
+import type { UserBrowser } from "../user/types";
 import logger from "../utils/logger";
 
 const WEB3_PROVIDER_OPTIONS = {
@@ -26,25 +27,29 @@ const WS_BLOCKNO_PING_TIME_MS = 15000;
 
 class Web3Websocket {
   // Set by constructor
-  wsUrl: string;
   provider: WebsocketProvider;
   web3: Web3;
   intervalIds: ReturnType<typeof setInterval>[] = [];
   blocknumber: number;
 
-  constructor(wsUrl: string) {
+  constructor(wsUrl?: string) {
     logger.debug({ wsUrl }, "new Web3Websocket listening at");
-    this.wsUrl = wsUrl;
-    this.provider = new Web3.providers.WebsocketProvider(
-      wsUrl,
-      WEB3_PROVIDER_OPTIONS,
-    );
-    this.web3 = new Web3(this.provider);
+
+    if (!wsUrl) {
+      // TODO https://www.npmjs.com/package/@metamask/detect-provider
+      this.web3 = new Web3((window as UserBrowser).ethereum);
+    } else {
+      this.provider = new Web3.providers.WebsocketProvider(
+        wsUrl,
+        WEB3_PROVIDER_OPTIONS,
+      );
+      this.web3 = new Web3(this.provider);
+    }
 
     this.setEthConfig();
-    this.addWsEventListeners();
-    this.checkWsConnection();
-    this.refreshWsConnection();
+    // this.addWsEventListeners(); TODO
+    // this.checkWsConnection();
+    // this.refreshWsConnection();
   }
 
   setEthConfig() {
