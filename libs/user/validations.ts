@@ -17,7 +17,7 @@ export const createOptions = Joi.object({
   blockchainWsUrl: Joi.string(),
   ethereumPrivateKey: Joi.string().trim().pattern(PATTERN_ETH_PRIVATE_KEY),
   nightfallMnemonic: Joi.string(),
-}).with("ethereumPrivateKey", "blockchainWsUrl"); // TODO test
+}).with("ethereumPrivateKey", "blockchainWsUrl");
 
 export const makeDepositOptions = Joi.object({
   tokenContractAddress: Joi.string()

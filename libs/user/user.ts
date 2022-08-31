@@ -77,11 +77,15 @@ class UserFactory {
     let web3Websocket: Web3Websocket;
     let ethAddress: string;
 
-    console.log("******************0 -- window", window);
     if (!ethPrivateKey) {
-      console.log("******************1 -- !ethPrivateKey");
       try {
-        // TODO check is metamask (?)
+        logger.debug("Trying to set MetaMask as web3 provider...");
+        const { ethereum } = window as UserBrowser;
+        const isMetaMask = ethereum && ethereum.isMetaMask;
+        if (!isMetaMask)
+          throw new NightfallSdkError(
+            "SDK can only use MetaMask, is it installed?",
+          );
         web3Websocket = new Web3Websocket();
         const accounts = await(window as UserBrowser).ethereum.request({
           method: "eth_requestAccounts",

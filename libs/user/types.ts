@@ -1,6 +1,6 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
-import type { AbstractProvider } from "web3-core";
+import type { MetaMaskEthereumProvider } from "../ethereum/types";
 
 export interface UserFactoryCreate {
   clientApiUrl: string;
@@ -59,5 +59,5 @@ export interface UserImportCommitments {
 }
 
 export interface UserBrowser extends Window {
-  ethereum?: AbstractProvider; // TODO
+  ethereum?: MetaMaskEthereumProvider;
 }

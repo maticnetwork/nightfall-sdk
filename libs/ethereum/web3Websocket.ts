@@ -1,6 +1,7 @@
 import Web3 from "web3";
 import type { WebsocketProvider } from "web3-core";
 import type { UserBrowser } from "../user/types";
+import type { MetaMaskEthereumProvider } from "./types";
 import logger from "../utils/logger";
 
 const WEB3_PROVIDER_OPTIONS = {
@@ -27,7 +28,7 @@ const WS_BLOCKNO_PING_TIME_MS = 15000;
 
 class Web3Websocket {
   // Set by constructor
-  provider: WebsocketProvider;
+  provider: MetaMaskEthereumProvider | WebsocketProvider;
   web3: Web3;
   intervalIds: ReturnType<typeof setInterval>[] = [];
   blocknumber: number;
@@ -36,8 +37,8 @@ class Web3Websocket {
     logger.debug({ wsUrl }, "new Web3Websocket listening at");
 
     if (!wsUrl) {
-      // TODO https://www.npmjs.com/package/@metamask/detect-provider
-      this.web3 = new Web3((window as UserBrowser).ethereum);
+      this.provider = (window as UserBrowser).ethereum;
+      this.web3 = new Web3(this.provider);
     } else {
       this.provider = new Web3.providers.WebsocketProvider(
         wsUrl,
@@ -47,9 +48,9 @@ class Web3Websocket {
     }
 
     this.setEthConfig();
-    // this.addWsEventListeners(); TODO
-    // this.checkWsConnection();
-    // this.refreshWsConnection();
+    this.addWsEventListeners();
+    this.checkWsConnection();
+    this.refreshWsConnection();
   }
 
   setEthConfig() {
@@ -71,7 +72,7 @@ class Web3Websocket {
     logger.debug("Web3Websocket :: checkWsConnection");
     this.intervalIds.push(
       setInterval(() => {
-        if (!this.provider.connected) {
+        if (Object.prototype.hasOwnProperty.call(this.provider, "connected")) {
           this.updateWeb3Provider();
         }
       }, WS_CONNECTION_PING_TIME_MS),
@@ -113,7 +114,9 @@ class Web3Websocket {
 
   closeWsConnection() {
     logger.debug("Web3Websocket :: closeWsConnection");
-    this.provider.disconnect();
+    if (Object.prototype.hasOwnProperty.call(this.provider, "disconnect")) {
+      (this.provider as WebsocketProvider).disconnect();
+    }
   }
 }
 
