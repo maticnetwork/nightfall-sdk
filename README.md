@@ -81,7 +81,7 @@ BLOCKCHAIN_URL=your web3 url provider to access the blockchain
 ### Install
 
 ```bash
-npm install @nightfall-sdk
+npm install nightfall-sdk
 ```
 
 ### Import
