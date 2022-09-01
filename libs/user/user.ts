@@ -21,7 +21,7 @@ import { Client } from "../client";
 import {
   Web3Websocket,
   getEthAccountAddress,
-  isMetaMaskProvider,
+  isMetaMaskAvailable,
 } from "../ethereum";
 import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
@@ -81,8 +81,7 @@ class UserFactory {
 
     if (!ethPrivateKey) {
       try {
-        logger.debug("Trying to set MetaMask as web3 provider...");
-        isMetaMaskProvider();
+        isMetaMaskAvailable();
         web3Websocket = new Web3Websocket();
 
         const accounts = await (window as UserBrowser).ethereum.request({

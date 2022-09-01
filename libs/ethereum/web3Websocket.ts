@@ -12,8 +12,8 @@ import {
 } from "./constants";
 import { NightfallSdkError } from "../utils/error";
 
-function isMetaMaskProvider() {
-  logger.debug("isMetaMaskProvider");
+function isMetaMaskAvailable() {
+  logger.debug("isMetaMaskAvailable");
   const { ethereum } = window as UserBrowser;
   const isMetaMask = ethereum && ethereum.isMetaMask;
   if (!isMetaMask)
@@ -31,10 +31,12 @@ class Web3Websocket {
     logger.debug({ wsUrl }, "new Web3Websocket listening at");
 
     if (!wsUrl) {
+      logger.debug("Web3 ws provider to be <MetaMaskEthereumProvider>");
       const { ethereum } = window as UserBrowser;
       this.provider = ethereum;
       this.web3 = new Web3(this.provider);
     } else {
+      logger.debug("Web3 ws provider to be <WebsocketProvider>");
       this.provider = new Web3.providers.WebsocketProvider(
         wsUrl,
         WEB3_PROVIDER_OPTIONS,
@@ -65,12 +67,16 @@ class Web3Websocket {
 
   checkWsConnection() {
     logger.debug("Web3Websocket :: checkWsConnection");
+
     this.intervalIds.push(
       setInterval(() => {
         if (
-          Object.prototype.hasOwnProperty.call(this.provider, "connected") &&
+          Object.keys(this.provider).includes("connected") &&
           !this.provider.connected
         ) {
+          logger.debug(
+            "checkWsConnection :: provider includes `connected` false",
+          );
           this.updateWeb3Provider();
         }
       }, WS_CONNECTION_PING_TIME_MS),
@@ -112,10 +118,11 @@ class Web3Websocket {
 
   closeWsConnection() {
     logger.debug("Web3Websocket :: closeWsConnection");
-    if (Object.prototype.hasOwnProperty.call(this.provider, "disconnect")) {
+    if ("disconnect" in this.provider) {
+      logger.debug("closeWsConnection :: `disconnect` in provider");
       (this.provider as WebsocketProvider).disconnect();
     }
   }
 }
 
-export { Web3Websocket, isMetaMaskProvider };
+export { Web3Websocket, isMetaMaskAvailable };
