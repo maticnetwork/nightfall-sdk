@@ -67,7 +67,10 @@ class Web3Websocket {
     logger.debug("Web3Websocket :: checkWsConnection");
     this.intervalIds.push(
       setInterval(() => {
-        if (Object.prototype.hasOwnProperty.call(this.provider, "connected")) {
+        if (
+          Object.prototype.hasOwnProperty.call(this.provider, "connected") &&
+          !this.provider.connected
+        ) {
           this.updateWeb3Provider();
         }
       }, WS_CONNECTION_PING_TIME_MS),
