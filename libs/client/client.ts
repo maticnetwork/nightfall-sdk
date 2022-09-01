@@ -14,8 +14,8 @@ const logger = parentLogger.child({
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
-    logger.error(error);
-    throw new NightfallSdkError(error.message);
+    logger.error(error, "Client failed");
+    throw new NightfallSdkError(error);
   },
 );
 
@@ -53,7 +53,7 @@ class Client {
 
     const res = await axios.get(`${this.apiUrl}/${endpoint}`);
     if (res.status !== 200) {
-      logger.error(res);
+      logger.error(res, "Client not available");
       throw new NightfallSdkError("Sorry, client not available");
     }
     logger.info(
@@ -210,7 +210,7 @@ class Client {
       offchain: isOffChain,
     });
     if (res.data.error && res.data.error === "No suitable commitments") {
-      logger.error(res);
+      logger.error(res, "No suitable commitments were found");
       throw new NightfallSdkError("No suitable commitments were found");
     }
     logger.info(
@@ -367,6 +367,10 @@ class Client {
     logger.debug({ endpoint }, "Calling client at");
 
     if (!listOfCompressedZkpPublicKey.length) {
+      logger.error(
+        listOfCompressedZkpPublicKey,
+        "You should pass at least one compressedZkpPublicKey",
+      );
       throw new NightfallSdkError(
         "You should pass at least one compressedZkpPublicKey",
       );

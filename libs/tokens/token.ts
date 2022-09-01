@@ -22,7 +22,7 @@ class TokenFactory {
       await token.setTokenDecimals();
     } catch (err) {
       logger.child(options).error(err, "Unable to set token decimals");
-      throw new NightfallSdkError("Unable to set token, couldn't get decimals");
+      throw new NightfallSdkError(err);
     }
 
     return token;

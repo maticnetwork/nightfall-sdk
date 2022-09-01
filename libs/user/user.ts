@@ -503,7 +503,7 @@ class User {
       );
       return null;
     } catch (err) {
-      logger.child({ options }).error(err);
+      logger.child({ options }).error(err, "Error while exporting commitments");
       return null;
     }
   }

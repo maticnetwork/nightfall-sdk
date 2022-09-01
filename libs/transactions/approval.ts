@@ -54,8 +54,8 @@ export async function createAndSubmitApproval(
       web3,
     );
   } catch (err) {
-    logger.error(err);
-    throw new NightfallSdkError(err.message);
+    logger.error(err, "Error when submitting transaction");
+    throw new NightfallSdkError(err);
   }
 
   return txReceipt;

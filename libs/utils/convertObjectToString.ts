@@ -1,13 +1,16 @@
+import { NightfallSdkError } from "./error";
+
 /**
+ * Converts an object into string
  *
- * @function convertObjectToString has the goal of transform an object
- * in a string format.
- * @param obj an object.
- * @returns a JSON strigify of the object received in the parameter.
+ * @function convertObjectToString
+ * @param {Object} obj
+ * @throws {NightfallSdkError} param type is not object
+ * @returns {string}
  */
 const convertObjectToString = (obj: object) => {
   if (typeof obj !== "object") {
-    throw new Error("The parameter passed is not an object!");
+    throw new NightfallSdkError("Given param is not an object!");
   }
   return JSON.stringify(obj);
 };

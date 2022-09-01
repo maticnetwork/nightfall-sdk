@@ -59,8 +59,8 @@ export async function createAndSubmitDeposit(
       fee,
     );
   } catch (err) {
-    logger.child({ resData }).error(err);
-    throw new NightfallSdkError(err.message);
+    logger.child({ resData }).error(err, "Error when submitting transaction");
+    throw new NightfallSdkError(err);
   }
 
   return { txReceipt, txReceiptL2 };
