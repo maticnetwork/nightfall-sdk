@@ -155,9 +155,9 @@ class User {
    */
   async checkStatus() {
     logger.debug("User :: checkStatus");
-    // const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo()); // TODO
+    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
     const isClientAlive = await this.client.healthCheck();
-    return { isClientAlive };
+    return { isWeb3WsAlive, isClientAlive };
   }
 
   /**
@@ -533,7 +533,6 @@ class User {
 
   /**
    * Close user blockchain ws connection
-   * TODO review post MetaMask changes
    */
   close() {
     logger.debug("User :: close");
