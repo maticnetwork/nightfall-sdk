@@ -6,20 +6,22 @@ import { NightfallSdkError } from "../utils/error";
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
+
 /**
  * Verify if all commitments in the list belong to the user compressed zkp public key
  *
  * @async
- * @function isCommitmentsFromMnemonic
+ * @function commitmentsFromMnemonic
  * @param {Commitment[]} listOfCommitments a list of commitments to be verified.
- * @param {string} compressedZkpPublicKey the compressed key derivated from the mnemonic
+ * @param {string} compressedZkpPublicKey the compressed key derived from the mnemonic
  * @throws {NightfallSdkError} if one of the commitments doesn't match with the user compressedZkpPublicKey
- * @returns {Promise<boolean>} Should resolve `true` if all commitments match with the user compressedZkpPublicKey
  */
-async function isCommitmentsFromMnemonic(
+function commitmentsFromMnemonic(
   listOfCommitments: Commitment[],
   compressedZkpPublicKey: string,
-): Promise<boolean> {
+) {
+  logger.debug("commitmentsFromMnemonic");
+
   for (const commitment of listOfCommitments) {
     if (commitment.compressedZkpPublicKey !== compressedZkpPublicKey) {
       logger.error(
@@ -30,8 +32,6 @@ async function isCommitmentsFromMnemonic(
       );
     }
   }
-
-  return true;
 }
 
-export default isCommitmentsFromMnemonic;
+export default commitmentsFromMnemonic;

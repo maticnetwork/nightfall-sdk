@@ -18,7 +18,11 @@ import {
   UserBrowser,
 } from "./types";
 import { Client } from "../client";
-import { Web3Websocket, getEthAccountAddress } from "../ethereum";
+import {
+  Web3Websocket,
+  getEthAccountAddress,
+  isMetaMaskProvider,
+} from "../ethereum";
 import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
@@ -48,7 +52,7 @@ import {
 } from "../transactions/types";
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
-import isCommitmentsFromMnemonic from "../nightfall/isCommitmentFromMnemonic";
+import { commitmentsFromMnemonic } from "../nightfall";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -80,14 +84,10 @@ class UserFactory {
     if (!ethPrivateKey) {
       try {
         logger.debug("Trying to set MetaMask as web3 provider...");
-        const { ethereum } = window as UserBrowser;
-        const isMetaMask = ethereum && ethereum.isMetaMask;
-        if (!isMetaMask)
-          throw new NightfallSdkError(
-            "SDK can only use MetaMask, is it installed?",
-          );
+        isMetaMaskProvider();
         web3Websocket = new Web3Websocket();
-        const accounts = await(window as UserBrowser).ethereum.request({
+
+        const accounts = await (window as UserBrowser).ethereum.request({
           method: "eth_requestAccounts",
         });
         console.log("******************2 -- accounts", accounts);
@@ -524,13 +524,10 @@ class User {
     const file = fs.readFileSync(`${options.pathToImport}${options.fileName}`);
     const listOfCommitments: Commitment[] = JSON.parse(file.toString("utf8"));
 
-    await isCommitmentsFromMnemonic(
-      listOfCommitments,
-      options.compressedZkpPublicKey,
-    );
+    commitmentsFromMnemonic(listOfCommitments, options.compressedZkpPublicKey);
 
-    const response = await this.client.saveCommitments(listOfCommitments);
-    const { successMessage } = response;
+    const res = await this.client.saveCommitments(listOfCommitments);
+    const { successMessage } = res;
     logger.info(successMessage);
 
     return successMessage;

@@ -3,28 +3,22 @@ import type { WebsocketProvider } from "web3-core";
 import type { UserBrowser } from "../user/types";
 import type { MetaMaskEthereumProvider } from "./types";
 import logger from "../utils/logger";
+import {
+  WEB3_PROVIDER_OPTIONS,
+  TX_TIMEOUT_BLOCKS,
+  TX_CONFIRMATION_BLOCKS,
+  WS_CONNECTION_PING_TIME_MS,
+  WS_BLOCKNO_PING_TIME_MS,
+} from "./constants";
+import { NightfallSdkError } from "../utils/error";
 
-const WEB3_PROVIDER_OPTIONS = {
-  clientConfig: {
-    keepalive: true,
-    keepaliveInterval: 10, // ms, docs suggest 60000
-  },
-  timeout: 3600000, // ms (1h)
-  reconnect: {
-    auto: false, // if true will always try to reconnect when closing ws connection
-    delay: 5000, // ms
-    maxAttempts: 120,
-    onTimeout: false,
-  },
-};
-
-// See setEthConfig
-const TX_TIMEOUT_BLOCKS = 2000;
-const TX_CONFIRMATION_BLOCKS = 12;
-
-// See checkWsConnection, getBlockNumber
-const WS_CONNECTION_PING_TIME_MS = 2000;
-const WS_BLOCKNO_PING_TIME_MS = 15000;
+function isMetaMaskProvider() {
+  logger.debug("isMetaMaskProvider");
+  const { ethereum } = window as UserBrowser;
+  const isMetaMask = ethereum && ethereum.isMetaMask;
+  if (!isMetaMask)
+    throw new NightfallSdkError("SDK only supports MetaMask, is it installed?");
+}
 
 class Web3Websocket {
   // Set by constructor
@@ -37,7 +31,8 @@ class Web3Websocket {
     logger.debug({ wsUrl }, "new Web3Websocket listening at");
 
     if (!wsUrl) {
-      this.provider = (window as UserBrowser).ethereum;
+      const { ethereum } = window as UserBrowser;
+      this.provider = ethereum;
       this.web3 = new Web3(this.provider);
     } else {
       this.provider = new Web3.providers.WebsocketProvider(
@@ -120,4 +115,4 @@ class Web3Websocket {
   }
 }
 
-export default Web3Websocket;
+export { Web3Websocket, isMetaMaskProvider };
