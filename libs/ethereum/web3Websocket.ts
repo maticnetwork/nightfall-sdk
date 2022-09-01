@@ -35,6 +35,7 @@ class Web3Websocket {
       const { ethereum } = window as UserBrowser;
       this.provider = ethereum;
       this.web3 = new Web3(this.provider);
+      logger.info("Web3 ws provider is <MetaMaskEthereumProvider>");
     } else {
       logger.debug("Web3 ws provider to be <WebsocketProvider>");
       this.provider = new Web3.providers.WebsocketProvider(
@@ -42,6 +43,7 @@ class Web3Websocket {
         WEB3_PROVIDER_OPTIONS,
       );
       this.web3 = new Web3(this.provider);
+      logger.info("Web3 ws provider is <WebsocketProvider>");
     }
 
     this.setEthConfig();
@@ -65,9 +67,10 @@ class Web3Websocket {
     );
   }
 
+  // DOCS Prop `connected` only exists in WebsocketProvider
+  // dApps using sdk shouldn't worry about checking ws
   checkWsConnection() {
     logger.debug("Web3Websocket :: checkWsConnection");
-
     this.intervalIds.push(
       setInterval(() => {
         if (
@@ -86,6 +89,7 @@ class Web3Websocket {
   updateWeb3Provider() {
     logger.debug("Web3Websocket :: updateWeb3Provider");
     this.web3.setProvider(this.provider);
+    logger.info("Web3 provider updated");
   }
 
   refreshWsConnection() {
@@ -108,16 +112,20 @@ class Web3Websocket {
     logger.debug("Web3Websocket :: close");
     this.clearIntervalIds();
     this.closeWsConnection();
+    logger.info("Web3 connection closed");
   }
 
   clearIntervalIds() {
     logger.debug("Web3Websocket :: clearIntervalIds");
     this.intervalIds.forEach((intervalId) => clearInterval(intervalId));
-    logger.info({ intervalIds: this.intervalIds }, "Cleared intervals");
+    logger.debug({ intervalIds: this.intervalIds }, "Cleared intervals");
   }
 
+  // DOCS Method `disconnect` only exists in WebsocketProvider
+  // dApps using sdk shouldn't worry about closing ws
   closeWsConnection() {
     logger.debug("Web3Websocket :: closeWsConnection");
+
     if ("disconnect" in this.provider) {
       logger.debug("closeWsConnection :: `disconnect` in provider");
       (this.provider as WebsocketProvider).disconnect();
