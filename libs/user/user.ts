@@ -43,8 +43,6 @@ import {
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
-import convertObjectToString from "../utils/convertObjectToString";
-import exportFile from "../utils/exportFile";
 import type { Commitment } from "../nightfall/types";
 import {
   OffChainTransactionReceipt,
@@ -492,9 +490,9 @@ class User {
         allCommitmentsByCompressedZkpPublicKey &&
         allCommitmentsByCompressedZkpPublicKey.length > 0
       ) {
-        await exportFile(
+        fs.writeFileSync(
           `${options.pathToExport}${options.fileName}`,
-          convertObjectToString(allCommitmentsByCompressedZkpPublicKey),
+          JSON.stringify(allCommitmentsByCompressedZkpPublicKey),
         );
         return;
       }
