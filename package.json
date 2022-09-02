@@ -1,6 +1,6 @@
 {
   "name": "nightfall-sdk",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "SDK for interacting with Polygon Nightfall",
   "keywords": [
     "nightfall",
@@ -55,6 +55,11 @@
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
   "scripts": {
     "build": "rm -rf /dist && npm run build:esm && npm run build:cjs",
     "build:esm": "tsc",
@@ -77,11 +82,7 @@
     "eg:goerli:finalise-withdrawal": "ts-node -r dotenv/config examples/scripts/txWithdrawalFinalise.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:balances": "ts-node -r dotenv/config examples/scripts/balances.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
+    "eg:web-app": "npm run build && cd examples/webApp/ && npm run serve"
   }
 }

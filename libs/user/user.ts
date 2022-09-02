@@ -223,7 +223,8 @@ class User {
       this.web3Websocket.web3,
       valueWei,
     );
-    if (approvalReceipt) logger.info({ approvalReceipt }, "Approval completed");
+    if (approvalReceipt)
+      logger.info({ approvalReceipt }, "Approval completed!");
 
     // Deposit
     const depositReceipts = await createAndSubmitDeposit(
