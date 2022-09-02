@@ -65,6 +65,9 @@ class Web3Websocket {
     this.provider.on("error", () =>
       logger.error("Blockchain connection error"),
     );
+    this.provider.on("accountsChanged", () =>
+      logger.info("Nightfall SDK detected MetaMask account change"),
+    );
   }
 
   // DOCS Prop `connected` only exists in WebsocketProvider

@@ -1,4 +1,9 @@
 import { Web3Websocket, isMetaMaskAvailable } from "./web3Websocket";
-import { getEthAccountAddress } from "./keys";
+import { getEthAccountAddress, getEthAccountFromMetaMask } from "./accounts";
 
-export { Web3Websocket, getEthAccountAddress, isMetaMaskAvailable };
+export {
+  Web3Websocket,
+  getEthAccountAddress,
+  isMetaMaskAvailable,
+  getEthAccountFromMetaMask,
+};

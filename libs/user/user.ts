@@ -15,13 +15,13 @@ import {
   UserCheckBalances,
   UserExportCommitments,
   UserImportCommitments,
-  UserBrowser,
 } from "./types";
 import { Client } from "../client";
 import {
   Web3Websocket,
   getEthAccountAddress,
   isMetaMaskAvailable,
+  getEthAccountFromMetaMask,
 } from "../ethereum";
 import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
@@ -75,30 +75,19 @@ class UserFactory {
       CONTRACT_SHIELD,
     );
 
-    // WIP START MetaMask vs web3 ws
+    // Set Web3 Provider and Eth account
+    // If no private key is given, SDK tries to connect via MetaMask
     let web3Websocket: Web3Websocket;
     let ethAddress: string;
 
     if (!ethPrivateKey) {
-      try {
-        isMetaMaskAvailable();
-        web3Websocket = new Web3Websocket();
-
-        const accounts = await (window as UserBrowser).ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        console.log("******************2 -- accounts", accounts);
-        ethAddress = accounts[0]; // TODO window.ethereum.on('accountsChanged'... https://ethereum.stackexchange.com/questions/79042/how-can-i-get-the-current-user-account-selected-in-metamask-with-web3-js
-        console.log("******************3 -- accounts[0]", ethAddress);
-      } catch (error) {
-        logger.error(error); // TODO improve
-        throw new NightfallSdkError(error);
-      }
+      isMetaMaskAvailable();
+      web3Websocket = new Web3Websocket();
+      ethAddress = await getEthAccountFromMetaMask(web3Websocket);
     } else {
       web3Websocket = new Web3Websocket(blockchainWsUrl);
       ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
     }
-    // END
 
     // Create a set of Zero-knowledge proof keys from a valid mnemonic
     // or from a new mnemonic if none was provided,
@@ -179,6 +168,12 @@ class User {
   getNightfallAddress(): string {
     logger.debug("User :: getNightfallAddress");
     return this.zkpKeys?.compressedZkpPublicKey;
+  }
+
+  async updateEthAccountFromMetamask() {
+    logger.debug("User :: updateEthAccountFromMetamask");
+    if (this.ethPrivateKey) throw new NightfallSdkError("Method not available");
+    this.ethAddress = await getEthAccountFromMetaMask(this.web3Websocket);
   }
 
   /**
