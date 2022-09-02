@@ -15,11 +15,12 @@ const logger = parentLogger.child({
  * @param {Commitment[]} listOfCommitments a list of commitments to be verified.
  * @param {string} compressedZkpPublicKey the compressed key derived from the mnemonic
  * @throws {NightfallSdkError} if one of the commitments doesn't match with the user compressedZkpPublicKey
+ * @returns {boolean} `true` when all commitments belong to given compressedZkpPublicKey
  */
 function commitmentsFromMnemonic(
   listOfCommitments: Commitment[],
   compressedZkpPublicKey: string,
-) {
+): boolean {
   logger.debug("commitmentsFromMnemonic");
 
   for (const commitment of listOfCommitments) {
@@ -32,6 +33,8 @@ function commitmentsFromMnemonic(
       );
     }
   }
+
+  return true;
 }
 
 export default commitmentsFromMnemonic;
