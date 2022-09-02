@@ -135,19 +135,19 @@ npm install
 
 ### Getting started
 
-To get a good idea of how to interact with Nightfall using the SDK, there are a set of example scripts in `/examples` that allow for a better understanding of the core features of Nightfall.
+To get a good idea of how to interact with Nightfall using the SDK, there is a set of example scripts in `/examples/scripts` that allow for a better understanding of the core features of Nightfall.
 
 All of the scripts are explained in short detail below.
 You can try them out using the given commands or you can refer to the package.json scripts.
 E.g.:
 
 ```bash
-"eg:ganache:deposit": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true"
+"eg:ganache:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.ganache dotenv_config_debug=true"
 ```
 
 #### Environment setup
 
-Being a NPM package, the SDK doesn't use environment variables with exception of the tests and logs. However, you need to pass certain parameters which we recommend to keep private. As such, the example scripts will use a config object that preloads env vars from a file. We suggest to use different files per environments. The deposit script above will look for an /examples/.env.ganache file (based on .env.example).
+Being a NPM package, the SDK doesn't use environment variables with exception of the tests and logs. However, you need to pass certain parameters which we recommend to keep private. As such, the example scripts will use a config object that preloads env vars from a file. We suggest to use different files per environments. The deposit script above will look for an /examples/scripts/.env.ganache file (based on .env.example).
 
 ```
 # Contents of .env.ganache
@@ -179,7 +179,7 @@ To use the example scripts and the SDK correctly, one needs to have a good under
 
 **This is a rule that applies to Nightfall Protocol on Ganache.**
 
-Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal(not finalise-withdrawal) are finalised.
+Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal (not finalise-withdrawal) are finalised.
 E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:ganache:balances` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
 
 #### 32Tx rule
@@ -221,7 +221,7 @@ npm run-script eg:[network]:withdrawal
 
 #### Finalise withdrawal
 
-After initiating a withdrawal you will get a `withdrawTxHashL2`. To finalise a withdrawal you should update `withdrawTxHashL2` in `/txWithdrawalFinalise.ts`. Run the script after the cooling off period to get the funds back to L1.
+After initiating a withdrawal you will get a `withdrawTxHashL2`. To finalise a withdrawal you should update `withdrawTxHashL2` in `txWithdrawalFinalise.ts`. Run the script after the cooling off period to get the funds back to L1.
 
 ```
 npm run-script eg:[network]:finalise-withdrawal

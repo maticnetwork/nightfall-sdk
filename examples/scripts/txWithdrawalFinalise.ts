@@ -1,4 +1,4 @@
-import { UserFactory } from "../libs/user";
+import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
 
 const main = async () => {
@@ -12,12 +12,11 @@ const main = async () => {
       nightfallMnemonic: config.nightfallMnemonic,
     });
 
-    // # 2 Import commitments in JSON format from `pathToImport`
-    await user.importAndSaveCommitments({
-      pathToImport: "./",
-      fileName: "commitmentsBackup.json",
-      compressedZkpPublicKey: user.zkpKeys.compressedZkpPublicKey,
-    });
+    // # 2 Pass withdrawal transaction hash to finalise the withdrawal
+    const withdrawTxHashL2 =
+      "0x63f301110c0e2d1480e761d369f6406dcaf226370480011e6d5e1eaae4a8243e";
+    const txReceipt = await user.finaliseWithdrawal({ withdrawTxHashL2 });
+    console.log("Transaction receipt", txReceipt);
   } catch (error) {
     console.log(error);
     process.exit(1);
