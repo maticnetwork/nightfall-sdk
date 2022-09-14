@@ -1,26 +1,27 @@
-import axios from "axios";
-import Queue from "queue";
-import Web3 from "web3";
-import WebSocket from "ws";
-import ReconnectingWebSocket from "reconnecting-websocket";
-import EventEmitter from "events";
-// import logger from '../../common-files/utils/logger.mjs';
-import { approve } from "./tokens.mjs";
-import erc20 from "./abis/ERC20.mjs";
-import erc721 from "./abis/ERC721.mjs";
-import erc1155 from "./abis/ERC1155.mjs";
+import axios from 'axios';
+import Queue from 'queue';
+import Web3 from 'web3';
+import WebSocket from 'ws';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+import EventEmitter from 'events';
+import logger from '../../common-files/utils/logger.mjs';
+import { approve } from './tokens.mjs';
+import erc20 from './abis/ERC20.mjs';
+import erc721 from './abis/ERC721.mjs';
+import erc1155 from './abis/ERC1155.mjs';
 
 import {
   DEFAULT_BLOCK_STAKE,
   DEFAULT_PROPOSER_BOND,
-  DEFAULT_FEE,
+  DEFAULT_FEE_ETH,
+  DEFAULT_FEE_MATIC,
   WEBSOCKET_PING_TIME,
   GAS_MULTIPLIER,
   GAS,
   GAS_PRICE,
   GAS_PRICE_MULTIPLIER,
   GAS_ESTIMATE_ENDPOINT,
-} from "./constants.mjs";
+} from './constants.mjs';
 
 // TODO when SDK is refactored such that these functions are split by user, proposer and challenger,
 // then there will only be one queue here. The constructor does not need to initialise clientBaseUrl
@@ -69,7 +70,9 @@ class Nf3 {
 
   zkpKeys;
 
-  defaultFee = DEFAULT_FEE;
+  defaultFeeEth = DEFAULT_FEE_ETH;
+
+  defaultFeeMatic = DEFAULT_FEE_MATIC;
 
   PROPOSER_BOND = DEFAULT_PROPOSER_BOND;
 
@@ -197,6 +200,16 @@ class Nf3 {
   }
 
   /**
+  Gets the mempool transactions on the optimist
+  @method
+  @async
+  */
+  async getMempoolTransactions() {
+    const { result: mempool } = (await axios.get(`${this.optimistBaseUrl}/proposer/mempool`)).data;
+    return mempool;
+  }
+
+  /**
   Forces optimist to make a block with whatever transactions it has to hand i.e. it won't wait
   until it has TRANSACTIONS_PER_BLOCK of them
   @method
@@ -216,7 +229,7 @@ class Nf3 {
         data: unsignedTransaction,
       });
     } catch (error) {
-      logger.warn(`estimateGas failed. Falling back to constant value`);
+      // logger.warn(`estimateGas failed. Falling back to constant value`);
       gasLimit = GAS; // backup if estimateGas failed
     }
     return Math.ceil(Number(gasLimit) * GAS_MULTIPLIER); // 50% seems a more than reasonable buffer.
@@ -229,11 +242,11 @@ class Nf3 {
       const res = (await axios.get(GAS_ESTIMATE_ENDPOINT)).data.result;
       proposedGasPrice = Number(res?.ProposeGasPrice) * 10 ** 9;
     } catch (error) {
-      logger.warn('Gas Estimation Failed, using previous block gasPrice');
+      // logger.warn('Gas Estimation Failed, using previous block gasPrice');
       try {
         proposedGasPrice = Number(await this.web3.eth.getGasPrice());
       } catch (err) {
-        logger.warn('Failed to get previous block gasprice.  Falling back to default');
+        // logger.warn('Failed to get previous block gasprice.  Falling back to default');
         proposedGasPrice = GAS_PRICE;
       }
     }
@@ -251,20 +264,16 @@ class Nf3 {
   This can be found using the getContractAddress convenience function.
   @returns {Promise} This will resolve into a transaction receipt.
   */
-  async submitTransaction(
-    unsignedTransaction,
-    contractAddress = this.shieldContractAddress,
-    fee = this.defaultFee,
-  ) {
+  async submitTransaction(unsignedTransaction, contractAddress = this.shieldContractAddress, fee) {
     // estimate the gasPrice
     const gasPrice = await this.estimateGasPrice();
     // Estimate the gasLimit
     const gas = await this.estimateGas(contractAddress, unsignedTransaction);
-    logger.debug(
-      `Transaction gasPrice was set at ${Math.ceil(
-        gasPrice / 10 ** 9,
-      )} GWei, gas limit was set at ${gas}`,
-    );
+    // logger.debug(
+    //  `Transaction gasPrice was set at ${Math.ceil(
+    //    gasPrice / 10 ** 9,
+    //  )} GWei, gas limit was set at ${gas}`,
+    // );
     const tx = {
       from: this.ethereumAddress,
       to: contractAddress,
@@ -274,15 +283,13 @@ class Nf3 {
       gasPrice,
     };
 
-    // logger.debug(`The nonce for the unsigned transaction ${tx.data} is ${this.nonce}`);
-    // this.nonce++;
     if (this.ethereumSigningKey) {
       const signed = await this.web3.eth.accounts.signTransaction(tx, this.ethereumSigningKey);
       const promiseTest = new Promise((resolve, reject) => {
         this.web3.eth
           .sendSignedTransaction(signed.rawTransaction)
           .once('receipt', receipt => {
-            logger.debug(`Transaction ${receipt.transactionHash} has been received.`);
+            // logger.debug(`Transaction ${receipt.transactionHash} has been received.`);
             resolve(receipt);
           })
           .on('error', err => {
@@ -367,7 +374,7 @@ class Nf3 {
     @param {object} keys - The ZKP private key set.
     @returns {Promise} Resolves into the Ethereum transaction receipt.
     */
-  async deposit(ercAddress, tokenType, value, tokenId, fee = this.defaultFee) {
+  async deposit(ercAddress, tokenType, value, tokenId, fee = this.defaultFeeEth) {
     let txDataToSign;
     try {
       txDataToSign = await approve(
@@ -407,7 +414,7 @@ class Nf3 {
           );
           resolve(receipt);
         } catch (err) {
-          logger.error('Deposit transaction failed');
+          // logger.error('Deposit transaction failed');
           reject(err);
         }
       });
@@ -439,7 +446,7 @@ class Nf3 {
     value,
     tokenId,
     compressedZkpPublicKey,
-    fee = this.defaultFee,
+    fee = this.defaultFeeMatic,
   ) {
     const res = await axios.post(`${this.clientBaseUrl}/transfer`, {
       offchain,
@@ -452,6 +459,7 @@ class Nf3 {
       rootKey: this.zkpKeys.rootKey,
       fee,
     });
+
     if (res.data.error && res.data.error === 'No suitable commitments') {
       throw new Error('No suitable commitments');
     }
@@ -462,7 +470,7 @@ class Nf3 {
             const receipt = await this.submitTransaction(
               res.data.txDataToSign,
               this.shieldContractAddress,
-              fee,
+              0,
             );
             resolve(receipt);
           } catch (err) {
@@ -501,7 +509,7 @@ class Nf3 {
     value,
     tokenId,
     recipientAddress,
-    fee = this.defaultFee,
+    fee = this.defaultFeeMatic,
   ) {
     const res = await axios.post(`${this.clientBaseUrl}/withdraw`, {
       offchain,
@@ -521,7 +529,7 @@ class Nf3 {
             const receipt = await this.submitTransaction(
               res.data.txDataToSign,
               this.shieldContractAddress,
-              fee,
+              0,
             );
             resolve(receipt);
           } catch (err) {
@@ -647,7 +655,7 @@ class Nf3 {
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
+      logger.debug('Liquidity provider websocket connection opened');
       connection.send('instant');
     };
     connection.onmessage = async message => {
@@ -704,6 +712,7 @@ class Nf3 {
     return new Promise((resolve, reject) => {
       proposerQueue.push(async () => {
         try {
+          console.log('receipt');
           const receipt = await this.submitTransaction(
             res.data.txDataToSign,
             this.proposersContractAddress,
@@ -877,7 +886,7 @@ class Nf3 {
     @async
     */
   async startProposer() {
-    const blockProposeEmitter = new EventEmitter();
+    const proposeEmitter = new EventEmitter();
     const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
     this.websockets.push(connection); // save so we can close it properly later
     // we can't setup up a ping until the connection is made because the ping function
@@ -893,12 +902,12 @@ class Nf3 {
       );
       // and a listener for the pong
       // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
+      logger.debug('Proposer websocket connection opened');
       connection.send('blocks');
     };
     connection.onmessage = async message => {
       const msg = JSON.parse(message.data);
-      const { type, txDataToSign, block, transactions } = msg;
+      const { type, txDataToSign, block, transactions, data } = msg;
       logger.debug(`Proposer received websocket message of type ${type}`);
       if (type === 'block') {
         proposerQueue.push(async () => {
@@ -908,18 +917,21 @@ class Nf3 {
               this.stateContractAddress,
               this.BLOCK_STAKE,
             );
-            blockProposeEmitter.emit('receipt', receipt, block, transactions);
+            proposeEmitter.emit('receipt', receipt, block, transactions);
           } catch (err) {
-            blockProposeEmitter.emit('error', err, block, transactions);
+            // block proposed is reverted. Send transactions back to mempool
+            proposeEmitter.emit('error', err, block, transactions);
+            await axios.get(`${this.optimistBaseUrl}/block/reset-localblock`);
           }
         });
       }
+      if (type === 'rollback') proposeEmitter.emit('rollback', data);
       return null;
     };
-    connection.onerror = () => logger.error('websocket connection error');
-    connection.onclosed = () => logger.warn('websocket connection closed');
+    connection.onerror = () => logger.error('Proposer websocket connection error');
+    connection.onclosed = () => logger.warn('Proposer websocket connection closed');
     // add this proposer to the list of peers that can accept direct transfers and withdraws
-    return blockProposeEmitter;
+    return proposeEmitter;
   }
 
   /**
@@ -939,73 +951,13 @@ class Nf3 {
   }
 
   /**
-    Returns an emitter, whose 'data' event fires whenever a block is
-    detected, passing out the transaction needed to propose the block. This
-    is a lower level method than `Nf3.startProposer` because it does not sign and
-    send the transaction to the blockchain. If required, `Nf3.submitTransaction`
-    can be used to do that.
-    @method
-    @async
-    @returns {Promise} A Promise that resolves into an event emitter.
-    */
-  async getNewBlockEmitter() {
-    const newBlockEmitter = new EventEmitter();
-    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
-    this.websockets.push(connection); // save so we can close it properly later
-    connection.onopen = () => {
-      // setup a ping every 15s
-      this.intervalIDs.push(
-        setInterval(() => {
-          connection._ws.ping();
-          // logger.debug('sent websocket ping');
-        }, WEBSOCKET_PING_TIME),
-      );
-      // and a listener for the pong
-      // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
-      connection.send('blocks');
-    };
-    connection.onmessage = async message => {
-      const msg = JSON.parse(message.data);
-      const { type, txDataToSign } = msg;
-      if (type === 'block') {
-        newBlockEmitter.emit('data', txDataToSign);
-      }
-    };
-    return newBlockEmitter;
-  }
-
-  /**
-    Registers our address as a challenger address with the optimist container.
-    This is so that the optimist container can tell when a challenge that we have
-    committed to has appeared on chain.
-    @method
-    @async
-    @return {Promise} A promise that resolves to an axios response.
-    */
-  async registerChallenger() {
-    return axios.post(`${this.optimistBaseUrl}/challenger/add`, { address: this.ethereumAddress });
-  }
-
-  /**
-    De-registers our address as a challenger address with the optimist container.
-    @method
-    @async
-    @return {Promise} A promise that resolves to an axios response.
-    */
-  async deregisterChallenger() {
-    return axios.post(`${this.optimistBaseUrl}/challenger/remove`, {
-      address: this.ethereumAddress,
-    });
-  }
-
-  /**
     Starts a Challenger that listens for challengable blocks and submits challenge
     transactions to the blockchain to challenge the block.
     @method
     @async
     */
   async startChallenger() {
+    const challengeEmitter = new EventEmitter();
     const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
     this.websockets.push(connection); // save so we can close it properly later
     connection.onopen = () => {
@@ -1013,37 +965,45 @@ class Nf3 {
       this.intervalIDs.push(
         setInterval(() => {
           connection._ws.ping();
-          // logger.debug('sent websocket ping');
+          // logger.debug('sent challenge websocket ping');
         }, WEBSOCKET_PING_TIME),
       );
       // and a listener for the pong
-      // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
+      // connection._ws.on('pong', () => logger.debug('Challenge websocket received pong'));
+      logger.debug('Challenge websocket connection opened');
       connection.send('challenge');
     };
     connection.onmessage = async message => {
       const msg = JSON.parse(message.data);
-      const { type, txDataToSign } = msg;
+      const { type, txDataToSign, sender } = msg;
+      logger.debug(`Challenger received websocket message of type ${type}`);
+      // if we're about to challenge, check it's actually our challenge, so as not to waste gas
+      if (type === 'challenge' && sender !== this.ethereumAddress) return null;
       if (type === 'commit' || type === 'challenge') {
-        return new Promise((resolve, reject) => {
-          logger.debug('-> Push transaction to challengerQueue');
-          challengerQueue.push(async () => {
-            try {
-              logger.debug('-> Submit transaction from challengerQueue');
-              const receipt = await this.submitTransaction(
-                txDataToSign,
-                this.challengesContractAddress,
-                0,
-              );
-              resolve(receipt);
-            } catch (err) {
-              reject(err);
-            }
-          });
+        challengerQueue.push(async () => {
+          try {
+            const receipt = await this.submitTransaction(
+              txDataToSign,
+              this.challengesContractAddress,
+              0,
+            );
+            challengeEmitter.emit('receipt', receipt, type);
+          } catch (err) {
+            challengeEmitter.emit('error', err, type);
+          }
         });
+        logger.debug(`queued ${type} ${txDataToSign}`);
       }
       return null;
     };
+    connection.onerror = () => logger.error('websocket connection error');
+    connection.onclosed = () => logger.warn('websocket connection closed');
+    return challengeEmitter;
+  }
+
+  // method to turn challenges off and on.  Note, this does not affect the queue
+  challengeEnable(enable) {
+    return axios.post(`${this.optimistBaseUrl}/challenger/enable`, { enable });
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -1067,43 +1027,6 @@ class Nf3 {
   unpauseQueueChallenger() {
     challengerQueue.autostart = true;
     challengerQueue.unshift(async () => logger.info(`queue challengerQueue has been unpaused`));
-  }
-
-  /**
-    Returns an emitter, whose 'data' event fires whenever a challengeable block is
-    detected, passing out the transaction needed to raise the challenge. This
-    is a lower level method than `Nf3.startChallenger` because it does not sign and
-    send the transaction to the blockchain. If required, `Nf3.submitTransaction`
-    can be used to do that.
-    @method
-    @async
-    @returns {Promise} A Promise that resolves into an event emitter.
-    */
-  async getChallengeEmitter() {
-    const newChallengeEmitter = new EventEmitter();
-    const connection = new ReconnectingWebSocket(this.optimistWsUrl, [], { WebSocket });
-    this.websockets.push(connection); // save so we can close it properly later
-    connection.onopen = () => {
-      // setup a ping every 15s
-      this.intervalIDs.push(
-        setInterval(() => {
-          connection._ws.ping();
-          // logger.debug('sent websocket ping');
-        }, WEBSOCKET_PING_TIME),
-      );
-      // and a listener for the pong
-      // connection._ws.on('pong', () => logger.debug('websocket received pong'));
-      logger.debug('websocket connection opened');
-      connection.send('challenge');
-    };
-    connection.onmessage = async message => {
-      const msg = JSON.parse(message.data);
-      const { type, txDataToSign } = msg;
-      if (type === 'challenge') {
-        newChallengeEmitter.emit('data', txDataToSign);
-      }
-    };
-    return newChallengeEmitter;
   }
 
   /**
