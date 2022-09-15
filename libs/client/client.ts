@@ -156,18 +156,27 @@ class Client {
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
+    tokenId: string,
     fee: string,
   ): Promise<TransactionResponseData> {
     const endpoint = "deposit";
     logger.debug({ endpoint }, "Calling client at");
 
+    //if there is token id, deposit the tokenID
+
+    console.log(
+      "in client token contract address and tokenID",
+      token.contractAddress,
+      tokenId,
+    );
+
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #54
+      tokenId: tokenId, // ISSUE #32 && ISSUE #54
+      value: value,
       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
       nullifierKey: ownerZkpKeys.nullifierKey,
-      value,
       fee,
     });
     logger.info(
@@ -195,6 +204,7 @@ class Client {
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     recipientNightfallData: RecipientNightfallData,
+    tokenId: string,
     fee: string,
     isOffChain: boolean,
   ): Promise<TransactionResponseData> {
@@ -202,12 +212,13 @@ class Client {
     logger.debug({ endpoint }, "Calling client at");
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
-      ercAddress: token.contractAddress,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #54
+      offchain: isOffChain,
+      ercAddress: "0x00269D82110435A4E7043D53E5bF79a8bd767b17",
+      tokenId:
+        "28948022309329048855892746252171976963317496166410141009864396001978282410093", // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
-      fee,
-      offchain: isOffChain,
+      fee: 0,
     });
     if (res.data.error && res.data.error === "No suitable commitments") {
       logger.error(res);

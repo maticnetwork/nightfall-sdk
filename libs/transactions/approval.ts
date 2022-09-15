@@ -37,6 +37,11 @@ export async function createAndSubmitApproval(
 
   let txReceipt: TransactionReceipt;
   try {
+    console.log("the tokensss", token);
+    console.log("spender", spenderEthAddress);
+    console.log(ownerEthAddress);
+    console.log("shiield 0x9f34fe84bb91235a2357716e7a868359768fe3b7");
+
     const unsignedTx = await token.approveTransaction(
       ownerEthAddress,
       spenderEthAddress,

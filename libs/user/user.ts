@@ -166,6 +166,7 @@ class User {
    * @param {string} options.tokenContractAddress
    * @param {string} options.tokenErcStandard
    * @param {string} options.value
+   * @param {string} options.tokenId
    * @param {string} [options.feeWei]
    * @returns {Promise<OnChainTransactionReceipts>}
    */
@@ -181,6 +182,7 @@ class User {
     const feeWei = options.feeWei?.trim() || TX_FEE_ETH_WEI_DEFAULT;
     const tokenContractAddress = options.tokenContractAddress.trim();
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
+    const tokenId = options.tokenId;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {
@@ -195,7 +197,6 @@ class User {
     const valueWei = stringValueToWei(value, this.token.decimals);
     logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
-    // Deposit tx might need approval
     const approvalReceipt = await createAndSubmitApproval(
       this.token,
       this.ethAddress,
@@ -205,19 +206,22 @@ class User {
       valueWei,
     );
     if (approvalReceipt) logger.info({ approvalReceipt }, "Approval completed");
-
+    let depositReceipts = null;
     // Deposit
-    const depositReceipts = await createAndSubmitDeposit(
+
+    depositReceipts = await createAndSubmitDeposit(
       this.token,
-      this.ethAddress,
+      tokenContractAddress,
       this.ethPrivateKey,
       this.zkpKeys,
       this.shieldContractAddress,
       this.web3Websocket.web3,
       this.client,
       valueWei,
+      tokenId,
       feeWei,
     );
+
     logger.info({ depositReceipts }, "Deposit completed!");
 
     this.nightfallDepositTxHashes.push(
@@ -237,6 +241,7 @@ class User {
    * @param {string} options.tokenErcStandard
    * @param {string} options.value
    * @param {string} [options.feeWei]
+   * @param {string} tokenId
    * @param {string} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
    * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
@@ -255,6 +260,7 @@ class User {
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
     const recipientNightfallAddress = options.recipientNightfallAddress.trim();
     const isOffChain = options.isOffChain || false;
+    const tokenId = options.tokenId;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {
@@ -265,8 +271,13 @@ class User {
       });
     }
 
+    let valueWei = "0";
+    if (tokenErcStandard == "ERC721") {
+      valueWei = "0";
+    } else {
+      valueWei = stringValueToWei(value, this.token.decimals);
+    }
     // Convert value and fee to wei
-    const valueWei = stringValueToWei(value, this.token.decimals);
     logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
     const transferReceipts = await createAndSubmitTransfer(
@@ -278,6 +289,7 @@ class User {
       this.web3Websocket.web3,
       this.client,
       valueWei,
+      tokenId,
       feeWei,
       recipientNightfallAddress,
       isOffChain,

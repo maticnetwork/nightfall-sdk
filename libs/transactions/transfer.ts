@@ -29,6 +29,7 @@ const logger = parentLogger.child({
  * @param {Web3} web3 web3js instance
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be transferred
+ * @param {string} tokenId The id of the ERC721 to be transfered
  * @param {string} fee The amount in Wei to pay a proposer for the tx
  * @param {string} recipientNightfallAddress Recipient zkpKeys.compressedZkpPublicKey
  * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
@@ -44,6 +45,7 @@ export async function createAndSubmitTransfer(
   web3: Web3,
   client: Client,
   value: string,
+  tokenId: string,
   fee: string,
   recipientNightfallAddress: string,
   isOffChain: boolean,
@@ -54,10 +56,12 @@ export async function createAndSubmitTransfer(
     recipientCompressedZkpPublicKeys: [recipientNightfallAddress],
     values: [value],
   };
+  console.log(recipientNightfallData);
   const resData = await client.transfer(
     token,
     ownerZkpKeys,
     recipientNightfallData,
+    tokenId,
     fee,
     isOffChain,
   );

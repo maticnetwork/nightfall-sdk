@@ -23,6 +23,7 @@ export interface UserMakeTransaction {
   tokenErcStandard: string;
   value: string;
   feeWei?: string;
+  tokenId: string;
 }
 
 export type UserMakeDeposit = UserMakeTransaction;

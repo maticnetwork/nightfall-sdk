@@ -20,6 +20,7 @@ describe("Transactions", () => {
   const ownerZkpKeys = {};
   const shieldContractAddress = "0x0shieldContractAddress";
   const web3 = {};
+  const tokenId = "";
 
   const mockedClient = {
     deposit: jest.fn(),
@@ -57,6 +58,7 @@ describe("Transactions", () => {
             mockedClient,
             value,
             fee,
+            tokenId,
           ),
       ).rejects.toThrow(NightfallSdkError);
       expect(mockedClient.deposit).toHaveBeenCalledTimes(1);
@@ -84,6 +86,7 @@ describe("Transactions", () => {
         mockedClient,
         value,
         fee,
+        tokenId,
       );
 
       // Assert
