@@ -1,7 +1,6 @@
-import { UserFactory } from "../libs/user";
+import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
 
-// Script
 const main = async () => {
   let user;
   try {
@@ -13,9 +12,12 @@ const main = async () => {
       nightfallMnemonic: config.nightfallMnemonic,
     });
 
-    // # 2 Check Nightfall balances
-    const balances = await user.checkNightfallBalances();
-    console.log("Balances", balances);
+    // # 2 Import commitments in JSON format from `pathToImport`
+    await user.importAndSaveCommitments({
+      pathToImport: "./",
+      fileName: "commitmentsBackup.json",
+      compressedZkpPublicKey: user.zkpKeys.compressedZkpPublicKey,
+    });
   } catch (error) {
     console.log(error);
     process.exit(1);

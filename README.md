@@ -2,11 +2,11 @@
 
 # Nightfall SDK
 
-## About this project
-
-### What is Nightfall SDK?
+## What is Nightfall SDK?
 
 Software Development Kit for interacting with Polygon Nightfall.
+
+You can clone the repo and [play with the example scripts](#play-with-the-sdk-repository), or you can [install it as a dependency](#install-sdk-from-npm) from NPM.
 
 More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/introduction/overview).
 
@@ -20,48 +20,44 @@ More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/in
 
 To learn more about transactions, commitments and other core Nightfall features go to the [Protocol Docs](https://docs.polygon.technology/docs/category/nightfall-protocol/).
 
-### Nightfall Client
+## What is a Nightfall Client?
 
-#### What is a Nightfall Client?
-
-The Nightfall Client is a key part of the architecture. It is the part which generates zero-knowledge proofs, stores zero-knowledge commitments and interacts with the contracts. The SDK uses Nightfall Client to interact with the Nightfall Protocol.
+The Nightfall Client is a key part of the architecture. It generates zero-knowledge proofs, stores zero-knowledge commitments and interacts with the contracts. The SDK uses Nightfall Client to interact with the Nightfall Protocol.
 
 **To be able to use the SDK one must have a running instance of the Client**.
 
-#### Setup a Client locally (Ganache)
+### Setup a Client locally (Ganache)
 
 To use the SDK locally, set up and run the entire Nightfall project. The Client is part of this setup and by running the Project you are running the Client too.
 
 You will also need a running proposer, therefore you should use two terminals, one for running Nightfall and one for the Proposer.
 
-Setup and run Polygon Nightfall
+**Setup and run Polygon Nightfall**
 
 ```bash
 git clone https://github.com/EYBlockchain/nightfall_3.git
 cd nightfall_3
 ./setup-nightfall
-./start-nightfall -g
+./start-nightfall -g -d
 ```
 
-Start the Proposer
+**Run the Proposer**
 
 ```bash
-cd nightfall_3/apps/proposer
-npm install
-npm run start
+# terminal 2, also cd into nightfall_3
+./start-apps
 ```
 
-Setup a Client in testnet (Goerli)
+### Setup a Client in testnet (Goerli)
 
-To use the SDK on a testnet you should only have a running Client, other parts of the infrastructure like the Proposer are provided.
+To use the SDK on a testnet you should only have a Client running, other parts of the infrastructure like the Proposer are provided.
 
 ```bash
 git clone https://github.com/EYBlockchain/nightfall_3.git
 cd nightfall_3/nightfall-client
-
 ```
 
-Setup
+**Setup Client**
 
 Rename `client-example.env` to `.client.env` and update the contents as following:
 
@@ -70,7 +66,7 @@ ETH_NETWORK=goerli
 BLOCKCHAIN_URL=your web3 url provider to access the blockchain
 ```
 
-#### Start client
+**Run Client**
 
 ```bash
 ./start-client
@@ -78,126 +74,108 @@ BLOCKCHAIN_URL=your web3 url provider to access the blockchain
 
 ## Install SDK from NPM
 
-### Install
+Add the Nightfall SDK as a dependency to your project:
 
 ```bash
 npm install nightfall-sdk
 ```
 
-### Import
+To use the SDK, import `UserFactory`. This will generate an instance of `User` that you should use to perform all the available operations. E.g.
 
 ```bash
 import { UserFactory } from 'nightfall-sdk';
+
+user = await UserFactory.create(userOptions);
+const txReceipts = await user.makeDeposit(depositOptions);
 ```
 
-### Create a deposit
+*Where userOptions is of type UserFactoryCreate and depositOptions UserMakeDeposit*.
 
-```bash
-
-    # Initialize a Nightfall User
-    user = await UserFactory.create({userOptions});
-
-    # Make a deposit
-    const tokenContractAddress = config.tokenContractAddress;
-    const tokenErcStandard = "ERC20";
-    const value = "0.0001";
-    const txReceipts = await user.makeDeposit({
-      tokenContractAddress,
-      tokenErcStandard,
-      value,
-    });
-```
-
-Check out the [example scripts](https://github.com/maticnetwork/nightfall-sdk#example-scripts) for a better understanding on how to use the SDK to its capacity.
+Check out the [example scripts](#example-scripts) for a better understanding on how to use the SDK to its capacity. You can also dee-dive into the code and inspect the [User library](https://github.com/maticnetwork/nightfall-sdk/tree/master/libs/user) (see `user.ts` for more details about each method).
 
 ## Play with the SDK repository
 
-If you don't install the SDK from NPM you can do it manually by cloning the repository from Github.
-
-### Clone the repository
+You can clone the repository and run the examples available. Note that it requires Node 16.
 
 ```bash
 git clone git@github.com:maticnetwork/nightfall-sdk.git
 cd nightfall-sdk
-```
-
-### Set Node.js version to 16.15.1
-
-```
-nvm use
-```
-
-### Install requirements
-
-```
-npm install
+nvm use && npm install
 ```
 
 ### Getting started
 
-To get a good idea of how to interact with Nightfall using the SDK, there are a set of example scripts in `/examples` that allow for a better understanding of the core features of Nightfall.
+To get a good idea of how to interact with Nightfall using the SDK, there is a set of example scripts in `/examples/scripts` to showcase the core features of Nightfall.
 
 All of the scripts are explained in short detail below.
-You can try them out using the given commands or you can refer to the package.json scripts.
+You can try them out by using the given commands. You can also refer to the package.json scripts.
 E.g.:
 
 ```bash
-"eg:ganache:deposit": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true"
+"eg:ganache:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.ganache dotenv_config_debug=true"
 ```
+
+**To use the example scripts and the SDK correctly, one needs to have a good understanding of how the Nightfall Protocol runs under the hood**.
 
 #### Environment setup
 
-Being a NPM package, the SDK doesn't use environment variables with exception of the tests and logs. However, you need to pass certain parameters which we recommend to keep private. As such, the example scripts will use a config object that preloads env vars from a file. We suggest to use different files per environments. The deposit script above will look for an /examples/.env.ganache file (based on .env.example).
+Being a NPM package, the SDK doesn't use environment variables with the exception of tests and logs. However, you need to pass certain parameters which we recommend to keep private.
+
+As such, the example scripts will use a config object that preloads env vars from a file. We suggest to use different files per environments. The deposit script above will look for an /examples/scripts/.env.ganache file (based on .env.example).
 
 ```
-# Contents of .env.ganache
+# Contents of .env.ganache (based on .env.example)
 APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546
 APP_CLIENT_API_URL=http://localhost:8080
+
 # Nightfall_3 User 1
 APP_ETH_PRIVATE_KEY=0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e
 APP_NIGHTFALL_MNEMONIC=your Nightfall mnemonic
+
 # Nightfall_3 ERC20Mock contract address in ganache
-# Make sure to monitor the local deployment and double-check the contract address
+# Monitor the local deployment and double-check the contract address below
 APP_TOKEN_ADDRESS_1=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a
 ```
 
-```
-# Contents of .env.goerli
-APP_BLOCKCHAIN_WEBSOCKET_URL=your web3 socket provider
-APP_CLIENT_API_URL=http://localhost:8080
-APP_ETH_PRIVATE_KEY=your Ethereum private key
-APP_NIGHTFALL_MNEMONIC=your Nightfall mnemonic
-# Goerli MATIC
-APP_TOKEN_ADDRESS_1=0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae
-```
+#### Available networks
 
-### Example scripts
-
-To use the example scripts and the SDK correctly, one needs to have a good understanding of how the Nightfall Protocol runs under the hood.
+Polygon Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client. 
 
 #### 2Tx rule
 
-**This is a rule that applies to Nightfall Protocol on Ganache.**
+**Applies to Nightfall Protocol on Ganache**
 
-Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal(not finalise-withdrawal) are finalised.
+Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal (not finalise-withdrawal) are finalised.
+
 E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:ganache:balances` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
 
 #### 32Tx rule
 
-**This is a rule that applies to Nightfall Protocol on Goerli Testnet and Mainnet.**
-To learn more about Nightfall protocol on Mainnet and Testnet visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
+**Applies to Nightfall Protocol on Goerli Testnet**
 
 The 32Tx rule is essentially the same as the `2Tx rule` but with 32 transactions instead of 2.
 
+To learn more about Nightfall protocol visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
+
 #### Nightfall keys
 
-Upon each running of any of the scripts a new instance of the User class is created, if an existing Mnemonic isn’t specified in the .env file, a new Mnemonic is assigned to that specific user.
+Upon each running of any of the scripts a new instance of the `User` class is created.
 
-#### Available networks
+If you don't provide a mnemonic via `env` file, a new mnemonic is assigned. This can be convenient to play with deposits, but it also means you generate a new "wallet" on Nightfall every time.
 
-You can run the example scripts on the following networks: `network = ganache`, `network = goerli`
+**Make sure to grab your mnemonic and update the environment variable to access your funds on Nightfall**.
+
+```js
+const mnemonic = user.getNightfallMnemonic()
+```
+
+### Example scripts
+
+**Before running the scripts below, we strongly recommend reading the [Getting started](#getting-started) section**.
 
 #### Make a deposit
+
+Your balance on Nightfall will update as soon your funds settle, i.e. soon as there are enough [transactions to create an L2 block](#2tx-rule). 
 
 ```
 npm run-script eg:[network]:deposit
@@ -205,7 +183,7 @@ npm run-script eg:[network]:deposit
 
 #### Make a transfer
 
-For making a transfer an already existing account with ERC20 balance is required. For testing purposes, this can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
+For making a transfer an already existing account in L2 with balance is required. This can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
 
 ```
 npm run-script eg:[network]:transfer
@@ -213,7 +191,7 @@ npm run-script eg:[network]:transfer
 
 #### Make a withdrawal
 
-For making a withdrawal an already existing account with ERC20 balance is required. For testing purposes, this can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
+For making a withdrawal an already existing account in L2 with balance is required. This can be achieved by saving the mnemonic used for previous deposits and adding it to the .env file.
 
 ```
 npm run-script eg:[network]:withdrawal
@@ -221,7 +199,7 @@ npm run-script eg:[network]:withdrawal
 
 #### Finalise withdrawal
 
-After initiating a withdrawal you will get a `withdrawTxHashL2`. To finalise a withdrawal you should update `withdrawTxHashL2` in `/txWithdrawalFinalise.ts`. Run the script after the cooling off period to get the funds back to L1.
+After initiating a withdrawal you will get a `withdrawTxHashL2`. To finalise a withdrawal you should update `withdrawTxHashL2` in `txWithdrawalFinalise.ts`. Run the script after the cooling off period to get the funds back to L1.
 
 ```
 npm run-script eg:[network]:finalise-withdrawal
@@ -229,7 +207,7 @@ npm run-script eg:[network]:finalise-withdrawal
 
 #### Check L2 balances
 
-Check your L2 balances.
+Check your balances in Nightfall.
 
 ```
 npm run-script eg:[network]:balances

@@ -3,8 +3,7 @@ node_modules
 dist
 
 # Env files
-.env.ganache
-.env.goerli
+.env.*
 
 # Tests
 coverage

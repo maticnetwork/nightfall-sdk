@@ -1,6 +1,6 @@
 {
   "name": "nightfall-sdk",
-  "version": "0.1.1",
+  "version": "0.2.1",
   "description": "SDK for interacting with Polygon Nightfall",
   "keywords": [
     "nightfall",
@@ -55,6 +55,11 @@
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
   "scripts": {
     "build": "rm -rf /dist && npm run build:esm && npm run build:cjs",
     "build:esm": "tsc",
@@ -62,26 +67,22 @@
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
     "prepare": "husky install",
-    "test:ganache": "DOTENV_CONFIG_PATH=./examples/.env.ganache jest --setupFiles dotenv/config",
-    "test:goerli": "DOTENV_CONFIG_PATH=./examples/.env.goerli jest --setupFiles dotenv/config",
-    "eg:ganache:deposit": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.ganache dotenv_config_debug=true",
-    "eg:ganache:transfer": "ts-node -r dotenv/config examples/txTransfer.ts dotenv_config_path=./examples/.env.ganache",
-    "eg:ganache:withdrawal": "ts-node -r dotenv/config examples/txWithdrawal.ts dotenv_config_path=./examples/.env.ganache",
-    "eg:ganache:finalise-withdrawal": "ts-node -r dotenv/config examples/txWithdrawalFinalise.ts dotenv_config_path=./examples/.env.ganache",
-    "eg:ganache:balances": "ts-node -r dotenv/config examples/balances.ts dotenv_config_path=./examples/.env.ganache",
-    "eg:ganache:export-commitments": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.ganache",
-    "eg:ganache:import-commitments": "ts-node -r dotenv/config examples/importCommitments.ts dotenv_config_path=./examples/.env.ganache",
-    "eg:goerli:deposit": "ts-node -r dotenv/config examples/txDeposit.ts dotenv_config_path=./examples/.env.goerli dotenv_config_debug=true",
-    "eg:goerli:transfer": "ts-node -r dotenv/config examples/txTransfer.ts dotenv_config_path=./examples/.env.goerli",
-    "eg:goerli:withdrawal": "ts-node -r dotenv/config examples/txWithdrawal.ts dotenv_config_path=./examples/.env.goerli",
-    "eg:goerli:finalise-withdrawal": "ts-node -r dotenv/config examples/txWithdrawalFinalise.ts dotenv_config_path=./examples/.env.goerli",
-    "eg:goerli:balances": "ts-node -r dotenv/config examples/balances.ts dotenv_config_path=./examples/.env.goerli",
-    "eg:goerli:export-commitments": "ts-node -r dotenv/config examples/exportCommitments.ts dotenv_config_path=./examples/.env.goerli",
-    "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/importCommitments.ts dotenv_config_path=./examples/.env.goerli"
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "test:ganache": "DOTENV_CONFIG_PATH=./examples/scripts/.env.ganache jest --setupFiles dotenv/config",
+    "test:goerli": "DOTENV_CONFIG_PATH=./examples/scripts/.env.goerli jest --setupFiles dotenv/config",
+    "eg:ganache:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.ganache dotenv_config_debug=true",
+    "eg:ganache:transfer": "ts-node -r dotenv/config examples/scripts/txTransfer.ts dotenv_config_path=./examples/scripts/.env.ganache",
+    "eg:ganache:withdrawal": "ts-node -r dotenv/config examples/scripts/txWithdrawal.ts dotenv_config_path=./examples/scripts/.env.ganache",
+    "eg:ganache:finalise-withdrawal": "ts-node -r dotenv/config examples/scripts/txWithdrawalFinalise.ts dotenv_config_path=./examples/scripts/.env.ganache",
+    "eg:ganache:balances": "ts-node -r dotenv/config examples/scripts/balances.ts dotenv_config_path=./examples/scripts/.env.ganache",
+    "eg:ganache:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.ganache",
+    "eg:ganache:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.ganache",
+    "eg:goerli:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.goerli dotenv_config_debug=true",
+    "eg:goerli:transfer": "ts-node -r dotenv/config examples/scripts/txTransfer.ts dotenv_config_path=./examples/scripts/.env.goerli",
+    "eg:goerli:withdrawal": "ts-node -r dotenv/config examples/scripts/txWithdrawal.ts dotenv_config_path=./examples/scripts/.env.goerli",
+    "eg:goerli:finalise-withdrawal": "ts-node -r dotenv/config examples/scripts/txWithdrawalFinalise.ts dotenv_config_path=./examples/scripts/.env.goerli",
+    "eg:goerli:balances": "ts-node -r dotenv/config examples/scripts/balances.ts dotenv_config_path=./examples/scripts/.env.goerli",
+    "eg:goerli:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
+    "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
+    "eg:web-app": "npm run build && cd examples/webApp/ && npm run serve"
   }
 }

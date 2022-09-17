@@ -16,7 +16,7 @@ const logger = parentLogger.child({
  * @async
  * @function createAndSubmitFinaliseWithdrawal
  * @param {string} ownerEthAddress Eth address sending the contents of the tx
- * @param {string} ownerEthPrivateKey Eth private key of the sender to sign the tx
+ * @param {undefined | string} ownerEthPrivateKey Eth private key of the sender to sign the tx
  * @param {string} shieldContractAddress Address of the Shield smart contract
  * @param {Web3} web3 web3js instance
  * @param {Client} client An instance of Client to interact with the API
@@ -26,7 +26,7 @@ const logger = parentLogger.child({
  */
 export async function createAndSubmitFinaliseWithdrawal(
   ownerEthAddress: string,
-  ownerEthPrivateKey: string,
+  ownerEthPrivateKey: undefined | string,
   shieldContractAddress: string,
   web3: Web3,
   client: Client,
@@ -48,8 +48,8 @@ export async function createAndSubmitFinaliseWithdrawal(
       web3,
     );
   } catch (err) {
-    logger.child({ resData }).error(err);
-    throw new NightfallSdkError(err.message);
+    logger.child({ resData }).error(err, "Error when submitting transaction");
+    throw new NightfallSdkError(err);
   }
   return txReceipt;
 }

@@ -1,6 +1,7 @@
-import { UserFactory } from "../libs/user";
+import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
 
+// Script
 const main = async () => {
   let user;
   try {
@@ -12,11 +13,9 @@ const main = async () => {
       nightfallMnemonic: config.nightfallMnemonic,
     });
 
-    // # 2 Pass withdrawal transaction hash to finalise the withdrawal
-    const withdrawTxHashL2 =
-      "0x63f301110c0e2d1480e761d369f6406dcaf226370480011e6d5e1eaae4a8243e";
-    const txReceipt = await user.finaliseWithdrawal({ withdrawTxHashL2 });
-    console.log("Transaction receipt", txReceipt);
+    // # 2 Check Nightfall balances
+    const balances = await user.checkNightfallBalances();
+    console.log("Balances", balances);
   } catch (error) {
     console.log(error);
     process.exit(1);

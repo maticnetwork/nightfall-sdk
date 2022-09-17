@@ -1,10 +1,11 @@
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
+import type { MetaMaskEthereumProvider } from "../ethereum/types";
 
 export interface UserFactoryCreate {
-  blockchainWsUrl: string;
   clientApiUrl: string;
-  ethereumPrivateKey: string;
+  blockchainWsUrl?: string;
+  ethereumPrivateKey?: string;
   nightfallMnemonic?: string;
 }
 
@@ -55,4 +56,8 @@ export interface UserImportCommitments {
   pathToImport: string;
   fileName: string;
   compressedZkpPublicKey: string;
+}
+
+export interface UserBrowser extends Window {
+  ethereum?: MetaMaskEthereumProvider;
 }
