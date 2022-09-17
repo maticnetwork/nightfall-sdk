@@ -106,10 +106,8 @@ class Client {
       mnemonic: validMnemonic,
       addressIndex,
     });
-    logger.info(
-      { status: res.status, data: res.data },
-      `Client at ${endpoint} responded`,
-    );
+    // Do NOT log res.data for privacy
+    logger.info({ status: res.status }, `Client at ${endpoint} responded`);
 
     return res.data;
   }
