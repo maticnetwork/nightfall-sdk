@@ -44,7 +44,8 @@ cd nightfall_3
 **Run the Proposer**
 
 ```bash
-start-apps
+# terminal 2, also cd into nightfall_3
+./start-apps
 ```
 
 ### Setup a Client in testnet (Goerli)
@@ -88,9 +89,9 @@ user = await UserFactory.create(userOptions);
 const txReceipts = await user.makeDeposit(depositOptions);
 ```
 
-*Where userOptions is of type <UserFactoryCreate> and depositOptions <UserMakeDeposit>*.
+*Where userOptions is of type UserFactoryCreate and depositOptions UserMakeDeposit*.
 
-Check out the [example scripts](#example-scripts) for a better understanding on how to use the SDK to its capacity. You can also dee-dive into the code and inspect the [User library](https://github.com/maticnetwork/nightfall-sdk/tree/master/libs/user). See `user.ts` for more details about each method.
+Check out the [example scripts](#example-scripts) for a better understanding on how to use the SDK to its capacity. You can also dee-dive into the code and inspect the [User library](https://github.com/maticnetwork/nightfall-sdk/tree/master/libs/user) (see `user.ts` for more details about each method).
 
 ## Play with the SDK repository
 
@@ -114,7 +115,7 @@ E.g.:
 "eg:ganache:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.ganache dotenv_config_debug=true"
 ```
 
-**To use the example scripts and the SDK correctly, one needs to have a good understanding of how the Nightfall Protocol runs under the hood.**
+**To use the example scripts and the SDK correctly, one needs to have a good understanding of how the Nightfall Protocol runs under the hood**.
 
 #### Environment setup
 
@@ -142,7 +143,7 @@ Polygon Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerl
 
 #### 2Tx rule
 
-**This is a rule that applies to Nightfall Protocol on Ganache.**
+**Applies to Nightfall Protocol on Ganache**
 
 Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal (not finalise-withdrawal) are finalised.
 
@@ -150,7 +151,7 @@ E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:ganac
 
 #### 32Tx rule
 
-**This is a rule that applies to Nightfall Protocol on Goerli Testnet.**
+**Applies to Nightfall Protocol on Goerli Testnet**
 
 The 32Tx rule is essentially the same as the `2Tx rule` but with 32 transactions instead of 2.
 
@@ -158,11 +159,11 @@ To learn more about Nightfall protocol visit the [documentation](https://docs.po
 
 #### Nightfall keys
 
-Upon each running of any of the scripts a new instance of the User class is created.
+Upon each running of any of the scripts a new instance of the `User` class is created.
 
 If you don't provide a mnemonic via `env` file, a new mnemonic is assigned. This can be convenient to play with deposits, but it also means you generate a new "wallet" on Nightfall every time.
 
-Make sure to grab your mnemonic and update the environment variable to access your funds on Nightfall:
+**Make sure to grab your mnemonic and update the environment variable to access your funds on Nightfall**.
 
 ```js
 const mnemonic = user.getNightfallMnemonic()
@@ -170,7 +171,7 @@ const mnemonic = user.getNightfallMnemonic()
 
 ### Example scripts
 
-Before running the scripts below, read the [Getting started](#getting-started) section.
+**Before running the scripts below, we strongly recommend reading the [Getting started](#getting-started) section**.
 
 #### Make a deposit
 
