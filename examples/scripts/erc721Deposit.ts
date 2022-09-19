@@ -1,4 +1,4 @@
-import { UserFactory } from "../libs/user";
+import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
 // import ERC721Abi from "../libs/tokens/abis/ERC721.json";
 import Web3 from "web3";

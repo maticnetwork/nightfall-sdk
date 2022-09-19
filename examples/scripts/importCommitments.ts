@@ -1,4 +1,4 @@
-import { UserFactory } from "../libs/user";
+import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
 
 const main = async () => {

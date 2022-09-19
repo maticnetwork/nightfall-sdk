@@ -1,4 +1,4 @@
-import { UserFactory } from "../libs/user";
+import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
 
 const main = async () => {
@@ -20,21 +20,21 @@ const main = async () => {
       ethereumPrivateKey: config.ethereumPrivateKey, // ethereum private key
     });
 
-    // get one token owned by the user
-
     // # 3 Make transfer
-    const tokenContractAddress = config.tokenContractAddress;
+    const tokenContractAddress = config.erc721TestAddress;
     const tokenErcStandard = "ERC721";
+    // set the value to 0 because it is an ERC721 transfer
     const value = "0";
+    // Get the tokenId
     const tokenId =
-      "0x400000000000000000000000000000000000000000000000000000000000006d";
-    // 0x4000000000000000000000000000000000000000000000000000000000000009;
+      "28948022309329048855892746252171976963317496166410141009864396001978282410029";
     const txReceipts = await userSender.makeTransfer({
       tokenContractAddress,
       tokenErcStandard,
       value,
       tokenId,
       recipientNightfallAddress: userRecipient.getNightfallAddress(),
+      // 'feeWei',
       // isOffChain: true,
     });
     console.log("Transaction receipts", txReceipts);
@@ -44,6 +44,11 @@ const main = async () => {
       "Nightfall deposit tx hashes",
       userSender.nightfallTransferTxHashes,
     );
+
+    const reciepientPendingTransfers = userRecipient.checkPendingTransfers();
+    const recipientBalance = userRecipient.checkNightfallBalances();
+    console.log("User recipient pendingTransfers", reciepientPendingTransfers);
+    console.log("User recipient balances", recipientBalance);
 
     // # 5 [OPTIONAL] You can check transfers that are not yet in a block
     const pendingTransfers = await userSender.checkPendingTransfers();

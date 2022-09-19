@@ -213,12 +213,11 @@ class Client {
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       offchain: isOffChain,
-      ercAddress: "0x00269D82110435A4E7043D53E5bF79a8bd767b17",
-      tokenId:
-        "28948022309329048855892746252171976963317496166410141009864396001978282410093", // ISSUE #32 && ISSUE #54
+      ercAddress: token.contractAddress,
+      tokenId, // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
-      fee: 0,
+      fee,
     });
     if (res.data.error && res.data.error === "No suitable commitments") {
       logger.error(res);
@@ -249,6 +248,7 @@ class Client {
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
+    tokenId: string,
     fee: string,
     recipientEthAddress: string,
     isOffChain: boolean,
@@ -259,7 +259,7 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #54
+      tokenId, // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientAddress: recipientEthAddress,
       value,

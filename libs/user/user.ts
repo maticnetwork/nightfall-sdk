@@ -326,6 +326,7 @@ class User {
 
     // Format options
     const value = options.value.trim();
+    const tokenId = options.tokenId;
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
     const tokenContractAddress = options.tokenContractAddress.trim();
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
@@ -355,6 +356,7 @@ class User {
       this.web3Websocket.web3,
       this.client,
       valueWei,
+      tokenId,
       feeWei,
       recipientEthAddress,
       isOffChain,

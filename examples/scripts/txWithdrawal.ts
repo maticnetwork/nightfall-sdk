@@ -1,4 +1,4 @@
-import { UserFactory } from "../libs/user";
+import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
 
 const main = async () => {
@@ -16,11 +16,13 @@ const main = async () => {
     const tokenContractAddress = config.tokenContractAddress;
     const tokenErcStandard = "ERC20";
     const value = "0.0001";
+    const tokenId = "0x00";
     const recipientEthAddress = "0x9C8B2276D490141Ae1440Da660E470E7C0349C63";
     const txReceipts = await user.makeWithdrawal({
       tokenContractAddress,
       tokenErcStandard,
       value,
+      tokenId,
       recipientEthAddress,
       // isOffChain: true,
     });

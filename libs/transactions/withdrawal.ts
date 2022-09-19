@@ -43,6 +43,7 @@ export async function createAndSubmitWithdrawal(
   web3: Web3,
   client: Client,
   value: string,
+  tokenId: string,
   fee: string,
   recipientEthAddress: string,
   isOffChain: boolean,
@@ -53,7 +54,8 @@ export async function createAndSubmitWithdrawal(
     token,
     ownerZkpKeys,
     value,
-    fee,
+    tokenId,
+    "0",
     recipientEthAddress,
     isOffChain,
   );
