@@ -17,7 +17,9 @@ const logger = parentLogger.child({
  * @throws {NightfallSdkError} Given mnemonic is not bip39
  * @returns {string} mnemonic <string> if the mnemonic is new or given one is valid
  */
-export function validateOrCreateNfMnemonic(mnemonic: undefined | string): string {
+export function validateOrCreateNfMnemonic(
+  mnemonic: undefined | string,
+): string {
   logger.debug("validateOrCreateNfMnemonic");
   if (!mnemonic) {
     mnemonic = createMnemonic();
@@ -27,7 +29,7 @@ export function validateOrCreateNfMnemonic(mnemonic: undefined | string): string
       validateNfMnemonic(mnemonic);
     } catch (err) {
       logger.child({ mnemonic }).error(err, "Error while validating mnemonic");
-      throw new NightfallSdkError("Error while validating mnemonic");
+      throw new NightfallSdkError(err);
     }
     logger.debug("Valid mnemonic");
   }
@@ -51,14 +53,14 @@ export async function createZkpKeysAndSubscribeToIncomingKeys(
 
   const nightfallMnemonic = validateOrCreateNfMnemonic(mnemonic);
 
-  logger.info("Generate ZKP keys from mnemonic");
+  logger.debug("Generate ZKP keys from mnemonic");
   const mnemonicAddressIdx = 0;
   const zkpKeys = await client.generateZkpKeysFromMnemonic(
     nightfallMnemonic,
     mnemonicAddressIdx,
   );
 
-  logger.info("Subscribe to incoming viewing keys");
+  logger.debug("Subscribe to incoming viewing keys");
   await client.subscribeToIncomingViewingKeys(zkpKeys);
 
   return {

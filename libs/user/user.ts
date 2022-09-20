@@ -17,7 +17,12 @@ import {
   UserImportCommitments,
 } from "./types";
 import { Client } from "../client";
-import { Web3Websocket, getEthAccountAddress } from "../ethereum";
+import {
+  Web3Websocket,
+  getEthAccountAddress,
+  isMetaMaskAvailable,
+  getEthAccountFromMetaMask,
+} from "../ethereum";
 import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
@@ -38,8 +43,6 @@ import {
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
-import convertObjectToString from "../utils/convertObjectToString";
-import exportFile from "../utils/exportFile";
 import type { Commitment } from "../nightfall/types";
 import {
   OffChainTransactionReceipt,
@@ -47,7 +50,7 @@ import {
 } from "../transactions/types";
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
-import isCommitmentsFromMnemonic from "../nightfall/isCommitmentFromMnemonic";
+import { commitmentsFromMnemonic } from "../nightfall";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -60,21 +63,31 @@ class UserFactory {
 
     // Format options
     const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
-    const blockchainWsUrl = options.blockchainWsUrl.trim().toLowerCase();
-    const ethPrivateKey = options.ethereumPrivateKey.trim();
-    const nightfallMnemonic = options.nightfallMnemonic?.trim(); // else keep as undefined
+    const blockchainWsUrl = options.blockchainWsUrl?.trim().toLowerCase(); // else keep as undefined
+    const ethPrivateKey = options.ethereumPrivateKey?.trim();
+    const nightfallMnemonic = options.nightfallMnemonic?.trim();
 
-    // Instantiate Client and Web3Websocket
+    // Instantiate Client
     const client = new Client(clientApiUrl);
-    const web3Websocket = new Web3Websocket(blockchainWsUrl);
 
     // Get Shield contract address
     const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
 
-    // Get the Eth account address from private key if it's a valid key
-    const ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
+    // Set Web3 Provider and Eth account
+    // If no private key is given, SDK tries to connect via MetaMask
+    let web3Websocket: Web3Websocket;
+    let ethAddress: string;
+
+    if (!ethPrivateKey) {
+      isMetaMaskAvailable();
+      web3Websocket = new Web3Websocket();
+      ethAddress = await getEthAccountFromMetaMask(web3Websocket);
+    } else {
+      web3Websocket = new Web3Websocket(blockchainWsUrl);
+      ethAddress = getEthAccountAddress(ethPrivateKey, web3Websocket.web3);
+    }
 
     // Create a set of Zero-knowledge proof keys from a valid mnemonic
     // or from a new mnemonic if none was provided,
@@ -88,7 +101,7 @@ class UserFactory {
       client,
       web3Websocket,
       shieldContractAddress,
-      ethPrivateKey: ethPrivateKey,
+      ethPrivateKey,
       ethAddress,
       nightfallMnemonic: nightfallKeys.nightfallMnemonic,
       zkpKeys: nightfallKeys.zkpKeys,
@@ -157,6 +170,12 @@ class User {
     return this.zkpKeys?.compressedZkpPublicKey;
   }
 
+  async updateEthAccountFromMetamask() {
+    logger.debug("User :: updateEthAccountFromMetamask");
+    if (this.ethPrivateKey) throw new NightfallSdkError("Method not available");
+    this.ethAddress = await getEthAccountFromMetaMask(this.web3Websocket);
+  }
+
   /**
    * Allow user to make an ERC20 deposit to Nightfall
    *
@@ -205,11 +224,12 @@ class User {
       this.web3Websocket.web3,
       valueWei,
     );
-    if (approvalReceipt) logger.info({ approvalReceipt }, "Approval completed");
-    let depositReceipts = null;
+    if (approvalReceipt)
+      logger.info({ approvalReceipt }, "Approval completed!");
+
     // Deposit
 
-    depositReceipts = await createAndSubmitDeposit(
+    const depositReceipts = await createAndSubmitDeposit(
       this.token,
       tokenContractAddress,
       this.ethPrivateKey,
@@ -479,9 +499,9 @@ class User {
         allCommitmentsByCompressedZkpPublicKey &&
         allCommitmentsByCompressedZkpPublicKey.length > 0
       ) {
-        await exportFile(
+        fs.writeFileSync(
           `${options.pathToExport}${options.fileName}`,
-          convertObjectToString(allCommitmentsByCompressedZkpPublicKey),
+          JSON.stringify(allCommitmentsByCompressedZkpPublicKey),
         );
         return;
       }
@@ -490,7 +510,7 @@ class User {
       );
       return null;
     } catch (err) {
-      logger.child({ options }).error(err);
+      logger.child({ options }).error(err, "Error while exporting commitments");
       return null;
     }
   }
@@ -511,13 +531,10 @@ class User {
     const file = fs.readFileSync(`${options.pathToImport}${options.fileName}`);
     const listOfCommitments: Commitment[] = JSON.parse(file.toString("utf8"));
 
-    await isCommitmentsFromMnemonic(
-      listOfCommitments,
-      options.compressedZkpPublicKey,
-    );
+    commitmentsFromMnemonic(listOfCommitments, options.compressedZkpPublicKey);
 
-    const response = await this.client.saveCommitments(listOfCommitments);
-    const { successMessage } = response;
+    const res = await this.client.saveCommitments(listOfCommitments);
+    const { successMessage } = res;
     logger.info(successMessage);
 
     return successMessage;

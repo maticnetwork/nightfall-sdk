@@ -27,9 +27,17 @@ class TokenFactory {
       }
     } catch (err) {
       logger.child(options).error(err, "Unable to set token decimals");
-      throw new NightfallSdkError("Unable to set token, couldn't get decimals");
+      throw new NightfallSdkError(err);
     }
 
+    logger.info(
+      {
+        address: token.contractAddress,
+        ercStandard: token.ercStandard,
+        decimals: token.decimals,
+      },
+      "Token is",
+    );
     return token;
   }
 }
@@ -50,13 +58,6 @@ class Token {
     this.web3 = options.web3;
     this.contractAddress = options.contractAddress;
     this.ercStandard = options.ercStandard.toUpperCase();
-    logger.info(
-      {
-        address: this.contractAddress,
-        ercStandard: this.ercStandard,
-      },
-      "Token is",
-    );
 
     this.setTokenContract();
   }
@@ -65,7 +66,7 @@ class Token {
     logger.debug("Token :: setTokenContract");
     const abi = this.getContractAbi();
     this.contract = new this.web3.eth.Contract(abi, this.contractAddress);
-    logger.info("Token Contract ready");
+    logger.debug("Token Contract ready");
   }
 
   getContractAbi() {
@@ -81,7 +82,7 @@ class Token {
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
     this.decimals = Number(await this.contract.methods.decimals().call());
-    logger.info({ tokenDecimals: this.decimals }, "Token decimals");
+    logger.debug({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
   // ISSUE #32 && ISSUE #54
