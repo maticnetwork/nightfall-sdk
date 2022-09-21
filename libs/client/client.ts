@@ -146,6 +146,7 @@ class Client {
    * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be deposited
+   * @param {string} tokenId The tokenId of the token to be deposited
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @throws {NightfallSdkError} Bad response
    * @returns {Promise<TransactionResponseData>}
@@ -160,19 +161,11 @@ class Client {
     const endpoint = "deposit";
     logger.debug({ endpoint }, "Calling client at");
 
-    //if there is token id, deposit the tokenID
-
-    console.log(
-      "in client token contract address and tokenID",
-      token.contractAddress,
-      tokenId,
-    );
-
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: tokenId, // ISSUE #32 && ISSUE #54
       value: value,
+      tokenId: tokenId,
       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
       nullifierKey: ownerZkpKeys.nullifierKey,
       fee,
@@ -193,6 +186,7 @@ class Client {
    * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {RecipientNightfallData} recipientNightfallData An object with [valueWei], [recipientCompressedZkpPublicKey]
+   * @param {string} tokenId The tokenId of the token to be transfered
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
    * @throws {NightfallSdkError} No commitments found or bad response
@@ -212,7 +206,7 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       offchain: isOffChain,
       ercAddress: token.contractAddress,
-      tokenId, // ISSUE #32 && ISSUE #54
+      tokenId,
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
       fee,
@@ -237,6 +231,7 @@ class Client {
    * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be withdrawn
+   * @param {string} tokenId The tokenId of the token to be withdrawn
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
    * @throws {NightfallSdkError} Bad response
@@ -257,7 +252,7 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId, // ISSUE #32 && ISSUE #54
+      tokenId,
       rootKey: ownerZkpKeys.rootKey,
       recipientAddress: recipientEthAddress,
       value,

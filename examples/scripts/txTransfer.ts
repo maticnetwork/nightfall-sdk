@@ -24,12 +24,10 @@ const main = async () => {
     const tokenContractAddress = config.tokenContractAddress;
     const tokenErcStandard = "ERC20";
     const value = "0.0001";
-    const tokenId = "0x00";
     const txReceipts = await userSender.makeTransfer({
       tokenContractAddress,
       tokenErcStandard,
       value,
-      tokenId,
       recipientNightfallAddress: userRecipient.getNightfallAddress(),
       // isOffChain: true,
     });

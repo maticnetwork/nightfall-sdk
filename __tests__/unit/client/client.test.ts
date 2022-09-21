@@ -147,7 +147,7 @@ describe("Client", () => {
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #54
+        tokenId: "0x00",
         value,
         compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
         nullifierKey: zkpKeys.nullifierKey,
@@ -193,7 +193,7 @@ describe("Client", () => {
       // Assert
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #54
+        tokenId: "0x00",
         rootKey: zkpKeys.rootKey,
         recipientData: recipientNightfallData,
         fee,
@@ -260,7 +260,7 @@ describe("Client", () => {
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #54
+        tokenId: "0x00",
         rootKey: zkpKeys.rootKey,
         recipientAddress: recipientEthAddress,
         value,

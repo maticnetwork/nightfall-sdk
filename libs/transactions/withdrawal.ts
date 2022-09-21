@@ -55,7 +55,7 @@ export async function createAndSubmitWithdrawal(
     ownerZkpKeys,
     value,
     tokenId,
-    "0",
+    fee,
     recipientEthAddress,
     isOffChain,
   );

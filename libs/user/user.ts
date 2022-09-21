@@ -4,6 +4,8 @@ import {
   CONTRACT_SHIELD,
   TX_FEE_ETH_WEI_DEFAULT,
   TX_FEE_MATIC_WEI_DEFAULT,
+  TX_VALUE_DEFAULT,
+  TX_TOKEN_ID_DEFAULT,
 } from "./constants";
 import {
   UserFactoryCreate,
@@ -177,15 +179,15 @@ class User {
   }
 
   /**
-   * Allow user to make an ERC20 deposit to Nightfall
+   *  Deposits a Layer 1 token into Layer 2, so that it can be transacted privately.
    *
    * @async
    * @method makeDeposit
    * @param {UserMakeDeposit} options
    * @param {string} options.tokenContractAddress
    * @param {string} options.tokenErcStandard
-   * @param {string} options.value
-   * @param {string} options.tokenId
+   * @param {string} [options.value]
+   * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
    * @returns {Promise<OnChainTransactionReceipts>}
    */
@@ -197,11 +199,11 @@ class User {
     makeDepositOptions.validate(options);
 
     // Format options
-    const value = options.value.trim();
+    const value = options.value?.trim() || TX_VALUE_DEFAULT;
+    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
     const feeWei = options.feeWei?.trim() || TX_FEE_ETH_WEI_DEFAULT;
     const tokenContractAddress = options.tokenContractAddress.trim();
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
-    const tokenId = options.tokenId;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {
@@ -213,7 +215,10 @@ class User {
     }
 
     // Convert value and fee to wei
-    const valueWei = stringValueToWei(value, this.token.decimals);
+    let valueWei = "0";
+    if (value !== "0") {
+      valueWei = stringValueToWei(value, this.token.decimals);
+    }
     logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
     const approvalReceipt = await createAndSubmitApproval(
@@ -252,16 +257,16 @@ class User {
   }
 
   /**
-   * Allow user to transfer tokens in Nightfall to other Nightfall users
+   *  Transfers a token within Layer 2.
    *
    * @async
    * @method makeTransfer
    * @param {UserMakeTransfer} options
    * @param {string} options.tokenContractAddress
    * @param {string} options.tokenErcStandard
-   * @param {string} options.value
+   * @param {string} [options.value]
+   * @param {string} [otpions.tokenId]
    * @param {string} [options.feeWei]
-   * @param {string} tokenId
    * @param {string} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
    * @returns {Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>}
@@ -274,13 +279,13 @@ class User {
     makeTransferOptions.validate(options);
 
     // Format options
-    const value = options.value.trim();
+    const value = options.value?.trim() || TX_VALUE_DEFAULT;
+    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
     const tokenContractAddress = options.tokenContractAddress.trim();
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
     const recipientNightfallAddress = options.recipientNightfallAddress.trim();
     const isOffChain = options.isOffChain || false;
-    const tokenId = options.tokenId;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {
@@ -292,9 +297,7 @@ class User {
     }
 
     let valueWei = "0";
-    if (tokenErcStandard == "ERC721") {
-      valueWei = "0";
-    } else {
+    if (value !== "0") {
       valueWei = stringValueToWei(value, this.token.decimals);
     }
     // Convert value and fee to wei
@@ -324,14 +327,15 @@ class User {
   }
 
   /**
-   * Allow user to request a withdrawal from Layer2
+   *  Withdraws a token from Layer 2 back to Layer 1. It can then be withdrawn from the Shield contract's account by the owner in Layer 1.
    *
    * @async
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
    * @param {string} options.tokenContractAddress
    * @param {string} options.tokenErcStandard
-   * @param {string} options.value
+   * @param {string} [options.value]
+   * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
    * @param {string} options.recipientEthAddress
    * @param {Boolean} [options.isOffChain]
@@ -345,8 +349,8 @@ class User {
     makeWithdrawalOptions.validate(options);
 
     // Format options
-    const value = options.value.trim();
-    const tokenId = options.tokenId;
+    const value = options.value?.trim() || TX_VALUE_DEFAULT;
+    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
     const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
     const tokenContractAddress = options.tokenContractAddress.trim();
     const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
@@ -363,7 +367,10 @@ class User {
     }
 
     // Convert value and fee to wei
-    const valueWei = stringValueToWei(value, this.token.decimals);
+    let valueWei = "0";
+    if (value !== "0") {
+      valueWei = stringValueToWei(value, this.token.decimals);
+    }
     logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
     // Withdrawal

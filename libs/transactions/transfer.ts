@@ -56,7 +56,6 @@ export async function createAndSubmitTransfer(
     recipientCompressedZkpPublicKeys: [recipientNightfallAddress],
     values: [value],
   };
-  console.log(recipientNightfallData);
   const resData = await client.transfer(
     token,
     ownerZkpKeys,

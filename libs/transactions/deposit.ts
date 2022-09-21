@@ -8,7 +8,6 @@ import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
 import type { OnChainTransactionReceipts } from "./types";
 import { NightfallSdkError } from "../utils/error";
-import { any } from "joi";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -26,8 +25,8 @@ const logger = parentLogger.child({
  * @param {string} shieldContractAddress Address of the Shield smart contract (recipient)
  * @param {Web3} web3 web3js instance
  * @param {Client} client An instance of Client to interact with the API
- * @param {string} [value] The amount in Wei of the token to be deposited
- * @param {string} [tokenId] The tokenId of an erc721
+ * @param {string} value The amount in Wei of the token to be deposited
+ * @param {string} tokenId The tokenId of an erc721
  * @param {string} fee The amount in Wei to pay a proposer for the tx
  * @throws {NightfallSdkError} Error while broadcasting tx
  * @returns {Promise<OnChainTransactionReceipts>}
@@ -46,16 +45,16 @@ export async function createAndSubmitDeposit(
 ): Promise<OnChainTransactionReceipts> {
   logger.debug("createAndSubmitDeposit");
 
-  var resData = null;
-
-  console.log("the token before the deposit", tokenId);
-
-  resData = await client.deposit(token, ownerZkpKeys, value, tokenId, fee);
+  const resData = await client.deposit(
+    token,
+    ownerZkpKeys,
+    value,
+    tokenId,
+    fee,
+  );
 
   const txReceiptL2 = resData.transaction;
   const unsignedTx = resData.txDataToSign;
-
-  console.log("nepotpisana", unsignedTx);
 
   logger.debug({ unsignedTx }, "Deposit tx, unsigned");
 

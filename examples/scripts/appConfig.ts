@@ -4,6 +4,4 @@ export const config = {
   ethereumPrivateKey: process.env.APP_ETH_PRIVATE_KEY,
   nightfallMnemonic: process.env.APP_NIGHTFALL_MNEMONIC,
   tokenContractAddress: process.env.APP_TOKEN_ADDRESS_1,
-  erc721TestAddress: process.env.APP_ERC721_TEST_ADDRESS_1,
-  ethereumPublicKey: process.env.APP_ETH_PUBLIC_KEY,
 };

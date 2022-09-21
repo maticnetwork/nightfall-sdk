@@ -21,17 +21,14 @@ const main = async () => {
     });
 
     // # 3 Make transfer
-    const tokenContractAddress = config.erc721TestAddress;
+    const tokenContractAddress = config.tokenContractAddress;
     const tokenErcStandard = "ERC721";
-    // set the value to 0 because it is an ERC721 transfer
-    const value = "0";
     // Get the tokenId
     const tokenId =
-      "28948022309329048855892746252171976963317496166410141009864396001978282410029";
+      "28948022309329048855892746252171976963317496166410141009864396001978282410024";
     const txReceipts = await userSender.makeTransfer({
       tokenContractAddress,
       tokenErcStandard,
-      value,
       tokenId,
       recipientNightfallAddress: userRecipient.getNightfallAddress(),
       // 'feeWei',
@@ -47,6 +44,7 @@ const main = async () => {
 
     const reciepientPendingTransfers = userRecipient.checkPendingTransfers();
     const recipientBalance = userRecipient.checkNightfallBalances();
+
     console.log("User recipient pendingTransfers", reciepientPendingTransfers);
     console.log("User recipient balances", recipientBalance);
 

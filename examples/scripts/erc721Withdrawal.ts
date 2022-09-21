@@ -13,18 +13,17 @@ const main = async () => {
     });
 
     // # 2 Make withdrawal
-    const tokenContractAddress = config.erc721TestAddress;
+    const tokenContractAddress = config.tokenContractAddress;
     const tokenErcStandard = "ERC721";
-    const value = "0";
     const tokenId =
-      "28948022309329048855892746252171976963317496166410141009864396001978282410026";
+      "28948022309329048855892746252171976963317496166410141009864396001978282410022";
     const recipientEthAddress = "0x9C8B2276D490141Ae1440Da660E470E7C0349C63";
     const txReceipts = await user.makeWithdrawal({
       tokenContractAddress,
       tokenErcStandard,
-      value,
       tokenId,
       recipientEthAddress,
+      feeWei: "0",
       // isOffChain: true,
     });
     console.log("Transaction receipts", txReceipts);

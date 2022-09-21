@@ -78,14 +78,12 @@ class Token {
     }
   }
 
-  // ISSUE #32 && ISSUE #54
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
     this.decimals = Number(await this.contract.methods.decimals().call());
     logger.debug({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
-  // ISSUE #32 && ISSUE #54
   // DOCS can throw Errors
   async approveTransaction(owner: string, spender: string, value: string) {
     if (this.ercStandard == "ERC721" || this.ercStandard == "ERC1155") {
@@ -107,8 +105,6 @@ class Token {
           { isTokenAlreadyApproved },
           "Token allowance is already approvec",
         );
-
-        console.log("Token spending is already approved");
       }
     } else {
       // set erc20 allowance
@@ -132,7 +128,6 @@ class Token {
 
       logger.info("Allowance bigger than tx value, approval not required");
     }
-    //check if the owner holds the exact same tokenId?
 
     const logInput = { owner, spender, value };
     logger.debug({ logInput }, "Token :: approveTransaction");
