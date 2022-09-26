@@ -25,23 +25,19 @@ const main = async () => {
       config.tokenContractAddress,
     );
 
-    const userAddress = await web3.eth.accounts.privateKeyToAccount(
-      config.ethereumPrivateKey,
-    ).address;
-
     //number of tokens owned by the address
-    const balance = await contract.methods.balanceOf(userAddress).call();
+    const balance = await contract.methods.balanceOf(user.ethAddress).call();
 
     // create an NFT to be deposited to Nightfall
-    const tx = await contract.methods.awardItem(userAddress, "test");
+    const tx = await contract.methods.awardItem(user.ethAddress, "test");
 
     const gas = await tx.estimateGas({
-      from: userAddress,
+      from: user.ethAddress,
     });
 
     const gasPrice = await web3.eth.getGasPrice();
     const data = tx.encodeABI();
-    const nonce = await web3.eth.getTransactionCount(userAddress);
+    const nonce = await web3.eth.getTransactionCount(user.ethAddress);
     const signedTx = await web3.eth.accounts.signTransaction(
       {
         to: config.tokenContractAddress,
@@ -68,14 +64,13 @@ const main = async () => {
     latestTokenId = await contract
       .getPastEvents("Transfer", {
         filter: {
-          _from: userAddress,
+          _from: user.ethAddress,
         },
         fromBlock: 0,
       })
       .then((events) => {
-        latestTokenId = events[events.length - 1].returnValues.tokenId;
-
-        console.log("The ID of the token to be deposited", latestTokenId);
+        const tokenIdToReturn = events[events.length - 1].returnValues.tokenId;
+        console.log("The ID of the token to be deposited", tokenIdToReturn);
 
         return events[events.length - 1].returnValues.tokenId;
       });

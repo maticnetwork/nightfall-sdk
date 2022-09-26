@@ -164,8 +164,8 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      value: value,
-      tokenId: tokenId,
+      value,
+      tokenId,
       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
       nullifierKey: ownerZkpKeys.nullifierKey,
       fee,
@@ -252,10 +252,10 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId,
       rootKey: ownerZkpKeys.rootKey,
       recipientAddress: recipientEthAddress,
       value,
+      tokenId,
       fee,
       offchain: isOffChain,
     });

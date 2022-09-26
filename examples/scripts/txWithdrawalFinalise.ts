@@ -14,7 +14,7 @@ const main = async () => {
 
     // # 2 Pass withdrawal transaction hash to finalise the withdrawal
     const withdrawTxHashL2 =
-      "0xbf393d88c0753666b0431d874c977ea3c625874d3307782c239e7d1964c75dd0";
+      "0x63f301110c0e2d1480e761d369f6406dcaf226370480011e6d5e1eaae4a8243e";
     const txReceipt = await user.finaliseWithdrawal({ withdrawTxHashL2 });
     console.log("Transaction receipt", txReceipt);
   } catch (error) {

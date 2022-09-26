@@ -8,6 +8,7 @@ import erc20Abi from "./abis/ERC20.json";
 import erc721Abi from "./abis/ERC721.json";
 import type { AbiItem } from "web3-utils";
 import { NightfallSdkError } from "../utils/error";
+import { ERC20, ERC721, ERC1155 } from "./constants";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -20,7 +21,7 @@ class TokenFactory {
     const token = new Token(options);
 
     try {
-      if (token.ercStandard == "ERC20") {
+      if (token.ercStandard == ERC20) {
         await token.setTokenDecimals();
       } else {
         token.decimals = 0;
@@ -71,7 +72,7 @@ class Token {
 
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
-    if (this.ercStandard == "ERC721") {
+    if (this.ercStandard == ERC721) {
       return erc721Abi as unknown as AbiItem;
     } else {
       return erc20Abi as unknown as AbiItem;
@@ -86,7 +87,7 @@ class Token {
 
   // DOCS can throw Errors
   async approveTransaction(owner: string, spender: string, value: string) {
-    if (this.ercStandard == "ERC721" || this.ercStandard == "ERC1155") {
+    if (this.ercStandard == ERC721 || this.ercStandard == ERC1155) {
       //set erc721 allowance
       const isTokenAlreadyApproved = await this.contract.methods
         .isApprovedForAll(owner, spender)
@@ -103,7 +104,7 @@ class Token {
       } else {
         logger.debug(
           { isTokenAlreadyApproved },
-          "Token allowance is already approvec",
+          "Token allowance is already approved",
         );
       }
     } else {

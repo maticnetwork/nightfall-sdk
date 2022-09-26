@@ -32,7 +32,7 @@ describe("Transactions", () => {
   describe("Deposit", () => {
     const value = "70000000000000000";
     const fee = "10";
-
+    const tokenId = "0x00";
     const unsignedTx =
       "0x9ae2b6be00000000000000000000000000000000000000000000000000f...";
     const { txReceipt, txReceiptL2 } = depositReceipts;
@@ -57,8 +57,8 @@ describe("Transactions", () => {
             web3,
             mockedClient,
             value,
-            fee,
             tokenId,
+            fee,
           ),
       ).rejects.toThrow(NightfallSdkError);
       expect(mockedClient.deposit).toHaveBeenCalledTimes(1);
@@ -85,8 +85,8 @@ describe("Transactions", () => {
         web3,
         mockedClient,
         value,
-        fee,
         tokenId,
+        fee,
       );
 
       // Assert
@@ -94,6 +94,7 @@ describe("Transactions", () => {
         token,
         ownerZkpKeys,
         value,
+        tokenId,
         fee,
       );
       expect(submitTransaction).toHaveBeenCalledWith(
@@ -111,6 +112,7 @@ describe("Transactions", () => {
   describe("Transfer", () => {
     const value = "100000000000000";
     const fee = "10";
+    const tokenId = "0x00";
     const recipientNightfallAddress = "0x0recipientNightfallAddress";
     const recipientNightfallData = {
       recipientCompressedZkpPublicKeys: [recipientNightfallAddress],
@@ -142,6 +144,7 @@ describe("Transactions", () => {
             web3,
             mockedClient,
             value,
+            tokenId,
             fee,
             recipientNightfallAddress,
             isOffChain,
@@ -168,6 +171,7 @@ describe("Transactions", () => {
         web3,
         mockedClient,
         value,
+        tokenId,
         fee,
         recipientNightfallAddress,
         isOffChain,
@@ -178,6 +182,7 @@ describe("Transactions", () => {
         token,
         ownerZkpKeys,
         recipientNightfallData,
+        tokenId,
         fee,
         isOffChain,
       );
@@ -190,6 +195,7 @@ describe("Transactions", () => {
     const value = "100000000000000";
     const fee = "10";
     const recipientEthAddress = "0x0recipientEthAddress";
+    const tokenId = "0x00";
     // eslint-disable-next-line prefer-const
     let isOffChain = true;
 
@@ -217,6 +223,7 @@ describe("Transactions", () => {
             web3,
             mockedClient,
             value,
+            tokenId,
             fee,
             recipientEthAddress,
             isOffChain,
@@ -243,6 +250,7 @@ describe("Transactions", () => {
         web3,
         mockedClient,
         value,
+        tokenId,
         fee,
         recipientEthAddress,
         isOffChain,
@@ -253,6 +261,7 @@ describe("Transactions", () => {
         token,
         ownerZkpKeys,
         value,
+        tokenId,
         fee,
         recipientEthAddress,
         isOffChain,

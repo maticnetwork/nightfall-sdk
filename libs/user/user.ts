@@ -179,7 +179,7 @@ class User {
   }
 
   /**
-   *  Deposits a Layer 1 token into Layer 2, so that it can be transacted privately.
+   *  Deposits a Layer 1 token into Layer 2, so that it can be transacted privately
    *
    * @async
    * @method makeDeposit
@@ -233,10 +233,9 @@ class User {
       logger.info({ approvalReceipt }, "Approval completed!");
 
     // Deposit
-
     const depositReceipts = await createAndSubmitDeposit(
       this.token,
-      tokenContractAddress,
+      this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
       this.shieldContractAddress,
@@ -246,7 +245,6 @@ class User {
       tokenId,
       feeWei,
     );
-
     logger.info({ depositReceipts }, "Deposit completed!");
 
     this.nightfallDepositTxHashes.push(
@@ -257,7 +255,7 @@ class User {
   }
 
   /**
-   *  Transfers a token within Layer 2.
+   *  Transfers a token within Layer 2
    *
    * @async
    * @method makeTransfer
@@ -296,13 +294,14 @@ class User {
       });
     }
 
+    // Convert value and fee to wei
     let valueWei = "0";
     if (value !== "0") {
       valueWei = stringValueToWei(value, this.token.decimals);
     }
-    // Convert value and fee to wei
     logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
 
+    // Transfer
     const transferReceipts = await createAndSubmitTransfer(
       this.token,
       this.ethAddress,

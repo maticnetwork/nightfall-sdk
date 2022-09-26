@@ -55,7 +55,6 @@ export async function createAndSubmitDeposit(
 
   const txReceiptL2 = resData.transaction;
   const unsignedTx = resData.txDataToSign;
-
   logger.debug({ unsignedTx }, "Deposit tx, unsigned");
 
   let txReceipt: TransactionReceipt;
