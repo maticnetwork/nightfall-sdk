@@ -146,6 +146,7 @@ class Client {
    * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be deposited
+   * @param {string} tokenId The tokenId of the token to be deposited
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @throws {NightfallSdkError} Bad response
    * @returns {Promise<TransactionResponseData>}
@@ -154,6 +155,7 @@ class Client {
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
+    tokenId: string,
     fee: string,
   ): Promise<TransactionResponseData> {
     const endpoint = "deposit";
@@ -162,10 +164,10 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #54
+      value,
+      tokenId,
       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
       nullifierKey: ownerZkpKeys.nullifierKey,
-      value,
       fee,
     });
     logger.info(
@@ -184,6 +186,7 @@ class Client {
    * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {RecipientNightfallData} recipientNightfallData An object with [valueWei], [recipientCompressedZkpPublicKey]
+   * @param {string} tokenId The tokenId of the token to be transferred
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
    * @throws {NightfallSdkError} No commitments found or bad response
@@ -193,6 +196,7 @@ class Client {
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     recipientNightfallData: RecipientNightfallData,
+    tokenId: string,
     fee: string,
     isOffChain: boolean,
   ): Promise<TransactionResponseData> {
@@ -200,12 +204,12 @@ class Client {
     logger.debug({ endpoint }, "Calling client at");
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      offchain: isOffChain,
       ercAddress: token.contractAddress,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #54
+      tokenId,
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
       fee,
-      offchain: isOffChain,
     });
     if (res.data.error && res.data.error === "No suitable commitments") {
       logger.error(res, "No suitable commitments were found");
@@ -227,6 +231,7 @@ class Client {
    * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be withdrawn
+   * @param {string} tokenId The tokenId of the token to be withdrawn
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
    * @throws {NightfallSdkError} Bad response
@@ -236,6 +241,7 @@ class Client {
     token: any,
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
+    tokenId: string,
     fee: string,
     recipientEthAddress: string,
     isOffChain: boolean,
@@ -246,10 +252,10 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
-      tokenId: "0x00", // ISSUE #32 && ISSUE #54
       rootKey: ownerZkpKeys.rootKey,
       recipientAddress: recipientEthAddress,
       value,
+      tokenId,
       fee,
       offchain: isOffChain,
     });

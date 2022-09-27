@@ -22,7 +22,8 @@ export interface UserConstructor {
 export interface UserMakeTransaction {
   tokenContractAddress: string;
   tokenErcStandard: string;
-  value: string;
+  value?: string;
+  tokenId?: string;
   feeWei?: string;
 }
 

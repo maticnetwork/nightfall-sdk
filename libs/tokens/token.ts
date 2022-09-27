@@ -5,8 +5,10 @@ import { parentLogger } from "../utils";
 import { APPROVE_AMOUNT } from "./constants";
 import type { TokenOptions } from "./types";
 import erc20Abi from "./abis/ERC20.json";
+import erc721Abi from "./abis/ERC721.json";
 import type { AbiItem } from "web3-utils";
 import { NightfallSdkError } from "../utils/error";
+import { ERC20, ERC721, ERC1155 } from "./constants";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -19,7 +21,11 @@ class TokenFactory {
     const token = new Token(options);
 
     try {
-      await token.setTokenDecimals();
+      if (token.ercStandard == ERC20) {
+        await token.setTokenDecimals();
+      } else {
+        token.decimals = 0;
+      }
     } catch (err) {
       logger.child(options).error(err, "Unable to set token decimals");
       throw new NightfallSdkError(err);
@@ -66,39 +72,67 @@ class Token {
 
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
-    return erc20Abi as unknown as AbiItem;
+    if (this.ercStandard == ERC721) {
+      return erc721Abi as unknown as AbiItem;
+    } else {
+      return erc20Abi as unknown as AbiItem;
+    }
   }
 
-  // ISSUE #32 && ISSUE #54
   async setTokenDecimals() {
     logger.debug("Token :: setTokenDecimals");
     this.decimals = Number(await this.contract.methods.decimals().call());
     logger.debug({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
-  // ISSUE #32 && ISSUE #54
   // DOCS can throw Errors
   async approveTransaction(owner: string, spender: string, value: string) {
+    if (this.ercStandard == ERC721 || this.ercStandard == ERC1155) {
+      //set erc721 allowance
+      const isTokenAlreadyApproved = await this.contract.methods
+        .isApprovedForAll(owner, spender)
+        .call();
+
+      if (!isTokenAlreadyApproved) {
+        if (process.env.USER_ETHEREUM_SIGNING_KEY || erc721Abi)
+          return this.contract.methods
+            .setApprovalForAll(spender, true)
+            .encodeABI();
+        await this.contract.methods
+          .setApprovalForAll(spender, true)
+          .send({ from: owner });
+      } else {
+        logger.debug(
+          { isTokenAlreadyApproved },
+          "Token allowance is already approved",
+        );
+      }
+    } else {
+      // set erc20 allowance
+      const allowance = await this.contract.methods
+        .allowance(owner, spender)
+        .call();
+      logger.debug({ allowance }, "Token allowance is");
+
+      const allowanceBN = this.web3.utils.toBN(allowance);
+      const valueBN = this.web3.utils.toBN(value);
+      logger.debug({ allowanceBN, valueBN }, "ERC allowance vs tx value");
+
+      // When the spender allowance is lesser than the tx value, the tx will require approval
+      // That means calling the `approve` method,
+      // which creates and unsigned tx that has to be signed and submitted
+      if (allowanceBN.lt(valueBN)) {
+        return this.contract.methods
+          .approve(spender, APPROVE_AMOUNT)
+          .encodeABI();
+      }
+
+      logger.info("Allowance bigger than tx value, approval not required");
+    }
+
     const logInput = { owner, spender, value };
     logger.debug({ logInput }, "Token :: approveTransaction");
 
-    const allowance = await this.contract.methods
-      .allowance(owner, spender)
-      .call();
-    logger.debug({ allowance }, "Token allowance is");
-
-    const allowanceBN = this.web3.utils.toBN(allowance);
-    const valueBN = this.web3.utils.toBN(value);
-    logger.debug({ allowanceBN, valueBN }, "ERC allowance vs tx value");
-
-    // When the spender allowance is lesser than the tx value, the tx will require approval
-    // That means calling the `approve` method,
-    // which creates and unsigned tx that has to be signed and submitted
-    if (allowanceBN.lt(valueBN)) {
-      return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI();
-    }
-
-    logger.info("Allowance bigger than tx value, approval not required");
     return null;
   }
 }

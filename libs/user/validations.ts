@@ -19,6 +19,7 @@ export const createOptions = Joi.object({
   nightfallMnemonic: Joi.string(),
 }).with("ethereumPrivateKey", "blockchainWsUrl");
 
+//provide one or the other
 export const makeDepositOptions = Joi.object({
   tokenContractAddress: Joi.string()
     .trim()
@@ -29,7 +30,8 @@ export const makeDepositOptions = Joi.object({
     .uppercase()
     .valid(...Object.keys(TOKEN_STANDARDS))
     .required(),
-  value: Joi.string().required(),
+  value: Joi.string(),
+  tokenId: Joi.string(),
   feeWei: Joi.string(),
 });
 

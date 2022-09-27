@@ -28,6 +28,7 @@ const logger = parentLogger.child({
  * @param {Web3} web3 web3js instance
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be withdrawn
+ * @param {string} tokenId The id of the ERC721 to be withdrawn
  * @param {string} fee The amount in Wei to pay a proposer for the tx
  * @param {string} recipientEthAddress Recipient Eth address
  * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
@@ -43,6 +44,7 @@ export async function createAndSubmitWithdrawal(
   web3: Web3,
   client: Client,
   value: string,
+  tokenId: string,
   fee: string,
   recipientEthAddress: string,
   isOffChain: boolean,
@@ -53,6 +55,7 @@ export async function createAndSubmitWithdrawal(
     token,
     ownerZkpKeys,
     value,
+    tokenId,
     fee,
     recipientEthAddress,
     isOffChain,

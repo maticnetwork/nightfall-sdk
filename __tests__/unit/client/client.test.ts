@@ -129,6 +129,7 @@ describe("Client", () => {
     };
     const value = "0.01";
     const fee = "11000000000";
+    const tokenId = "0x00";
 
     test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
       // Arrange
@@ -141,13 +142,13 @@ describe("Client", () => {
       // Act
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const result = await client.deposit(token, zkpKeys, value, fee);
+      const result = await client.deposit(token, zkpKeys, value, tokenId, fee);
 
       // Assert
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #54
+        tokenId: "0x00",
         value,
         compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
         nullifierKey: zkpKeys.nullifierKey,
@@ -170,6 +171,7 @@ describe("Client", () => {
     };
     const fee = "11000000000";
     const isOffChain = false;
+    const tokenId = "0x00";
 
     test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
       // Arrange
@@ -186,6 +188,7 @@ describe("Client", () => {
         token,
         zkpKeys,
         recipientNightfallData,
+        tokenId,
         fee,
         isOffChain,
       );
@@ -193,9 +196,9 @@ describe("Client", () => {
       // Assert
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #54
         rootKey: zkpKeys.rootKey,
         recipientData: recipientNightfallData,
+        tokenId: "0x00",
         fee,
         offchain: isOffChain,
       });
@@ -217,6 +220,7 @@ describe("Client", () => {
             token,
             zkpKeys,
             recipientNightfallData,
+            tokenId,
             fee,
             isOffChain,
           ),
@@ -235,6 +239,7 @@ describe("Client", () => {
     const fee = "11000000000";
     const recipientEthAddress = "0x0recipientEthAddress";
     const isOffChain = false;
+    const tokenId = "0x00";
 
     test("Should return an instance of <TransactionResponseData> if client app responds successfully", async () => {
       // Arrange
@@ -251,6 +256,7 @@ describe("Client", () => {
         token,
         zkpKeys,
         value,
+        tokenId,
         fee,
         recipientEthAddress,
         isOffChain,
@@ -260,7 +266,7 @@ describe("Client", () => {
       expect(axios.post).toHaveBeenCalledWith(url, {
         ercAddress: token.contractAddress,
         tokenType: token.ercStandard,
-        tokenId: "0x00", // ISSUE #32 && ISSUE #54
+        tokenId,
         rootKey: zkpKeys.rootKey,
         recipientAddress: recipientEthAddress,
         value,
