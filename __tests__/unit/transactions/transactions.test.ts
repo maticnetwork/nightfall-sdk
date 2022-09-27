@@ -20,7 +20,6 @@ describe("Transactions", () => {
   const ownerZkpKeys = {};
   const shieldContractAddress = "0x0shieldContractAddress";
   const web3 = {};
-  const tokenId = "";
 
   const mockedClient = {
     deposit: jest.fn(),

@@ -186,7 +186,7 @@ class Client {
    * @param {*} token An instance of Token holding token data such as contract address
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {RecipientNightfallData} recipientNightfallData An object with [valueWei], [recipientCompressedZkpPublicKey]
-   * @param {string} tokenId The tokenId of the token to be transfered
+   * @param {string} tokenId The tokenId of the token to be transferred
    * @param {string} fee The amount in Wei to pay a proposer for the tx
    * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
    * @throws {NightfallSdkError} No commitments found or bad response
