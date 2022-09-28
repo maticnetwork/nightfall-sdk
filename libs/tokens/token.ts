@@ -85,55 +85,59 @@ class Token {
     logger.debug({ tokenDecimals: this.decimals }, "Token decimals");
   }
 
-  // DOCS can throw Errors
-  async approveTransaction(owner: string, spender: string, value: string) {
+  async isTransactionApproved(
+    owner: string,
+    spender: string,
+    value: string,
+  ): Promise<boolean> {
+    const logInput = { owner, spender, value };
+    logger.debug({ logInput }, "Token :: isTransactionApproved");
+
     if (this.ercStandard == ERC721 || this.ercStandard == ERC1155) {
-      //set erc721 allowance
-      const isTokenAlreadyApproved = await this.contract.methods
-        .isApprovedForAll(owner, spender)
-        .call();
-
-      if (!isTokenAlreadyApproved) {
-        if (process.env.USER_ETHEREUM_SIGNING_KEY || erc721Abi)
-          return this.contract.methods
-            .setApprovalForAll(spender, true)
-            .encodeABI();
-        await this.contract.methods
-          .setApprovalForAll(spender, true)
-          .send({ from: owner });
-      } else {
-        logger.debug(
-          { isTokenAlreadyApproved },
-          "Token allowance is already approved",
-        );
-      }
-    } else {
-      // set erc20 allowance
-      const allowance = await this.contract.methods
-        .allowance(owner, spender)
-        .call();
-      logger.debug({ allowance }, "Token allowance is");
-
-      const allowanceBN = this.web3.utils.toBN(allowance);
-      const valueBN = this.web3.utils.toBN(value);
-      logger.debug({ allowanceBN, valueBN }, "ERC allowance vs tx value");
-
-      // When the spender allowance is lesser than the tx value, the tx will require approval
-      // That means calling the `approve` method,
-      // which creates and unsigned tx that has to be signed and submitted
-      if (allowanceBN.lt(valueBN)) {
-        return this.contract.methods
-          .approve(spender, APPROVE_AMOUNT)
-          .encodeABI();
-      }
-
-      logger.info("Allowance bigger than tx value, approval not required");
+      logger.debug("Check if it's approved for all...");
+      return this.contract.methods.isApprovedForAll(owner, spender).call();
     }
 
-    const logInput = { owner, spender, value };
-    logger.debug({ logInput }, "Token :: approveTransaction");
+    // ERC20
+    logger.debug("Check allowance...");
+    const allowance = await this.contract.methods
+      .allowance(owner, spender)
+      .call();
 
-    return null;
+    const allowanceBN = this.web3.utils.toBN(allowance);
+    const valueBN = this.web3.utils.toBN(value);
+    logger.debug({ allowanceBN, valueBN }, "ERC allowanceBN vs tx valueBN");
+
+    // When the spender allowance is bigger than the tx value, the tx does NOT require approval
+    return allowanceBN.gt(valueBN);
+  }
+
+  async approvalUnsignedTransaction(spender: string) {
+    logger.debug({ spender }, "Token :: approvalUnsignedTransaction");
+
+    if (this.ercStandard == ERC721 || this.ercStandard == ERC1155) {
+      logger.debug("Create approval for all tx...");
+      return this.contract.methods.setApprovalForAll(spender, true).encodeABI();
+    }
+
+    logger.debug("Create approve tx...");
+    return this.contract.methods.approve(spender, APPROVE_AMOUNT).encodeABI();
+  }
+
+  async approve(owner: string, spender: string) {
+    logger.debug({ owner, spender }, "Token :: approve");
+
+    if (this.ercStandard == ERC721 || this.ercStandard == ERC1155) {
+      logger.debug("Set approval for all via MetaMask...");
+      return this.contract.methods
+        .setApprovalForAll(spender, true)
+        .send({ from: owner });
+    }
+
+    logger.debug("Approve via MetaMask...");
+    return this.contract.methods
+      .approve(spender, APPROVE_AMOUNT)
+      .send({ from: owner });
   }
 }
 
