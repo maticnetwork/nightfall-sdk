@@ -6,6 +6,7 @@ import { APPROVE_AMOUNT } from "./constants";
 import type { TokenOptions } from "./types";
 import erc20Abi from "./abis/ERC20.json";
 import erc721Abi from "./abis/ERC721.json";
+import erc1155Abi from "./abis/ERC1155.json";
 import type { AbiItem } from "web3-utils";
 import { NightfallSdkError } from "../utils/error";
 import { ERC20, ERC721, ERC1155 } from "./constants";
@@ -74,6 +75,8 @@ class Token {
     logger.debug("Token :: getContractAbi");
     if (this.ercStandard == ERC721) {
       return erc721Abi as unknown as AbiItem;
+    } else if (this.ercStandard == ERC1155) {
+      return erc1155Abi as unknown as AbiItem;
     } else {
       return erc20Abi as unknown as AbiItem;
     }
@@ -88,7 +91,7 @@ class Token {
   // DOCS can throw Errors
   async approveTransaction(owner: string, spender: string, value: string) {
     if (this.ercStandard == ERC721 || this.ercStandard == ERC1155) {
-      //set erc721 allowance
+      // Give the Shield Contract allowance to spend your ERC721 and ERC1155 tokens
       const isTokenAlreadyApproved = await this.contract.methods
         .isApprovedForAll(owner, spender)
         .call();
@@ -108,7 +111,7 @@ class Token {
         );
       }
     } else {
-      // set erc20 allowance
+      // Give the Shield Contract allowance to spend your ERC20 tokens
       const allowance = await this.contract.methods
         .allowance(owner, spender)
         .call();
