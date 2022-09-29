@@ -52,7 +52,6 @@ export async function createAndSubmitDeposit(
     tokenId,
     fee,
   );
-
   const txReceiptL2 = resData.transaction;
   const unsignedTx = resData.txDataToSign;
   logger.debug({ unsignedTx }, "Deposit tx, unsigned");

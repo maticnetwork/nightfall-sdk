@@ -24,10 +24,11 @@ export default class HelloWorld extends Vue {
   user: null | any = null;
   nightfallBalances: null | any = null;
 
-  tokenContractAddress = "0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae";
+  tokenContractAddress = "0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a";
   tokenErcStandard = "ERC20";
-  txValue = "0.0001";
+  txValue = "1";
   txOffChain = false;
+  // Review
   recipientNightfallAddress =
     "0xacf25b7a8894165b80aa5c59b07218e9a918b745565938b0b7d1f11ff0f0ab3a";
   recipientEthAddress = "0x9C8B2276D490141Ae1440Da660E470E7C0349C63";
