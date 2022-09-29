@@ -37,24 +37,37 @@ export async function createAndSubmitApproval(
 
   let txReceipt: TransactionReceipt;
   try {
-    const unsignedTx = await token.approveTransaction(
+    // Check if transaction needs to be approved
+    const isTxApproved = await token.isTransactionApproved(
       ownerEthAddress,
       spenderEthAddress,
       value,
     );
-    // unsignedTx `null` signals that the approval is not required (no tx to sign and submit)
-    if (unsignedTx === null) return null;
-    logger.debug({ unsignedTx }, "Approval tx, unsigned");
+    if (isTxApproved) {
+      logger.info("Token allowance is already approved");
+      return null;
+    }
 
-    txReceipt = await submitTransaction(
-      ownerEthAddress,
-      ownerEthPrivateKey,
-      token.contractAddress,
-      unsignedTx,
-      web3,
-    );
+    // Approval is required
+    logger.info("Approval required");
+    if (ownerEthPrivateKey) {
+      const unsignedTx = await token.approvalUnsignedTransaction(
+        spenderEthAddress,
+      );
+      logger.debug({ unsignedTx }, "Approval tx, unsigned");
+
+      txReceipt = await submitTransaction(
+        ownerEthAddress,
+        ownerEthPrivateKey,
+        token.contractAddress,
+        unsignedTx,
+        web3,
+      );
+    } else {
+      txReceipt = await token.approve(ownerEthAddress, spenderEthAddress);
+    }
   } catch (err) {
-    logger.error(err, "Error when submitting transaction");
+    logger.error(err, "Error while checking/processing approval tx");
     throw new NightfallSdkError(err);
   }
 
