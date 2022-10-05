@@ -10,8 +10,6 @@ const erc721AbiItem = erc721Abi as unknown as AbiItem;
 // Example script
 const main = async () => {
   let user;
-  let latestTokenId;
-
   try {
     // # 1 Create an instance of User (mnemonic is optional)
     user = await UserFactory.create({
@@ -25,12 +23,11 @@ const main = async () => {
       config.tokenContractAddress,
     );
 
-    //number of tokens owned by the address
+    // Number of tokens owned by the address
     const balance = await contract.methods.balanceOf(user.ethAddress).call();
 
-    // create an NFT to be deposited to Nightfall
+    // # 2 Create an NFT to be deposited to Nightfall
     const tx = await contract.methods.awardItem(user.ethAddress, "test");
-
     const gas = await tx.estimateGas({
       from: user.ethAddress,
     });
@@ -60,8 +57,8 @@ const main = async () => {
       },
     );
 
-    // get the tokenId from the created NFT to deposit it to Nightfall
-    latestTokenId = await contract
+    // # 3 Get the tokenId from the created NFT
+    const tokenId = await contract
       .getPastEvents("Transfer", {
         filter: {
           _from: user.ethAddress,
@@ -78,9 +75,8 @@ const main = async () => {
     // # 4 Make ERC721 deposit
     const tokenContractAddress = config.tokenContractAddress;
     const tokenErcStandard = "ERC721";
-    const tokenId = latestTokenId;
 
-    // add only one to be required, not both value and tokenId
+    // Making ERC721 deposit only requires the Layer 1 tokenId to be deposited
     const txReceipts = await user.makeDeposit({
       tokenContractAddress,
       tokenErcStandard,

@@ -22,17 +22,14 @@ const main = async () => {
 
     // # 3 Make transfer
     const tokenContractAddress = config.tokenContractAddress;
-    const tokenErcStandard = "ERC721";
+    const tokenErcStandard = "ERC1155";
 
-    // Get the Layer 1 tokenId od the deposited token to be transferred
-    const tokenId =
-      "28948022309329048855892746252171976963317496166410141009864396001978282410027";
-
-    // Making ERC721 transfer only requires the Layer 1 tokenId to be transferred
+    // Making an ERC1155 transfer requires both the tokenId and the value of the correponsding token to be transferred
     const txReceipts = await userSender.makeTransfer({
       tokenContractAddress,
       tokenErcStandard,
-      tokenId,
+      tokenId: "1",
+      value: "200",
       recipientNightfallAddress: userRecipient.getNightfallAddress(),
       // 'feeWei',
       // isOffChain: true,

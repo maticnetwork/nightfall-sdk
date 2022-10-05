@@ -3,6 +3,7 @@ import { config } from "./appConfig";
 
 const main = async () => {
   let user;
+
   try {
     // # 1 Create an instance of User
     user = await UserFactory.create({
@@ -14,17 +15,15 @@ const main = async () => {
 
     // # 2 Make withdrawal
     const tokenContractAddress = config.tokenContractAddress;
-    const tokenErcStandard = "ERC721";
-    // Get the Layer 1 tokenId of the deposited token to be withdrawn
-    const tokenId =
-      "28948022309329048855892746252171976963317496166410141009864396001978282410027";
+    const tokenErcStandard = "ERC1155";
     const recipientEthAddress = "0x9C8B2276D490141Ae1440Da660E470E7C0349C63";
 
-    // Making ERC721 withdrawal only requires the Layer 1 tokenId to be withdrawn
+    // Making an ERC1155 withdrawal requires both the tokenId and the value of the correponsding token to be withdrawn
     const txReceipts = await user.makeWithdrawal({
       tokenContractAddress,
       tokenErcStandard,
-      tokenId,
+      value: "200",
+      tokenId: "1",
       recipientEthAddress,
       feeWei: "10",
       // isOffChain: true,
