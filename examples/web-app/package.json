@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "bootstrap": "^5.2.1",
+    "bootstrap": "^5.2.2",
     "nightfall-sdk": "file:../../",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "react": "^18.2.0",

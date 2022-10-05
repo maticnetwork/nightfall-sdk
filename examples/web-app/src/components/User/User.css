@@ -1,0 +1,21 @@
+.section {
+  margin-top: 10px;
+}
+.nf-button {
+  border: none;
+  padding: 10px 10px 10px 10px;
+  margin: 5px;
+}
+.nf-button:hover {
+  border: none;
+  padding: 10px 10px 10px 10px;
+  margin: 5px;
+  background-color: blueviolet;
+  color: white;
+}
+.nf-button:after {
+  border: none;
+  padding: 10px 10px 10px 10px;
+  margin: 5px;
+  background-color: blue;
+}
