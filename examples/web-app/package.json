@@ -15,7 +15,8 @@
     "nightfall-sdk": "file:../../",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
