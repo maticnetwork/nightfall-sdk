@@ -3,5 +3,5 @@ export const config = {
   clientApiUrl: process.env.APP_CLIENT_API_URL,
   ethereumPrivateKey: process.env.APP_ETH_PRIVATE_KEY,
   nightfallMnemonic: process.env.APP_NIGHTFALL_MNEMONIC,
-  tokenContractAddress: process.env.APP_TOKEN_ADDRESS_1,
+  tokenContractAddress: process.env.APP_TOKEN_ADDRESS,
 };
