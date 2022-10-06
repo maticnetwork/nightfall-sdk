@@ -1,9 +1,19 @@
 import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
+import type { AbiItem } from "web3-utils";
+import erc165Abi from "../../libs/tokens/abis/ERC165.json";
+import { ERC20, ERC721, ERC1155 } from "../../libs/tokens/constants";
+
+const erc165AbiItem = erc165Abi as unknown as AbiItem;
 
 const main = async () => {
   let userSender;
   let userRecipient;
+  let tokenType;
+  let value;
+  let tokenId;
+  let web3;
+  const tokenContractAddress = config.tokenContractAddress;
   try {
     // # 1 Create an instance of User
     userSender = await UserFactory.create({
@@ -12,6 +22,7 @@ const main = async () => {
       ethereumPrivateKey: config.ethereumPrivateKey,
       nightfallMnemonic: config.nightfallMnemonic,
     });
+    web3 = userSender.web3Websocket.web3;
 
     // # 2 [OPTIONAL] For this example, we create a 2nd instance
     userRecipient = await UserFactory.create({
@@ -20,14 +31,47 @@ const main = async () => {
       ethereumPrivateKey: config.ethereumPrivateKey,
     });
 
+    try {
+      const ercContract = new web3.eth.Contract(
+        erc165AbiItem,
+        tokenContractAddress,
+      );
+      const interface721 = await ercContract.methods
+        .supportsInterface("0x80ac58cd")
+        .call(); // ERC721 interface
+
+      if (interface721) {
+        tokenType = ERC721;
+        value = "0";
+
+        // TokenId to be transferred
+        tokenId =
+          "28948022309329048855892746252171976963317496166410141009864396001978282410024";
+      } else {
+        const interface1155 = await ercContract.methods
+          .supportsInterface("0xd9b67a26")
+          .call(); // ERC1155 interface
+
+        if (interface1155) {
+          tokenType = ERC1155;
+          tokenId = "4";
+          value = "2000";
+        }
+      }
+    } catch {
+      // Expected ERC20
+      tokenType = ERC20;
+      value = "0.0001";
+      tokenId = "0x00";
+    }
+
     // # 3 Make transfer
-    const tokenContractAddress = config.tokenContractAddress;
-    const tokenErcStandard = "ERC20";
-    const value = "0.0001";
+    const tokenErcStandard = tokenType;
     const txReceipts = await userSender.makeTransfer({
       tokenContractAddress,
       tokenErcStandard,
       value,
+      tokenId,
       recipientNightfallAddress: userRecipient.getNightfallAddress(),
       // isOffChain: true,
     });

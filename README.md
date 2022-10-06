@@ -89,7 +89,7 @@ user = await UserFactory.create(userOptions);
 const txReceipts = await user.makeDeposit(depositOptions);
 ```
 
-*Where userOptions is of type UserFactoryCreate and depositOptions UserMakeDeposit*.
+_Where userOptions is of type UserFactoryCreate and depositOptions UserMakeDeposit_.
 
 Check out the [example scripts](#example-scripts) for a better understanding on how to use the SDK to its capacity. You can also dee-dive into the code and inspect the [User library](https://github.com/maticnetwork/nightfall-sdk/tree/master/libs/user) (see `user.ts` for more details about each method).
 
@@ -134,12 +134,12 @@ APP_NIGHTFALL_MNEMONIC=your Nightfall mnemonic
 
 # Nightfall_3 ERC20Mock contract address in ganache
 # Monitor the local deployment and double-check the contract address below
-APP_TOKEN_ADDRESS_1=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a
+APP_TOKEN_ADDRESS=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a
 ```
 
 #### Available networks
 
-Polygon Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client. 
+Polygon Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client.
 
 #### 2Tx rule
 
@@ -166,7 +166,7 @@ If you don't provide a mnemonic via `env` file, a new mnemonic is assigned. This
 **Make sure to grab your mnemonic and update the environment variable to access your funds on Nightfall**.
 
 ```js
-const mnemonic = user.getNightfallMnemonic()
+const mnemonic = user.getNightfallMnemonic();
 ```
 
 ### Example scripts
@@ -175,7 +175,7 @@ const mnemonic = user.getNightfallMnemonic()
 
 #### Make a deposit
 
-Your balance on Nightfall will update as soon your funds settle, i.e. soon as there are enough [transactions to create an L2 block](#2tx-rule). 
+Your balance on Nightfall will update as soon your funds settle, i.e. soon as there are enough [transactions to create an L2 block](#2tx-rule).
 
 ```
 npm run-script eg:[network]:deposit
