@@ -83,17 +83,7 @@
     "eg:goerli:balances": "ts-node -r dotenv/config examples/scripts/balances.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
-<<<<<<< HEAD
-    "eg:goerli:deposit-erc721": "ts-node -r dotenv/config examples/scripts/erc721Deposit.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:transfer-erc721": "ts-node -r dotenv/config examples/scripts/erc721Transfer.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:withdrawal-erc721": "ts-node -r dotenv/config examples/scripts/erc721Withdrawal.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:deposit-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Deposit.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:transfer-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Transfer.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:withdrawal-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Withdrawal.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:web-app": "npm run build && cd examples/webApp/ && npm run serve",
     "eg:react-web-app": "npm run build && cd examples/web-app/ && npm start"
-=======
-    "eg:web-app": "npm run build && cd examples/webApp/ && npm run serve"
->>>>>>> 59b80bc0f6a9cc52ea12e1f46b7aad229a0bf53f
   }
 }
