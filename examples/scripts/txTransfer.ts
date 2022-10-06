@@ -1,6 +1,5 @@
 import { UserFactory } from "../../libs/user";
 import { config } from "./appConfig";
-import Web3 from "web3";
 import type { AbiItem } from "web3-utils";
 import erc165Abi from "../../libs/tokens/abis/ERC165.json";
 import { ERC20, ERC721, ERC1155 } from "../../libs/tokens/constants";
