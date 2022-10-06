@@ -6,7 +6,6 @@ import erc721Abi from "../../libs/tokens/abis/ERC721.json";
 import erc165Abi from "../../libs/tokens/abis/ERC165.json";
 import { ERC20, ERC721, ERC1155 } from "../../libs/tokens/constants";
 
-const web3 = new Web3(config.blockchainWsUrl);
 const erc721AbiItem = erc721Abi as unknown as AbiItem;
 const erc165AbiItem = erc165Abi as unknown as AbiItem;
 
@@ -16,6 +15,7 @@ const main = async () => {
   let tokenType;
   let tokenId;
   let value;
+  let web3;
   const tokenContractAddress = config.tokenContractAddress;
 
   try {
@@ -27,6 +27,7 @@ const main = async () => {
       ethereumPrivateKey: config.ethereumPrivateKey,
       nightfallMnemonic: config.nightfallMnemonic,
     });
+    web3 = user.web3Websocket.web3;
 
     // # 2 [OPTIONAL] If you did not pass a mnemonic, you can retrieve it
     const mnemonic = user.getNightfallMnemonic();

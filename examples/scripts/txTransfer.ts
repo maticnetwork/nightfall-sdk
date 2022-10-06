@@ -5,7 +5,6 @@ import type { AbiItem } from "web3-utils";
 import erc165Abi from "../../libs/tokens/abis/ERC165.json";
 import { ERC20, ERC721, ERC1155 } from "../../libs/tokens/constants";
 
-const web3 = new Web3(config.blockchainWsUrl);
 const erc165AbiItem = erc165Abi as unknown as AbiItem;
 
 const main = async () => {
@@ -14,6 +13,7 @@ const main = async () => {
   let tokenType;
   let value;
   let tokenId;
+  let web3;
   const tokenContractAddress = config.tokenContractAddress;
   try {
     // # 1 Create an instance of User
@@ -23,6 +23,7 @@ const main = async () => {
       ethereumPrivateKey: config.ethereumPrivateKey,
       nightfallMnemonic: config.nightfallMnemonic,
     });
+    web3 = userSender.web3Websocket.web3;
 
     // # 2 [OPTIONAL] For this example, we create a 2nd instance
     userRecipient = await UserFactory.create({
