@@ -76,12 +76,6 @@
     "eg:ganache:balances": "ts-node -r dotenv/config examples/scripts/balances.ts dotenv_config_path=./examples/scripts/.env.ganache",
     "eg:ganache:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.ganache",
     "eg:ganache:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.ganache",
-    "eg:ganache:deposit-erc721": "ts-node -r dotenv/config examples/scripts/erc721Deposit.ts dotenv_config_path=./examples/scripts/.env.ganache",
-    "eg:ganache:transfer-erc721": "ts-node -r dotenv/config examples/scripts/erc721Transfer.ts dotenv_config_path=./examples/scripts/.env.ganache",
-    "eg:ganache:withdrawal-erc721": "ts-node -r dotenv/config examples/scripts/erc721Withdrawal.ts dotenv_config_path=./examples/scripts/.env.ganache",
-    "eg:ganache:deposit-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Deposit.ts dotenv_config_path=./examples/scripts/.env.ganache",
-    "eg:ganache:transfer-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Transfer.ts dotenv_config_path=./examples/scripts/.env.ganache",
-    "eg:ganache:withdrawal-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Withdrawal.ts dotenv_config_path=./examples/scripts/.env.ganache",
     "eg:goerli:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.goerli dotenv_config_debug=true",
     "eg:goerli:transfer": "ts-node -r dotenv/config examples/scripts/txTransfer.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:withdrawal": "ts-node -r dotenv/config examples/scripts/txWithdrawal.ts dotenv_config_path=./examples/scripts/.env.goerli",
@@ -89,12 +83,6 @@
     "eg:goerli:balances": "ts-node -r dotenv/config examples/scripts/balances.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:deposit-erc721": "ts-node -r dotenv/config examples/scripts/erc721Deposit.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:transfer-erc721": "ts-node -r dotenv/config examples/scripts/erc721Transfer.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:withdrawal-erc721": "ts-node -r dotenv/config examples/scripts/erc721Withdrawal.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:deposit-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Deposit.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:transfer-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Transfer.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:goerli:withdrawal-erc1155": "ts-node -r dotenv/config examples/scripts/erc1155Withdrawal.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:web-app": "npm run build && cd examples/webApp/ && npm run serve"
   }
 }
