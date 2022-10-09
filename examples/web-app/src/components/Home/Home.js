@@ -3,9 +3,7 @@ import { UserFactory } from "nightfall-sdk";
 import "./Home.css";
 
 export default function User() {
-  const [userAddress, setUserAddress] = useState();
   const [userNightfallAddress, setUserNightfallAddress] = useState();
-  const [userRecipient, setUserRecipient] = useState();
   const [nightfallMnemonic, setNightfallMnemonic] = useState();
   const [clientApiUrl, setClientApiUrl] = useState();
   const [nightfallBalances, setNightfallBalances] = useState(0);
@@ -89,14 +87,11 @@ export default function User() {
     return txReceipts;
   }
 
-  async function makeTransfer(clientApiUrl, nightfallMnemonicSender) {
+  async function makeTransfer(clientApiUrl, nightfallMnemonic) {
     // Create a user that will transfer funds
-    console.log("MNEMONIC SENDER", nightfallMnemonicSender);
-    console.log("CLIENT API URL", clientApiUrl);
-
     const nightfallUserSender = await UserFactory.create({
       clientApiUrl,
-      nightfallMnemonicSender,
+      nightfallMnemonic,
     });
     // Create a user that will recieve funds
     const nightfallUserRecepient = await UserFactory.create({
@@ -107,8 +102,6 @@ export default function User() {
     );
 
     const recepientAddress = nightfallUserRecepient.getNightfallAddress();
-    console.log("recipien address", recepientAddress);
-    console.log("sender address", nightfallUserSender.getNightfallAddress());
 
     // Make a transfer to the nightfall address of the recipient
     const txReceipts = await nightfallUserSender.makeTransfer({
@@ -116,6 +109,7 @@ export default function User() {
       tokenErcStandard: tokenErcStandard,
       value: "0.0001",
       recipientNightfallAddress: recepientAddress,
+      isOffChain: true,
     });
     return txReceipts;
   }
@@ -129,7 +123,9 @@ export default function User() {
     const txReceipts = await nightfallUser.makeWithdrawal({
       tokenContractAddress: tokenContractAddress,
       tokenErcStandard: tokenErcStandard,
-      value: txValue,
+      value: "0.0001",
+      recipientEthAddress: nightfallUser.ethAddress,
+      feeWei: "0",
     });
   }
 
@@ -147,7 +143,7 @@ export default function User() {
     <div>
       <div className="container-md home-container">
         <h5 className="section">
-          Nightfall address:<div>{userNightfallAddress}</div>
+          Nightfall address: <div>{userNightfallAddress}</div>
         </h5>
 
         <h6 className="section">Create a deposit of 0.0001 TEST Matic</h6>
@@ -158,7 +154,7 @@ export default function User() {
           {" "}
           Deposit
         </button>
-        {/* <h6 className="section">Create a transfer of 0.0001 TEST Matic</h6>
+        <h6 className="section">Create a transfer of 0.0001 TEST Matic</h6>
         <button
           className="nf-button"
           onClick={() => makeTransfer(clientApiUrl, nightfallMnemonic)}
@@ -173,7 +169,7 @@ export default function User() {
         >
           {" "}
           Withdrawal
-        </button> */}
+        </button>
         <div className="section">
           Your Nightfall Balance is:{" "}
           {nightfallBalances ? nightfallBalances : "0"}

@@ -84,6 +84,6 @@
     "eg:goerli:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:web-app": "npm run build && cd examples/webApp/ && npm run serve",
-    "eg:react-web-app": "npm run build && cd examples/web-app/ && npm start"
+    "eg:react-web-app-start": "npm run build && cd examples/web-app/ && npm start"
   }
 }
