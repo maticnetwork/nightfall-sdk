@@ -1,0 +1,12 @@
+.styled-link {
+  text-decoration: none;
+}
+
+.connect-wallet {
+  border-color: rgba(0, 0, 0, 0.55) !important;
+  color: #880ed4 !important;
+}
+.connect-wallet:hover {
+  color: white !important;
+  background-color: #880ed4 !important;
+}

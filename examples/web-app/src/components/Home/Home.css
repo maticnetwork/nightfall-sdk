@@ -1,0 +1,25 @@
+.section {
+  margin-top: 40px;
+}
+.nf-button {
+  border: none;
+  padding: 10px 10px 10px 10px;
+  margin: 5px;
+}
+.nf-button:hover {
+  border: none;
+  padding: 10px 10px 10px 10px;
+  margin: 5px;
+  background-color: blueviolet;
+  color: white;
+}
+.nf-button:after {
+  border: none;
+  padding: 10px 10px 10px 10px;
+  margin: 5px;
+  background-color: blue;
+}
+
+.home-container {
+  text-align: center;
+}
