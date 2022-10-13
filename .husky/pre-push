@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+DOTENV_CONFIG_PATH=./examples/scripts/.env.ganache npx jest e2e/completeTransferFlow.test.ts --setupFiles dotenv/config

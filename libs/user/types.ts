@@ -1,6 +1,12 @@
+import { NightfallZkpKeys } from "libs/nightfall/types";
+import {
+  OffChainTransactionReceipt,
+  OnChainTransactionReceipts,
+} from "libs/transactions/types";
 import type { Client } from "../client";
 import type { Web3Websocket } from "../ethereum";
 import type { MetaMaskEthereumProvider } from "../ethereum/types";
+import type { TransactionReceipt } from "web3-core";
 
 export interface UserFactoryCreate {
   clientApiUrl: string;
@@ -62,3 +68,45 @@ export interface UserImportCommitments {
 export interface UserBrowser extends Window {
   ethereum?: MetaMaskEthereumProvider;
 }
+
+export type User = {
+  client: Client;
+  web3Websocket: Web3Websocket;
+  shieldContractAddress: string;
+  ethPrivateKey: string;
+  ethAddress: string;
+  nightfallMnemonic: string;
+  zkpKeys: NightfallZkpKeys;
+
+  // Set when transacting
+  token: any;
+  nightfallDepositTxHashes: string[];
+  nightfallTransferTxHashes: string[];
+  nightfallWithdrawalTxHashes: string[];
+
+  checkStatus(): Promise<{}>;
+  getNightfallMnemonic(): string;
+  getNightfallAddress(): string;
+  updateEthAccountFromMetamask(): void;
+  makeDeposit(options: UserMakeDeposit): Promise<OnChainTransactionReceipts>;
+  makeTransfer(
+    options: UserMakeTransfer,
+  ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>;
+  makeWithdrawal(
+    options: UserMakeWithdrawal,
+  ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt>;
+  finaliseWithdrawal(
+    options: UserFinaliseWithdrawal,
+  ): Promise<TransactionReceipt>;
+  checkPendingDeposits(options?: UserCheckBalances): Promise<any>;
+  checkNightfallBalances(): Promise<any>;
+  checkPendingTransfers(): Promise<any>;
+  exportCommitments(options: UserExportCommitments): Promise<void | null>;
+  importAndSaveCommitments(options: UserImportCommitments): Promise<string>;
+  close(): void;
+};
+
+export type Balance = {
+  balance: number;
+  tokenId: string;
+};

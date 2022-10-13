@@ -9,6 +9,7 @@
     "nf3"
   ],
   "main": "dist/cjs/libs/user/index.js",
+  "types": "dist/cjs/libs/user/index.d.ts",
   "module": "dist/libs/user/index.js",
   "files": [
     "dist"
@@ -67,6 +68,7 @@
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
     "prepare": "husky install",
+    "e2e:ganache": "DOTENV_CONFIG_PATH=./examples/scripts/.env.ganache npx jest e2e/ --setupFiles dotenv/config",
     "test:ganache": "DOTENV_CONFIG_PATH=./examples/scripts/.env.ganache jest --setupFiles dotenv/config",
     "test:goerli": "DOTENV_CONFIG_PATH=./examples/scripts/.env.goerli jest --setupFiles dotenv/config",
     "eg:ganache:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.ganache dotenv_config_debug=true",
