@@ -24,7 +24,7 @@ const waitForTimeout = async (timeoutInMs: number) => {
 };
 
 describe("nightfall smoke tests", function () {
-  jest.setTimeout(150 * 1000);
+  jest.setTimeout(1500 * 100000);
 
   beforeAll(async function () {
     user1 = await UserFactory.create({
