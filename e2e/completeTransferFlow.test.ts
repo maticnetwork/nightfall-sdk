@@ -3,8 +3,10 @@ import { Balance, User } from "../libs/user/types";
 
 let user1: User;
 let user2: User;
-let user1Balance: any;
-let user2Balance: any;
+let user3: User;
+let user4: User;
+let user4Balance: any;
+let user3Balance: any;
 
 const TX_PER_BLOCK = 2;
 const DECIMALS = 1000000000;
@@ -40,21 +42,39 @@ describe("nightfall smoke tests", function () {
       ethereumPrivateKey: process.env.APP_ETH_PRIVATE_KEY,
     });
 
-    let user1BalanceTmp = await user1.checkNightfallBalances();
-    user1Balance =
-      Object.values(user1BalanceTmp).length > 0
-        ? (Object.values(user1BalanceTmp)[0] as Balance[])[0].balance
+    user3 = await UserFactory.create({
+      blockchainWsUrl: process.env.APP_BLOCKCHAIN_WEBSOCKET_URL,
+      clientApiUrl: process.env.APP_CLIENT_API_URL,
+      ethereumPrivateKey: process.env.APP_ETH_PRIVATE_KEY,
+    });
+
+    let user3BalanceTmp = await user3.checkNightfallBalances();
+    user3Balance =
+      Object.values(user3BalanceTmp).length > 0
+        ? (Object.values(user3BalanceTmp)[0] as Balance[])[0].balance
         : 0;
 
-    let user2BalanceTmp = await user2.checkNightfallBalances();
-    user2Balance =
-      Object.values(user2BalanceTmp).length > 0
-        ? (Object.values(user2BalanceTmp)[0] as Balance[])[0].balance
+    user4 = await UserFactory.create({
+      blockchainWsUrl: process.env.APP_BLOCKCHAIN_WEBSOCKET_URL,
+      clientApiUrl: process.env.APP_CLIENT_API_URL,
+      ethereumPrivateKey: process.env.APP_ETH_PRIVATE_KEY,
+    });
+
+    let user4BalanceTmp = await user4.checkNightfallBalances();
+    user4Balance =
+      Object.values(user4BalanceTmp).length > 0
+        ? (Object.values(user4BalanceTmp)[0] as Balance[])[0].balance
         : 0;
   });
 
   it(`should make ${TX_PER_BLOCK} deposit from L1 to nightfall with the goal of generate at least 1 block. From this 32 deposit only one should be of the user3. So the user3 balance after the block generation, should be exactly the balance before plus the deposit value. After the test should make ${TX_PER_BLOCK} transfers. One from user3 to user4 and 31 from user2 to user1. This way we can verify the user4 nightfall balance that should be exactly the balance before plus the transfer value.`, async function () {
-    for (let i = 0; i < TX_PER_BLOCK; i++) {
+    await user3.makeDeposit({
+      tokenContractAddress: process.env.APP_TOKEN_ADDRESS,
+      tokenErcStandard: "ERC20",
+      value: TRANSACTION_DEPOSIT_VALUE.toString(),
+    });
+
+    for (let i = 0; i < TX_PER_BLOCK - 1; i++) {
       await user1.makeDeposit({
         tokenContractAddress: process.env.APP_TOKEN_ADDRESS,
         tokenErcStandard: "ERC20",
@@ -65,11 +85,11 @@ describe("nightfall smoke tests", function () {
     await new Promise<void>(async (resolve) => {
       async function verifyBlockCreation() {
         if (
-          Object.values(await user2.checkNightfallBalances()).length > 0 &&
+          Object.values(await user3.checkNightfallBalances()).length > 0 &&
           (
-            Object.values(await user1.checkNightfallBalances())[0] as Balance[]
+            Object.values(await user3.checkNightfallBalances())[0] as Balance[]
           )[0].balance ==
-            user1Balance + DEPOSIT_VALUE * TX_PER_BLOCK
+            user3Balance + DEPOSIT_VALUE
         ) {
           resolve();
         } else {
@@ -80,12 +100,19 @@ describe("nightfall smoke tests", function () {
       await verifyBlockCreation();
     });
 
-    const user1BalanceAfterDepositsVerification =
-      (Object.values(await user1.checkNightfallBalances())[0] as Balance[])[0]
+    const user3BalanceAfterDepositsVerification =
+      (Object.values(await user3.checkNightfallBalances())[0] as Balance[])[0]
         .balance ===
-      user1Balance + DEPOSIT_VALUE * TX_PER_BLOCK;
+      user3Balance + DEPOSIT_VALUE;
 
-    for (let i = 0; i < TX_PER_BLOCK; i++) {
+    await user3.makeTransfer({
+      tokenContractAddress: process.env.APP_TOKEN_ADDRESS,
+      tokenErcStandard: "ERC20",
+      value: TRANSACTION_TRANSFER_VALUE.toString(),
+      recipientNightfallAddress: user4.getNightfallAddress(),
+    });
+
+    for (let i = 0; i < TX_PER_BLOCK - 1; i++) {
       await user1.makeTransfer({
         tokenContractAddress: process.env.APP_TOKEN_ADDRESS,
         tokenErcStandard: "ERC20",
@@ -99,13 +126,13 @@ describe("nightfall smoke tests", function () {
     await new Promise<void>(async (resolve) => {
       async function verifyBlockCreation2() {
         if (
-          (Object.values(await user2.checkNightfallBalances()).length > 0 &&
+          (Object.values(await user4.checkNightfallBalances()).length > 0 &&
             (
               Object.values(
-                await user2.checkNightfallBalances(),
+                await user4.checkNightfallBalances(),
               )[0] as Balance[]
             )[0].balance) ==
-          user2Balance + TRANSFER_VALUE * TX_PER_BLOCK
+          user4Balance + TRANSFER_VALUE
         ) {
           resolve();
         } else {
@@ -116,15 +143,17 @@ describe("nightfall smoke tests", function () {
       await verifyBlockCreation2();
     });
 
-    expect(user1BalanceAfterDepositsVerification).toBeTruthy();
+    expect(user3BalanceAfterDepositsVerification).toBeTruthy();
     expect(
-      (Object.values(await user2.checkNightfallBalances())[0] as Balance[])[0]
+      (Object.values(await user4.checkNightfallBalances())[0] as Balance[])[0]
         .balance,
-    ).toEqual(user2Balance + TRANSFER_VALUE * TX_PER_BLOCK);
+    ).toEqual(user4Balance + TRANSFER_VALUE);
   });
 
   afterAll(() => {
     user1.close();
     user2.close();
+    user3.close();
+    user4.close();
   });
 });
