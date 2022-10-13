@@ -2,6 +2,8 @@ import { Client } from "../libs/client";
 import testVars from "./config";
 
 describe("Verify client API get contract address", () => {
+  jest.setTimeout(15 * 100000);
+
   it("Shoud return the contract address if the client is running", async () => {
     const client = new Client(process.env.APP_CLIENT_API_URL);
     const zkpKeys = await client.generateZkpKeysFromMnemonic(
