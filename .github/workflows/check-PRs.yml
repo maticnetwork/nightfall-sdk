@@ -1,0 +1,36 @@
+name: Check PR
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v2
+
+  unit-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.17.0'
+      - name: Run Unit Tests on SDK
+        run: |
+          npm ci
+          npm run test:unit
+
+  integration-tests:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16.17.0'
+      - name: Run Integration Tests on SDK
+      
