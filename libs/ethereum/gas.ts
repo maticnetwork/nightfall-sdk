@@ -23,7 +23,7 @@ export async function estimateGas(
   tx: TransactionConfig,
   web3: Web3,
 ): Promise<number> {
-  logger.debug({ fee: tx.value }, "estimateGas");
+  logger.debug({ tx }, "estimateGas");
 
   let gas;
   try {

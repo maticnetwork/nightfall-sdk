@@ -53,7 +53,7 @@ export async function submitTransaction(
   }
 
   // Otherwise, sign tx then submit it
-  logger.debug({ fee: tx.value }, "Sign tx...");
+  logger.debug({ tx }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
     tx,
     senderEthPrivateKey,
