@@ -1,24 +1,35 @@
 import type Web3 from "web3";
 import path from "path";
 import { parentLogger } from "../../utils";
-import type { TransactionReceipt } from "web3-core";
+import type { TransactionConfig, TransactionReceipt } from "web3-core";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-const GAS = process.env.GAS || 4000000;
-const GAS_PRICE = process.env.GAS_PRICE || 10000000000;
-// const GAS_ESTIMATE_ENDPOINT =
-//   process.env.GAS_ESTIMATE_ENDPOINT ||
-//   "https://vqxy02tr5e.execute-api.us-east-2.amazonaws.com/production/estimateGas";
+const GAS = 4000000;
+const GAS_MULTIPLIER = 2;
 
-const GAS_MULTIPLIER = Number(process.env.GAS_MULTIPLIER) || 2;
-const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
+// DOCS: eth_estimateGas will check the balance of the sender (to make sure that the sender has enough gas to complete the request).
+// This means that even though the call doesn't consume any gas, the from address must have enough gas to execute the transaction.
+async function estimateGas(tx: TransactionConfig, web3: Web3): Promise<number> {
+  logger.debug({ fee: tx.value }, "estimateGas");
+
+  let gas;
+  try {
+    gas = await web3.eth.estimateGas(tx);
+    logger.debug(`Gas estimated at ${gas}`);
+  } catch (error) {
+    gas = GAS;
+    logger.warn(`Gas estimation failed, default to ${GAS}`);
+  }
+
+  return Math.ceil(gas * GAS_MULTIPLIER); // 50% seems a more than reasonable buffer.
+}
 
 /**
  * Create, sign and broadcast an Ethereum transaction (tx) to the network
- * 
+ *
  * @async
  * @function submitTransaction
  * @param {string} senderEthAddress Eth address sending the contents of the tx
@@ -41,31 +52,27 @@ export async function submitTransaction(
     { senderEthAddress, recipientEthAddress, unsignedTx, fee },
     "submitTransaction",
   );
-
-  // Estimate gas
-  const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // ISSUE #28
-  const gasPrice = Math.ceil(Number(GAS_PRICE) * GAS_PRICE_MULTIPLIER); // ISSUE #28
-  logger.debug(
-    `Transaction gasPrice was set at ${Math.ceil(
-      gasPrice / 10 ** 9,
-    )} GWei, gas limit was set at ${gas}`,
-  );
-
-  const tx = {
+  // Ethereum tx
+  const tx: TransactionConfig = {
     from: senderEthAddress,
     to: recipientEthAddress,
-    data: unsignedTx,
     value: fee,
-    gas,
-    gasPrice,
+    data: unsignedTx,
   };
 
+  // Estimate tx gas
+  const gas = await estimateGas(tx, web3);
+  logger.debug(`Transaction gas set at ${gas}`);
+  tx.gas = gas;
+
+  // If no private key is given, SDK tries to submit tx via MetaMask
   if (!senderEthPrivateKey) {
     logger.debug({ tx }, "Send tx via MetaMask...");
     return web3.eth.sendTransaction(tx);
   }
 
-  logger.debug({ tx }, "Sign tx...");
+  // Otherwise, sign tx then submit it
+  logger.debug({ fee: tx.value }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
     tx,
     senderEthPrivateKey,
