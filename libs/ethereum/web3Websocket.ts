@@ -8,7 +8,7 @@ import {
   TX_TIMEOUT_BLOCKS,
   TX_CONFIRMATION_BLOCKS,
   WS_CONNECTION_PING_TIME_MS,
-  WS_BLOCKNO_PING_TIME_MS,
+  WS_BLOCK_NO_PING_TIME_MS,
 } from "./constants";
 import { NightfallSdkError } from "../utils/error";
 
@@ -100,7 +100,7 @@ class Web3Websocket {
     this.intervalIds.push(
       setInterval(async () => {
         await this.setEthBlockNo();
-      }, WS_BLOCKNO_PING_TIME_MS),
+      }, WS_BLOCK_NO_PING_TIME_MS),
     );
   }
 
