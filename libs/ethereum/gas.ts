@@ -8,8 +8,17 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// DOCS: eth_estimateGas will check the balance of the sender (to make sure that the sender has enough gas to complete the request).
-// This means that even though the call doesn't consume any gas, the from address must have enough gas to execute the transaction.
+/**
+ * Estimate the amount of gas that will be needed to submit a tx
+ * It doesn't consume gas, but the underlying RPC call `eth_estimateGas` will check the balance of the sender,
+ * so `from` address must have enough gas
+ *
+ * @async
+ * @function estimateGas
+ * @param {TransactionConfig} tx A transaction object
+ * @param {Web3} web3
+ * @returns {Promise<number>}
+ */
 export async function estimateGas(
   tx: TransactionConfig,
   web3: Web3,
