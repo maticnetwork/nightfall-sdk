@@ -1,3 +1,4 @@
+import type Web3 from "web3";
 import { estimateGas } from "../../../libs/ethereum";
 import {
   TX_GAS_DEFAULT,
@@ -22,9 +23,7 @@ describe("Estimate gas", () => {
     );
 
     // Act
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const gas = await estimateGas(tx, mockedWeb3);
+    const gas = await estimateGas(tx, mockedWeb3 as undefined as Web3);
 
     // Assert
     expect(mockedWeb3.eth.estimateGas).toHaveBeenCalledTimes(1);
@@ -37,9 +36,7 @@ describe("Estimate gas", () => {
     mockedWeb3.eth.estimateGas.mockResolvedValue(MOCKED_GAS);
 
     // Act
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const gas = await estimateGas(tx, mockedWeb3);
+    const gas = await estimateGas(tx, mockedWeb3 as undefined as Web3);
 
     // Assert
     expect(mockedWeb3.eth.estimateGas).toHaveBeenCalledWith(tx);
