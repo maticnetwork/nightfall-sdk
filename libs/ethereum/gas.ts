@@ -9,13 +9,15 @@ const logger = parentLogger.child({
 });
 
 /**
- * Estimate the amount of gas that will be needed to submit a tx
- * It doesn't consume gas, but the underlying RPC call `eth_estimateGas` will check the balance of the sender,
- * so `from` address must have enough gas
+ * Estimate the amount of gas that will be needed to submit a transaction (tx)
+ * 
+ * The underlying RPC `eth_estimateGas` will check the balance of the sender,
+ * this means that even though the call doesn't consume any gas,
+ * the `from` address must have enough gas to execute the tx
  *
  * @async
  * @function estimateGas
- * @param {TransactionConfig} tx A transaction object
+ * @param {TransactionConfig} tx A tx object
  * @param {Web3} web3
  * @returns {Promise<number>}
  */
