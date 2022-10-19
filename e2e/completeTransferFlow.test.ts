@@ -121,8 +121,6 @@ describe("nightfall smoke tests", function () {
       });
     }
 
-    console.log("SAI!");
-
     await new Promise<void>(async (resolve) => {
       async function verifyBlockCreation2() {
         if (
