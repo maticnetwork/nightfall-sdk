@@ -1,4 +1,5 @@
-import Joi, { CustomHelpers } from "joi";
+import Joi, { CustomHelpers, ValidationError } from "joi";
+import { NightfallSdkError } from "../utils/error";
 import { checkAddressChecksum } from "web3-utils";
 import { TOKEN_STANDARDS } from "../tokens";
 
@@ -13,10 +14,10 @@ const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
 
 const PATTERN_ETH_PRIVATE_KEY = /^0x[0-9a-f]{64}$/;
 export const createOptions = Joi.object({
-  clientApiUrl: Joi.string().required(),
-  blockchainWsUrl: Joi.string(),
+  clientApiUrl: Joi.string().trim().required(),
+  blockchainWsUrl: Joi.string().trim(),
   ethereumPrivateKey: Joi.string().trim().pattern(PATTERN_ETH_PRIVATE_KEY),
-  nightfallMnemonic: Joi.string(),
+  nightfallMnemonic: Joi.string().trim(),
 }).with("ethereumPrivateKey", "blockchainWsUrl");
 
 //provide one or the other
@@ -79,3 +80,10 @@ export const checkBalancesOptions = Joi.object({
     Joi.string().trim().custom(isChecksum, "custom validation"),
   ),
 });
+
+export function isInputValid(error: ValidationError | undefined) {
+  if (error !== undefined) {
+    const message = error.details.map((e) => e.message).join();
+    throw new NightfallSdkError(message);
+  }
+}

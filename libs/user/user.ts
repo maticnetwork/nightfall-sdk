@@ -42,6 +42,7 @@ import {
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
   checkBalancesOptions,
+  isInputValid,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import { TokenFactory } from "../tokens";
@@ -61,13 +62,21 @@ const logger = parentLogger.child({
 class UserFactory {
   static async create(options: UserFactoryCreate) {
     logger.debug("UserFactory :: create");
-    createOptions.validate(options);
 
-    // Format options
-    const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
-    const blockchainWsUrl = options.blockchainWsUrl?.trim().toLowerCase(); // else keep as undefined
-    const ethPrivateKey = options.ethereumPrivateKey?.trim();
-    const nightfallMnemonic = options.nightfallMnemonic?.trim();
+    // Validate and format options
+    const { error, value } = createOptions.validate(options);
+    isInputValid(error);
+
+    const {
+      clientApiUrl,
+      blockchainWsUrl,
+      ethereumPrivateKey: ethPrivateKey,
+      nightfallMnemonic,
+    } = value;
+    logger.debug(
+      { clientApiUrl, blockchainWsUrl, ethPrivateKey, nightfallMnemonic },
+      "UserFactory :: formatted parameters",
+    );
 
     // Instantiate Client
     const client = new Client(clientApiUrl);
