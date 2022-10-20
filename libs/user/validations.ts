@@ -26,11 +26,6 @@ const makeTransaction = Joi.object({
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),
-  tokenErcStandard: Joi.string()
-    .trim()
-    .uppercase()
-    .valid(...Object.keys(TOKEN_STANDARDS))
-    .required(),
   value: Joi.string(),
   tokenId: Joi.string(),
   feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),

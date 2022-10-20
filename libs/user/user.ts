@@ -45,7 +45,7 @@ import {
   isInputValid,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { TokenFactory } from "../tokens";
+import { TokenFactory, whichTokenStandard } from "../tokens";
 import type { Commitment } from "../nightfall/types";
 import {
   OffChainTransactionReceipt,
@@ -54,6 +54,7 @@ import {
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import { commitmentsFromMnemonic } from "../nightfall";
+import { ERC20, ERC721 } from "../tokens/constants";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -207,8 +208,13 @@ class User {
     isInputValid(error);
     logger.debug({ joiValue }, "makeDeposit formatted parameters");
 
-    const { tokenContractAddress, tokenErcStandard, value, tokenId, feeWei } =
-      joiValue;
+    const { tokenContractAddress, feeWei } = joiValue;
+    let { value, tokenId } = joiValue;
+
+    const tokenErcStandard = await whichTokenStandard(
+      tokenContractAddress,
+      this.web3Websocket.web3,
+    );
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {
@@ -218,6 +224,9 @@ class User {
         web3: this.web3Websocket.web3,
       });
     }
+
+    if (this.token.ercStandard === ERC20) tokenId = "0x00"; // TODO prob needs more validations
+    if (this.token.ercStandard === ERC721) value = "0";
 
     // Convert value and fee to wei
     let valueWei = "0";

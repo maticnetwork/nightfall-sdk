@@ -1,4 +1,4 @@
-import TokenFactory from "./token";
+import { TokenFactory, whichTokenStandard } from "./token";
 import { TOKEN_STANDARDS } from "./constants";
 
-export { TokenFactory, TOKEN_STANDARDS };
+export { TokenFactory, whichTokenStandard, TOKEN_STANDARDS };
