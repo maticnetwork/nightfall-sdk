@@ -66,6 +66,7 @@ class UserFactory {
     // Validate and format options
     const { error, value } = createOptions.validate(options);
     isInputValid(error);
+    // TODO log value with obfuscation ISSUE #33
 
     const {
       clientApiUrl,
@@ -73,10 +74,6 @@ class UserFactory {
       ethereumPrivateKey: ethPrivateKey,
       nightfallMnemonic,
     } = value;
-    logger.debug(
-      { clientApiUrl, blockchainWsUrl, ethPrivateKey, nightfallMnemonic },
-      "UserFactory :: formatted parameters",
-    );
 
     // Instantiate Client
     const client = new Client(clientApiUrl);
@@ -205,14 +202,13 @@ class User {
   ): Promise<OnChainTransactionReceipts> {
     logger.debug({ options }, "User :: makeDeposit");
 
-    makeDepositOptions.validate(options);
+    // Validate and format options
+    const { error, value: joiValue } = makeDepositOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeDeposit formatted parameters");
 
-    // Format options
-    const value = options.value?.trim() || TX_VALUE_DEFAULT;
-    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
-    const feeWei = options.feeWei?.trim() || TX_FEE_ETH_WEI_DEFAULT;
-    const tokenContractAddress = options.tokenContractAddress.trim();
-    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
+    const { tokenContractAddress, tokenErcStandard, value, tokenId, feeWei } =
+      joiValue;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {
@@ -272,7 +268,7 @@ class User {
    * @param {string} options.tokenContractAddress
    * @param {string} options.tokenErcStandard
    * @param {string} [options.value]
-   * @param {string} [otpions.tokenId]
+   * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
    * @param {string} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
@@ -283,16 +279,20 @@ class User {
   ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug(options, "User :: makeTransfer");
 
-    makeTransferOptions.validate(options);
+    // Validate and format options
+    const { error, value: joiValue } = makeTransferOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeTransfer formatted parameters");
 
-    // Format options
-    const value = options.value?.trim() || TX_VALUE_DEFAULT;
-    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
-    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenContractAddress = options.tokenContractAddress.trim();
-    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
-    const recipientNightfallAddress = options.recipientNightfallAddress.trim();
-    const isOffChain = options.isOffChain || false;
+    const {
+      tokenContractAddress,
+      tokenErcStandard,
+      value,
+      tokenId,
+      feeWei,
+      recipientNightfallAddress,
+      isOffChain,
+    } = joiValue;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {
@@ -354,16 +354,20 @@ class User {
   ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug({ options }, "User :: makeWithdrawal");
 
-    makeWithdrawalOptions.validate(options);
+    // Validate and format options
+    const { error, value: joiValue } = makeWithdrawalOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeWithdrawal formatted parameters");
 
-    // Format options
-    const value = options.value?.trim() || TX_VALUE_DEFAULT;
-    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
-    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenContractAddress = options.tokenContractAddress.trim();
-    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
-    const recipientEthAddress = options.recipientEthAddress.trim();
-    const isOffChain = options.isOffChain || false;
+    const {
+      tokenContractAddress,
+      tokenErcStandard,
+      value,
+      tokenId,
+      feeWei,
+      recipientEthAddress,
+      isOffChain,
+    } = joiValue;
 
     // Set token only if it's not set or is different
     if (!this.token || tokenContractAddress !== this.token.contractAddress) {

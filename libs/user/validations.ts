@@ -2,6 +2,7 @@ import Joi, { CustomHelpers, ValidationError } from "joi";
 import { NightfallSdkError } from "../utils/error";
 import { checkAddressChecksum } from "web3-utils";
 import { TOKEN_STANDARDS } from "../tokens";
+import { TX_FEE_ETH_WEI_DEFAULT, TX_FEE_MATIC_WEI_DEFAULT } from "./constants";
 
 const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
   const isValid = checkAddressChecksum(ethAddress);
@@ -20,8 +21,7 @@ export const createOptions = Joi.object({
   nightfallMnemonic: Joi.string().trim(),
 }).with("ethereumPrivateKey", "blockchainWsUrl");
 
-//provide one or the other
-export const makeDepositOptions = Joi.object({
+const makeTransaction = Joi.object({
   tokenContractAddress: Joi.string()
     .trim()
     .custom(isChecksum, "custom validation")
@@ -33,42 +33,24 @@ export const makeDepositOptions = Joi.object({
     .required(),
   value: Joi.string(),
   tokenId: Joi.string(),
-  feeWei: Joi.string(),
-});
+  feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),
+}).or("value", "tokenId"); // these cannot have default
 
-export const makeTransferOptions = Joi.object({
-  tokenContractAddress: Joi.string()
-    .trim()
-    .custom(isChecksum, "custom validation")
-    .required(),
-  tokenErcStandard: Joi.string()
-    .trim()
-    .uppercase()
-    .valid(...Object.keys(TOKEN_STANDARDS))
-    .required(),
-  value: Joi.string().required(),
+export const makeDepositOptions = makeTransaction;
+
+export const makeTransferOptions = makeTransaction.append({
+  feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
   recipientNightfallAddress: Joi.string().trim().required(), // ISSUE #76
-  feeWei: Joi.string(),
-  isOffChain: Joi.boolean(),
+  isOffChain: Joi.boolean().default(false),
 });
 
-export const makeWithdrawalOptions = Joi.object({
-  tokenContractAddress: Joi.string()
-    .trim()
-    .custom(isChecksum, "custom validation")
-    .required(),
-  tokenErcStandard: Joi.string()
-    .trim()
-    .uppercase()
-    .valid(...Object.keys(TOKEN_STANDARDS))
-    .required(),
-  value: Joi.string().required(),
+export const makeWithdrawalOptions = makeTransaction.append({
+  feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
   recipientEthAddress: Joi.string()
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),
-  feeWei: Joi.string(),
-  isOffChain: Joi.boolean(),
+  isOffChain: Joi.boolean().default(false),
 });
 
 export const finaliseWithdrawalOptions = Joi.object({
@@ -84,6 +66,7 @@ export const checkBalancesOptions = Joi.object({
 export function isInputValid(error: ValidationError | undefined) {
   if (error !== undefined) {
     const message = error.details.map((e) => e.message).join();
+    // TODO log error ISSUE #33
     throw new NightfallSdkError(message);
   }
 }
