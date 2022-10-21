@@ -1,7 +1,6 @@
 import Joi, { CustomHelpers, ValidationError } from "joi";
 import { NightfallSdkError } from "../utils/error";
 import { checkAddressChecksum } from "web3-utils";
-import { TOKEN_STANDARDS } from "../tokens";
 import { TX_FEE_ETH_WEI_DEFAULT, TX_FEE_MATIC_WEI_DEFAULT } from "./constants";
 
 const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {

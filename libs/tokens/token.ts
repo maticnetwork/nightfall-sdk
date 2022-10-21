@@ -10,26 +10,34 @@ import erc721Abi from "./abis/ERC721.json";
 import erc1155Abi from "./abis/ERC1155.json";
 import type { AbiItem } from "web3-utils";
 import { NightfallSdkError } from "../utils/error";
-import { ERC20, ERC721, ERC1155 } from "./constants";
+import { ERC20, ERC721, ERC1155, ERC721_INTERFACE_ID } from "./constants";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO missing logs
+// TODO DOCS
 export async function whichTokenStandard(
   contractAddress: string,
   web3: Web3,
 ): Promise<string> {
+  logger.debug({ contractAddress }, "whichTokenStandard");
+
   const abi = erc165Abi as unknown as AbiItem;
   const erc165 = new web3.eth.Contract(abi, contractAddress);
+
   try {
     const interface721 = await erc165.methods
-      .supportsInterface("0x80ac58cd") // TODO const
-      .call(); // ERC721 interface
-    if (interface721) return ERC721;
+      .supportsInterface(ERC721_INTERFACE_ID)
+      .call();
+    if (interface721) {
+      logger.debug("ERC721 interface detected");
+      return ERC721;
+    }
+    logger.debug("ERC1155 interface detected");
     return ERC1155;
   } catch {
+    logger.debug("ERC165 reverted tx, assume interface ERC20");
     return ERC20;
   }
 }

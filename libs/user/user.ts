@@ -1,12 +1,6 @@
 import path from "path";
 import fs from "fs";
-import {
-  CONTRACT_SHIELD,
-  TX_FEE_ETH_WEI_DEFAULT,
-  TX_FEE_MATIC_WEI_DEFAULT,
-  TX_VALUE_DEFAULT,
-  TX_TOKEN_ID_DEFAULT,
-} from "./constants";
+import { CONTRACT_SHIELD } from "./constants";
 import {
   UserFactoryCreate,
   UserConstructor,
@@ -33,6 +27,7 @@ import {
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
   stringValueToWei,
+  prepareTokenValueTokenId,
 } from "../transactions";
 import { parentLogger } from "../utils";
 import {
@@ -45,7 +40,7 @@ import {
   isInputValid,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { TokenFactory, whichTokenStandard } from "../tokens";
+import { TokenFactory } from "../tokens";
 import type { Commitment } from "../nightfall/types";
 import {
   OffChainTransactionReceipt,
@@ -208,35 +203,46 @@ class User {
     isInputValid(error);
     logger.debug({ joiValue }, "makeDeposit formatted parameters");
 
-    const { tokenContractAddress, feeWei } = joiValue;
-    let { value, tokenId } = joiValue;
+    const { tokenContractAddress, value, feeWei } = joiValue;
+    let { tokenId } = joiValue;
 
-    const tokenErcStandard = await whichTokenStandard(
-      tokenContractAddress,
-      this.web3Websocket.web3,
-    );
+    // const tokenErcStandard = await whichTokenStandard(
+    //   tokenContractAddress,
+    //   this.web3Websocket.web3,
+    // );
 
     // Set token only if it's not set or is different
-    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        contractAddress: tokenContractAddress,
-        ercStandard: tokenErcStandard,
-        web3: this.web3Websocket.web3,
-      });
-    }
+    // if (!this.token || tokenContractAddress !== this.token.contractAddress) {
+    //   this.token = await TokenFactory.create({
+    //     contractAddress: tokenContractAddress,
+    //     ercStandard: tokenErcStandard,
+    //     web3: this.web3Websocket.web3,
+    //   });
+    // }
 
-    if (this.token.ercStandard === ERC20) tokenId = "0x00"; // TODO prob needs more validations
-    if (this.token.ercStandard === ERC721) value = "0";
+    // if (this.token.ercStandard === ERC20) tokenId = "0x00"; // TODO prob needs more validations
+    // if (this.token.ercStandard === ERC721) value = "0";
 
-    // Convert value and fee to wei
-    let valueWei = "0";
-    if (value !== "0") {
-      valueWei = stringValueToWei(value, this.token.decimals);
-    }
-    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
+    // // Convert value and fee to wei
+    // let valueWei = "0";
+    // if (value !== "0") {
+    //   valueWei = stringValueToWei(value, this.token.decimals);
+    // }
+    const result = await prepareTokenValueTokenId(
+      tokenContractAddress,
+      value,
+      tokenId,
+      this.web3Websocket.web3,
+    );
+    const { token, valueWei } = result;
+    tokenId = result.tokenId;
+    logger.debug(
+      { valueWei, feeWei, tokenId },
+      "Value and fee in Wei, tokenId",
+    );
 
     const approvalReceipt = await createAndSubmitApproval(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.shieldContractAddress,
@@ -248,7 +254,7 @@ class User {
 
     // Deposit
     const depositReceipts = await createAndSubmitDeposit(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
