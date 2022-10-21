@@ -42,14 +42,20 @@ const main = async () => {
       tx,
       config.ethereumPrivateKey,
     );
-    const receipt = await web3.eth.sendSignedTransaction(
+    const txReceipt = await web3.eth.sendSignedTransaction(
       signedTx.rawTransaction,
     );
-    console.log("receipt**************", receipt);
+    console.log("Transaction receipt", txReceipt);
 
     // # 4 Get the tokenId from the created NFT
-    const events = await contract.getPastEvents("allEvents");
-    console.log("events**************", events);
+    const events = await contract.getPastEvents("Transfer", {
+      filter: {
+        _from: user.ethAddress,
+      },
+      fromBlock: 0,
+    });
+    const tokenId = events[events.length - 1].returnValues.tokenId;
+    console.log("The ID of the token to be deposited", tokenId);
   } catch (error) {
     console.log(error);
     process.exit(1);
