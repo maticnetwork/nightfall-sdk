@@ -206,28 +206,8 @@ class User {
     const { tokenContractAddress, value, feeWei } = joiValue;
     let { tokenId } = joiValue;
 
-    // const tokenErcStandard = await whichTokenStandard(
-    //   tokenContractAddress,
-    //   this.web3Websocket.web3,
-    // );
-
-    // Set token only if it's not set or is different
-    // if (!this.token || tokenContractAddress !== this.token.contractAddress) {
-    //   this.token = await TokenFactory.create({
-    //     contractAddress: tokenContractAddress,
-    //     ercStandard: tokenErcStandard,
-    //     web3: this.web3Websocket.web3,
-    //   });
-    // }
-
-    // if (this.token.ercStandard === ERC20) tokenId = "0x00"; // TODO prob needs more validations
-    // if (this.token.ercStandard === ERC721) value = "0";
-
-    // // Convert value and fee to wei
-    // let valueWei = "0";
-    // if (value !== "0") {
-    //   valueWei = stringValueToWei(value, this.token.decimals);
-    // }
+    // Determine ERC interface and set value/tokenId defaults as appropriate,
+    // build token and convert value to Wei if needed
     const result = await prepareTokenValueTokenId(
       tokenContractAddress,
       value,
@@ -241,6 +221,7 @@ class User {
       "Value and fee in Wei, tokenId",
     );
 
+    // Approval
     const approvalReceipt = await createAndSubmitApproval(
       token,
       this.ethAddress,
