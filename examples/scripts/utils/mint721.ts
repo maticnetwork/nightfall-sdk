@@ -48,10 +48,9 @@ const main = async () => {
     console.log("Transaction receipt", txReceipt);
 
     // # 4 Get the tokenId from the created NFT
+    const filter = { _from: user.ethAddress };
     const events = await contract.getPastEvents("Transfer", {
-      filter: {
-        _from: user.ethAddress,
-      },
+      filter,
       fromBlock: 0,
     });
     const tokenId = events[events.length - 1].returnValues.tokenId;

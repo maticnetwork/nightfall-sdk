@@ -26,7 +26,6 @@ import {
   createAndSubmitTransfer,
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
-  stringValueToWei,
   prepareTokenValueTokenId,
 } from "../transactions";
 import { parentLogger } from "../utils";
@@ -40,7 +39,6 @@ import {
   isInputValid,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { TokenFactory } from "../tokens";
 import type { Commitment } from "../nightfall/types";
 import {
   OffChainTransactionReceipt,
@@ -49,7 +47,6 @@ import {
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import { commitmentsFromMnemonic } from "../nightfall";
-import { ERC20, ERC721 } from "../tokens/constants";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
@@ -282,33 +279,31 @@ class User {
 
     const {
       tokenContractAddress,
-      tokenErcStandard,
       value,
-      tokenId,
       feeWei,
       recipientNightfallAddress,
       isOffChain,
     } = joiValue;
+    let { tokenId } = joiValue;
 
-    // Set token only if it's not set or is different
-    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        contractAddress: tokenContractAddress,
-        ercStandard: tokenErcStandard,
-        web3: this.web3Websocket.web3,
-      });
-    }
-
-    // Convert value and fee to wei
-    let valueWei = "0";
-    if (value !== "0") {
-      valueWei = stringValueToWei(value, this.token.decimals);
-    }
-    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
+    // Determine ERC interface and set value/tokenId defaults as appropriate,
+    // build token and convert value to Wei if needed
+    const result = await prepareTokenValueTokenId(
+      tokenContractAddress,
+      value,
+      tokenId,
+      this.web3Websocket.web3,
+    );
+    const { token, valueWei } = result;
+    tokenId = result.tokenId;
+    logger.debug(
+      { valueWei, feeWei, tokenId },
+      "Value and fee in Wei, tokenId",
+    );
 
     // Transfer
     const transferReceipts = await createAndSubmitTransfer(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
@@ -357,33 +352,31 @@ class User {
 
     const {
       tokenContractAddress,
-      tokenErcStandard,
       value,
-      tokenId,
       feeWei,
       recipientEthAddress,
       isOffChain,
     } = joiValue;
+    let { tokenId } = joiValue;
 
-    // Set token only if it's not set or is different
-    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        contractAddress: tokenContractAddress,
-        ercStandard: tokenErcStandard,
-        web3: this.web3Websocket.web3,
-      });
-    }
-
-    // Convert value and fee to wei
-    let valueWei = "0";
-    if (value !== "0") {
-      valueWei = stringValueToWei(value, this.token.decimals);
-    }
-    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
+    // Determine ERC interface and set value/tokenId defaults as appropriate,
+    // build token and convert value to Wei if needed
+    const result = await prepareTokenValueTokenId(
+      tokenContractAddress,
+      value,
+      tokenId,
+      this.web3Websocket.web3,
+    );
+    const { token, valueWei } = result;
+    tokenId = result.tokenId;
+    logger.debug(
+      { valueWei, feeWei, tokenId },
+      "Value and fee in Wei, tokenId",
+    );
 
     // Withdrawal
     const withdrawalReceipts = await createAndSubmitWithdrawal(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
