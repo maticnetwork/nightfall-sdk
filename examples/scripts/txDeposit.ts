@@ -19,8 +19,11 @@ const main = async () => {
     const mnemonic = user.getNightfallMnemonic();
 
     // # 3 [OPTIONAL] You can check API Client, blockchain ws connection
-    const status = await user.checkStatus();
-    console.log("API Client, blockchain ws statuses", status);
+    const isClientAlive = await user.isClientAlive();
+    const isWeb3WsAlive = await user.isWeb3WsAlive();
+    console.log(
+      `API Client alive: ${isClientAlive}, blockchain ws alive: ${isWeb3WsAlive}`,
+    );
 
     // # 4 Make deposit
     const txReceipts = await user.makeDeposit({

@@ -154,7 +154,7 @@ class User {
    * @returns {Promise<boolean>}
    */
   async isWeb3WsAlive() {
-    logger.debug("User :: checkStatus");
+    logger.debug("User :: isWeb3WsAlive");
     const isWeb3WsAlive = await this.web3Websocket.setEthBlockNo();
     return !!isWeb3WsAlive;
   }
