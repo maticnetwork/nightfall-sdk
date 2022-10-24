@@ -232,10 +232,6 @@ class User {
     );
     const { token, valueWei } = result;
     tokenId = result.tokenId;
-    logger.debug(
-      { valueWei, feeWei, tokenId },
-      "Value and fee in Wei, tokenId",
-    );
 
     // Approval
     const approvalReceipt = await createAndSubmitApproval(
@@ -315,10 +311,6 @@ class User {
     );
     const { token, valueWei } = result;
     tokenId = result.tokenId;
-    logger.debug(
-      { valueWei, feeWei, tokenId },
-      "Value and fee in Wei, tokenId",
-    );
 
     // Transfer
     const transferReceipts = await createAndSubmitTransfer(
@@ -388,10 +380,6 @@ class User {
     );
     const { token, valueWei } = result;
     tokenId = result.tokenId;
-    logger.debug(
-      { valueWei, feeWei, tokenId },
-      "Value and fee in Wei, tokenId",
-    );
 
     // Withdrawal
     const withdrawalReceipts = await createAndSubmitWithdrawal(

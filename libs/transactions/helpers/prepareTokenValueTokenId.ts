@@ -1,8 +1,14 @@
+import path from "path";
 import { TokenFactory, whichTokenStandard } from "../../tokens";
 import type Web3 from "web3";
 import { ERC20, ERC721 } from "../../tokens/constants";
 import { TX_VALUE_DEFAULT, TX_TOKEN_ID_DEFAULT } from "../../user/constants";
 import { stringValueToWei } from "./stringValueToWei";
+import { parentLogger } from "../../utils";
+
+const logger = parentLogger.child({
+  name: path.relative(process.cwd(), __filename),
+});
 
 // TODO DOCS
 export async function prepareTokenValueTokenId(
@@ -11,7 +17,8 @@ export async function prepareTokenValueTokenId(
   tokenId: string,
   web3: Web3,
 ) {
-  // Missing logs ISSUE #33
+  logger.debug("prepareTokenValueTokenId");
+
   // Set value and tokenId defaults based on token ercStandard
   const ercStandard = await whichTokenStandard(contractAddress, web3);
   if (ercStandard === ERC20) tokenId = TX_TOKEN_ID_DEFAULT;
@@ -30,5 +37,6 @@ export async function prepareTokenValueTokenId(
     valueWei = stringValueToWei(value, token.decimals);
   }
 
+  logger.debug({ valueWei, tokenId }, "Final value[Wei], tokenId");
   return { token, valueWei, tokenId };
 }
