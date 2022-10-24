@@ -121,7 +121,6 @@ class User {
   zkpKeys: NightfallZkpKeys;
 
   // Set when transacting
-  token: any;
   nightfallDepositTxHashes: string[] = [];
   nightfallTransferTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
@@ -404,25 +403,29 @@ class User {
    * @async
    * @method finaliseWithdrawal
    * @param {UserFinaliseWithdrawal} options
-   * @param {string} options.withdrawTxHashL2
+   * @param {string} [options.withdrawTxHashL2] If not provided, will attempt to use latest withdrawal transaction hash
    * @returns {Promise<TransactionReceipt>}
    */
   async finaliseWithdrawal(
     options: UserFinaliseWithdrawal,
   ): Promise<TransactionReceipt> {
     logger.debug({ options }, "User :: finaliseWithdrawal");
-    finaliseWithdrawalOptions.validate(options);
+
+    // Validate and format options
+    const { error, value } = finaliseWithdrawalOptions.validate(options);
+    isInputValid(error);
 
     // If no withdrawTxHashL2 was given, try to use the latest
-    const withdrawTxHashL2 =
-      options.withdrawTxHashL2?.trim() ||
+    let { withdrawTxHashL2 } = value;
+    const latestWithdrawalTxHash =
       this.nightfallWithdrawalTxHashes[
         this.nightfallWithdrawalTxHashes.length - 1
       ];
+    withdrawTxHashL2 = withdrawTxHashL2 || latestWithdrawalTxHash;
     if (!withdrawTxHashL2)
       throw new NightfallSdkError("Could not find any withdrawal tx hash");
 
-    logger.info({ withdrawTxHashL2 }, "Finalise withdrawal with tx hash");
+    logger.debug({ withdrawTxHashL2 }, "Finalise withdrawal with tx hash");
 
     return createAndSubmitFinaliseWithdrawal(
       this.ethAddress,
