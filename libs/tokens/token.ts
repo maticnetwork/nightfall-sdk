@@ -16,7 +16,14 @@ const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-// TODO DOCS
+/**
+ * Detects ERC standard for a given contract address using ERC165
+ *
+ * @function whichTokenStandard
+ * @param {string} contractAddress
+ * @param {Web3} web3
+ * @returns {string} "ERC20" | "ERC721" | "ERC1155"
+ */
 export async function whichTokenStandard(
   contractAddress: string,
   web3: Web3,

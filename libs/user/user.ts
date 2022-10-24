@@ -234,8 +234,8 @@ class User {
     const { tokenContractAddress, value, feeWei } = joiValue;
     let { tokenId } = joiValue;
 
-    // Determine ERC interface and set value/tokenId defaults as appropriate,
-    // build token and convert value to Wei if needed
+    // Determine ERC standard, set value/tokenId defaults,
+    // create an instance of Token, convert value to Wei if needed
     const result = await prepareTokenValueTokenId(
       tokenContractAddress,
       value,
@@ -313,8 +313,8 @@ class User {
     } = joiValue;
     let { tokenId } = joiValue;
 
-    // Determine ERC interface and set value/tokenId defaults as appropriate,
-    // build token and convert value to Wei if needed
+    // Determine ERC standard, set value/tokenId defaults,
+    // create an instance of Token, convert value to Wei if needed
     const result = await prepareTokenValueTokenId(
       tokenContractAddress,
       value,
@@ -382,8 +382,8 @@ class User {
     } = joiValue;
     let { tokenId } = joiValue;
 
-    // Determine ERC interface and set value/tokenId defaults as appropriate,
-    // build token and convert value to Wei if needed
+    // Determine ERC standard, set value/tokenId defaults,
+    // create an instance of Token, convert value to Wei if needed
     const result = await prepareTokenValueTokenId(
       tokenContractAddress,
       value,
