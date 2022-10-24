@@ -135,17 +135,28 @@ class User {
   }
 
   /**
-   *  Allow user to check client API availability and blockchain ws connection
+   *  Allow user to check client API availability
    *
    * @async
-   * @method checkStatus
-   * @returns {Promise<*>}
+   * @method isClientAlive
+   * @returns {Promise<boolean>}
    */
-  async checkStatus() {
+  async isClientAlive() {
+    logger.debug("User :: isClientAlive");
+    return this.client.healthCheck();
+  }
+
+  /**
+   *  Allow user to check blockchain ws connection
+   *
+   * @async
+   * @method isWeb3WsAlive
+   * @returns {Promise<boolean>}
+   */
+  async isWeb3WsAlive() {
     logger.debug("User :: checkStatus");
-    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
-    const isClientAlive = await this.client.healthCheck();
-    return { isWeb3WsAlive, isClientAlive };
+    const isWeb3WsAlive = await this.web3Websocket.setEthBlockNo();
+    return !!isWeb3WsAlive;
   }
 
   /**
@@ -170,10 +181,19 @@ class User {
     return this.zkpKeys?.compressedZkpPublicKey;
   }
 
+  /**
+   * [Browser + MetaMask only] Update Ethereum account address
+   *
+   * @async
+   * @method updateEthAccountFromMetamask
+   * @returns {string} Ethereum account address
+   */
   async updateEthAccountFromMetamask() {
     logger.debug("User :: updateEthAccountFromMetamask");
     if (this.ethPrivateKey) throw new NightfallSdkError("Method not available");
-    this.ethAddress = await getEthAccountFromMetaMask(this.web3Websocket);
+    const ethAddress = await getEthAccountFromMetaMask(this.web3Websocket);
+    this.ethAddress = ethAddress;
+    return ethAddress;
   }
 
   /**
@@ -183,7 +203,6 @@ class User {
    * @method makeDeposit
    * @param {UserMakeDeposit} options
    * @param {string} options.tokenContractAddress
-   * @param {string} options.tokenErcStandard
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -258,7 +277,6 @@ class User {
    * @method makeTransfer
    * @param {UserMakeTransfer} options
    * @param {string} options.tokenContractAddress
-   * @param {string} options.tokenErcStandard
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -331,7 +349,6 @@ class User {
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
    * @param {string} options.tokenContractAddress
-   * @param {string} options.tokenErcStandard
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
