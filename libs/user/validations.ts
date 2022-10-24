@@ -25,6 +25,7 @@ const makeTransaction = Joi.object({
     .trim()
     .custom(isChecksum, "custom validation")
     .required(),
+  tokenErcStandard: Joi.string(), // keep it for a while for compatibility
   value: Joi.string(),
   tokenId: Joi.string(),
   feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),

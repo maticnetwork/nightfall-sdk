@@ -203,6 +203,7 @@ class User {
    * @method makeDeposit
    * @param {UserMakeDeposit} options
    * @param {string} options.tokenContractAddress
+   * @deprecated {string} [options.tokenErcStandard]
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -277,6 +278,7 @@ class User {
    * @method makeTransfer
    * @param {UserMakeTransfer} options
    * @param {string} options.tokenContractAddress
+   * @deprecated {string} [options.tokenErcStandard]
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -349,6 +351,7 @@ class User {
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
    * @param {string} options.tokenContractAddress
+   * @deprecated {string} [options.tokenErcStandard]
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
