@@ -74,6 +74,7 @@ describe("Prepare Token Value TokenId", () => {
     expect(result.valueWei).toBe(TX_VALUE_DEFAULT);
     expect(result.tokenId).toBe(tokenId);
   });
+
   test("Should return token, given value in Wei and given tokenId for an ERC1155", async () => {
     // Arrange
     tokenId = "4";
@@ -110,6 +111,7 @@ describe("Prepare Token Value TokenId", () => {
     expect(result.valueWei).toBe(value);
     expect(result.tokenId).toBe(tokenId);
   });
+
   test("Should return token, given value in Wei and tokenId default for an ERC20", async () => {
     // Arrange
     const decimals = "0000000";
