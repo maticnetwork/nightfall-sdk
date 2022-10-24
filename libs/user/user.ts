@@ -135,7 +135,19 @@ class User {
   }
 
   /**
-   *  Allow user to check client API availability
+   * Allow user to check client API availability and blockchain ws connection
+   *
+   * @async
+   * @deprecated checkStatus - Will be removed in upcoming versions
+   */
+  async checkStatus() {
+    throw new NightfallSdkError(
+      "To be deprecated: use `isClientAlive`, `isWeb3WsAlive`",
+    );
+  }
+
+  /**
+   * Allow user to check client API availability
    *
    * @async
    * @method isClientAlive
@@ -147,7 +159,7 @@ class User {
   }
 
   /**
-   *  Allow user to check blockchain ws connection
+   * Allow user to check blockchain ws connection
    *
    * @async
    * @method isWeb3WsAlive
@@ -197,13 +209,13 @@ class User {
   }
 
   /**
-   *  Deposits a Layer 1 token into Layer 2, so that it can be transacted privately
+   * Deposits a Layer 1 token into Layer 2, so that it can be transacted privately
    *
    * @async
    * @method makeDeposit
    * @param {UserMakeDeposit} options
    * @param {string} options.tokenContractAddress
-   * @deprecated {string} [options.tokenErcStandard]
+   * @param {string} [options.tokenErcStandard] Will be deprecated
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -268,13 +280,13 @@ class User {
   }
 
   /**
-   *  Transfers a token within Layer 2
+   * Transfers a token within Layer 2
    *
    * @async
    * @method makeTransfer
    * @param {UserMakeTransfer} options
    * @param {string} options.tokenContractAddress
-   * @deprecated {string} [options.tokenErcStandard]
+   * @param {string} [options.tokenErcStandard] Will be deprecated
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -337,13 +349,13 @@ class User {
   }
 
   /**
-   *  Withdraws a token from Layer 2 back to Layer 1. It can then be withdrawn from the Shield contract's account by the owner in Layer 1.
+   * Withdraws a token from Layer 2 back to Layer 1. It can then be withdrawn from the Shield contract's account by the owner in Layer 1.
    *
    * @async
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
    * @param {string} options.tokenContractAddress
-   * @deprecated {string} [options.tokenErcStandard]
+   * @param {string} [options.tokenErcStandard] Will be deprecated
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -422,7 +434,7 @@ class User {
     let withdrawTxHashL2 = "";
 
     // If options were passed validate and format, else use latest withdrawal hash
-    if (!options) {
+    if (options) {
       const { error, value } = finaliseWithdrawalOptions.validate(options);
       isInputValid(error);
       withdrawTxHashL2 = value.withdrawTxHashL2;
@@ -461,14 +473,14 @@ class User {
     let tokenContractAddresses: string[] = [];
 
     // If options were passed, validate and format
-    if (!options) {
+    if (options) {
       const { error, value } = checkBalancesOptions.validate(options);
       isInputValid(error);
       tokenContractAddresses = value.tokenContractAddresses;
     }
     logger.debug(
       { tokenContractAddresses },
-      "get pending deposits for token addresses",
+      "Get pending deposits for token addresses",
     );
     return this.client.getPendingDeposits(this.zkpKeys, tokenContractAddresses);
   }
