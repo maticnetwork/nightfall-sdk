@@ -427,21 +427,22 @@ class User {
    * @returns {Promise<TransactionReceipt>}
    */
   async finaliseWithdrawal(
-    options: UserFinaliseWithdrawal,
+    options?: UserFinaliseWithdrawal,
   ): Promise<TransactionReceipt> {
     logger.debug({ options }, "User :: finaliseWithdrawal");
 
-    // Validate and format options
-    const { error, value } = finaliseWithdrawalOptions.validate(options);
-    isInputValid(error);
+    let withdrawTxHashL2 = "";
 
-    // If no withdrawTxHashL2 was given, try to use the latest
-    let { withdrawTxHashL2 } = value;
-    const latestWithdrawalTxHash =
-      this.nightfallWithdrawalTxHashes[
-        this.nightfallWithdrawalTxHashes.length - 1
-      ];
-    withdrawTxHashL2 = withdrawTxHashL2 || latestWithdrawalTxHash;
+    // If options were passed validate and format, else use latest withdrawal hash
+    if (!options) {
+      const { error, value } = finaliseWithdrawalOptions.validate(options);
+      isInputValid(error);
+      withdrawTxHashL2 = value.withdrawTxHashL2;
+    } else {
+      const withdrawalTxHashes = this.nightfallWithdrawalTxHashes;
+      withdrawTxHashL2 = withdrawalTxHashes[withdrawalTxHashes.length - 1];
+    }
+
     if (!withdrawTxHashL2)
       throw new NightfallSdkError("Could not find any withdrawal tx hash");
 
@@ -471,13 +472,16 @@ class User {
 
     let tokenContractAddresses: string[] = [];
 
-    // If options, validate and format
-    if (options) {
-      checkBalancesOptions.validate(options);
-      tokenContractAddresses =
-        options.tokenContractAddresses?.map((address) => address.trim()) || [];
+    // If options were passed, validate and format
+    if (!options) {
+      const { error, value } = checkBalancesOptions.validate(options);
+      isInputValid(error);
+      tokenContractAddresses = value.tokenContractAddresses;
     }
-
+    logger.debug(
+      { tokenContractAddresses },
+      "get pending deposits for token addresses",
+    );
     return this.client.getPendingDeposits(this.zkpKeys, tokenContractAddresses);
   }
 
