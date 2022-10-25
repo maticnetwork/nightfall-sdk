@@ -91,6 +91,28 @@ const mnemonic = user.getNightfallMnemonic();
 
 **Before running the scripts below, we strongly recommend reading the [Getting started](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started) section**.
 
+### Web App
+
+The Web Application is an example on how to use functionalities that SDK provides to ineract with Nightfall via Metamask.
+Learn more about it in the [docs](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-demo-app).
+
+#### Start the app:
+
+Open the repository, navigate to the web-app and install the dependencies
+
+```
+cd examples/web-app
+npm install
+```
+
+Navigate to the root directory and run the following script. The app is running on port 4000.
+
+```
+cd ../../
+npm run eg:react-web-app-start
+
+```
+
 #### Make a deposit
 
 Your balance on Nightfall will update as soon your funds settle, i.e. soon as there are enough [transactions to create an L2 block](#2tx-rule).
