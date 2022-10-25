@@ -22,7 +22,7 @@ To learn more about transactions, commitments and other core Nightfall features 
 
 ## What is a Nightfall Client?
 
-The Nigthfall Client is a key component that the SDK can't work without
+To use the SDK you need to have a Nightfall Client running.
 
 Check out the [documentation](https://docs.polygon.technology/docs/nightfall/tools/user-sdk-api/) to learn about what is it and how to set it up.
 
