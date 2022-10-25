@@ -14,7 +14,7 @@ export default function App() {
         <Navbar></Navbar>
         <Routes>
           <Route path="/" exact element={<Home />}></Route>
-          <Route path="/about" exact element={<About />}></Route>
+          <Route path="/about" element={<About />}></Route>
         </Routes>
       </BrowserRouter>
     </div>
