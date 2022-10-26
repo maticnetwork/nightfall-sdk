@@ -36,7 +36,9 @@ export default function User() {
       nightfallMnemonic,
     });
     const balance = await nightfallUser.checkNightfallBalances();
-    setNightfallBalances(Object.values(balance)[0][0].balance);
+    if (balance) {
+      setNightfallBalances(Object.values(balance)[0][0].balance);
+    }
 
     return Object.values(balance)[0][0].balance;
   }

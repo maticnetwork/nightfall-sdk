@@ -35,8 +35,6 @@ async function makeTransfer(e, clientApiUrl, nightfallMnemonic) {
   const nightfallUserRecepient = await UserFactory.create({
     clientApiUrl,
   });
-  setNightfallMnemonicRecepient(nightfallUserRecepient.getNightfallMnemonic());
-
   const recepientAddress = nightfallUserRecepient.getNightfallAddress();
 
   // Make a transfer to the nightfall address of the recipient
