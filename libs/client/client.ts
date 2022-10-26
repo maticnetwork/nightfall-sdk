@@ -156,7 +156,6 @@ class Client {
     ownerZkpKeys: NightfallZkpKeys,
     value: string,
     tokenId: string,
-    fee: string,
   ): Promise<TransactionResponseData> {
     const endpoint = "deposit";
     logger.debug({ endpoint }, "Calling client at");
@@ -168,7 +167,7 @@ class Client {
       tokenId,
       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
       nullifierKey: ownerZkpKeys.nullifierKey,
-      fee,
+      fee: 0, // To be deprecated
     });
     logger.info(
       { status: res.status, data: res.data },

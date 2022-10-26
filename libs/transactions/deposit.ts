@@ -45,13 +45,7 @@ export async function createAndSubmitDeposit(
 ): Promise<OnChainTransactionReceipts> {
   logger.debug("createAndSubmitDeposit");
 
-  const resData = await client.deposit(
-    token,
-    ownerZkpKeys,
-    value,
-    tokenId,
-    fee,
-  );
+  const resData = await client.deposit(token, ownerZkpKeys, value, tokenId);
   const txReceiptL2 = resData.transaction;
   const unsignedTx = resData.txDataToSign;
   logger.debug({ unsignedTx }, "Deposit tx, unsigned");
