@@ -1,6 +1,6 @@
 import { stringValueToWei } from "../../../libs/transactions";
 
-describe("To Base Units", () => {
+describe("String Value To Wei", () => {
   test("Should throw error when passing value different than string", () => {
     const v = 1;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

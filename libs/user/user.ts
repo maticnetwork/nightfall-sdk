@@ -1,12 +1,6 @@
 import path from "path";
 import fs from "fs";
-import {
-  CONTRACT_SHIELD,
-  TX_FEE_ETH_WEI_DEFAULT,
-  TX_FEE_MATIC_WEI_DEFAULT,
-  TX_VALUE_DEFAULT,
-  TX_TOKEN_ID_DEFAULT,
-} from "./constants";
+import { CONTRACT_SHIELD } from "./constants";
 import {
   UserFactoryCreate,
   UserConstructor,
@@ -32,7 +26,7 @@ import {
   createAndSubmitTransfer,
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
-  stringValueToWei,
+  prepareTokenValueTokenId,
 } from "../transactions";
 import { parentLogger } from "../utils";
 import {
@@ -42,9 +36,9 @@ import {
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
   checkBalancesOptions,
+  isInputValid,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
-import { TokenFactory } from "../tokens";
 import type { Commitment } from "../nightfall/types";
 import {
   OffChainTransactionReceipt,
@@ -61,13 +55,18 @@ const logger = parentLogger.child({
 class UserFactory {
   static async create(options: UserFactoryCreate) {
     logger.debug("UserFactory :: create");
-    createOptions.validate(options);
 
-    // Format options
-    const clientApiUrl = options.clientApiUrl.trim().toLowerCase();
-    const blockchainWsUrl = options.blockchainWsUrl?.trim().toLowerCase(); // else keep as undefined
-    const ethPrivateKey = options.ethereumPrivateKey?.trim();
-    const nightfallMnemonic = options.nightfallMnemonic?.trim();
+    // Validate and format options
+    const { error, value } = createOptions.validate(options);
+    isInputValid(error);
+    // TODO log value with obfuscation ISSUE #33
+
+    const {
+      clientApiUrl,
+      blockchainWsUrl,
+      ethereumPrivateKey: ethPrivateKey,
+      nightfallMnemonic,
+    } = value;
 
     // Instantiate Client
     const client = new Client(clientApiUrl);
@@ -122,7 +121,6 @@ class User {
   zkpKeys: NightfallZkpKeys;
 
   // Set when transacting
-  token: any;
   nightfallDepositTxHashes: string[] = [];
   nightfallTransferTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
@@ -137,17 +135,40 @@ class User {
   }
 
   /**
-   *  Allow user to check client API availability and blockchain ws connection
+   * Allow user to check client API availability and blockchain ws connection
    *
    * @async
-   * @method checkStatus
-   * @returns {Promise<*>}
+   * @deprecated checkStatus - Will be removed in upcoming versions
    */
   async checkStatus() {
-    logger.debug("User :: checkStatus");
-    const isWeb3WsAlive = !!(await this.web3Websocket.setEthBlockNo());
-    const isClientAlive = await this.client.healthCheck();
-    return { isWeb3WsAlive, isClientAlive };
+    throw new NightfallSdkError(
+      "To be deprecated: use `isClientAlive`, `isWeb3WsAlive`",
+    );
+  }
+
+  /**
+   * Allow user to check client API availability
+   *
+   * @async
+   * @method isClientAlive
+   * @returns {Promise<boolean>}
+   */
+  async isClientAlive() {
+    logger.debug("User :: isClientAlive");
+    return this.client.healthCheck();
+  }
+
+  /**
+   * Allow user to check blockchain ws connection
+   *
+   * @async
+   * @method isWeb3WsAlive
+   * @returns {Promise<boolean>}
+   */
+  async isWeb3WsAlive() {
+    logger.debug("User :: isWeb3WsAlive");
+    const isWeb3WsAlive = await this.web3Websocket.setEthBlockNo();
+    return !!isWeb3WsAlive;
   }
 
   /**
@@ -172,20 +193,29 @@ class User {
     return this.zkpKeys?.compressedZkpPublicKey;
   }
 
+  /**
+   * [Browser + MetaMask only] Update Ethereum account address
+   *
+   * @async
+   * @method updateEthAccountFromMetamask
+   * @returns {string} Ethereum account address
+   */
   async updateEthAccountFromMetamask() {
     logger.debug("User :: updateEthAccountFromMetamask");
     if (this.ethPrivateKey) throw new NightfallSdkError("Method not available");
-    this.ethAddress = await getEthAccountFromMetaMask(this.web3Websocket);
+    const ethAddress = await getEthAccountFromMetaMask(this.web3Websocket);
+    this.ethAddress = ethAddress;
+    return ethAddress;
   }
 
   /**
-   *  Deposits a Layer 1 token into Layer 2, so that it can be transacted privately
+   * Deposits a Layer 1 token into Layer 2, so that it can be transacted privately
    *
    * @async
    * @method makeDeposit
    * @param {UserMakeDeposit} options
    * @param {string} options.tokenContractAddress
-   * @param {string} options.tokenErcStandard
+   * @param {string} [options.tokenErcStandard] Will be deprecated
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -196,33 +226,28 @@ class User {
   ): Promise<OnChainTransactionReceipts> {
     logger.debug({ options }, "User :: makeDeposit");
 
-    makeDepositOptions.validate(options);
+    // Validate and format options
+    const { error, value: joiValue } = makeDepositOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeDeposit formatted parameters");
 
-    // Format options
-    const value = options.value?.trim() || TX_VALUE_DEFAULT;
-    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
-    const feeWei = options.feeWei?.trim() || TX_FEE_ETH_WEI_DEFAULT;
-    const tokenContractAddress = options.tokenContractAddress.trim();
-    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
+    const { tokenContractAddress, value, feeWei } = joiValue;
+    let { tokenId } = joiValue;
 
-    // Set token only if it's not set or is different
-    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        contractAddress: tokenContractAddress,
-        ercStandard: tokenErcStandard,
-        web3: this.web3Websocket.web3,
-      });
-    }
+    // Determine ERC standard, set value/tokenId defaults,
+    // create an instance of Token, convert value to Wei if needed
+    const result = await prepareTokenValueTokenId(
+      tokenContractAddress,
+      value,
+      tokenId,
+      this.web3Websocket.web3,
+    );
+    const { token, valueWei } = result;
+    tokenId = result.tokenId;
 
-    // Convert value and fee to wei
-    let valueWei = "0";
-    if (value !== "0") {
-      valueWei = stringValueToWei(value, this.token.decimals);
-    }
-    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
-
+    // Approval
     const approvalReceipt = await createAndSubmitApproval(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.shieldContractAddress,
@@ -234,7 +259,7 @@ class User {
 
     // Deposit
     const depositReceipts = await createAndSubmitDeposit(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
@@ -255,15 +280,15 @@ class User {
   }
 
   /**
-   *  Transfers a token within Layer 2
+   * Transfers a token within Layer 2
    *
    * @async
    * @method makeTransfer
    * @param {UserMakeTransfer} options
    * @param {string} options.tokenContractAddress
-   * @param {string} options.tokenErcStandard
+   * @param {string} [options.tokenErcStandard] Will be deprecated
    * @param {string} [options.value]
-   * @param {string} [otpions.tokenId]
+   * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
    * @param {string} options.recipientNightfallAddress
    * @param {Boolean} [options.isOffChain]
@@ -274,36 +299,34 @@ class User {
   ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug(options, "User :: makeTransfer");
 
-    makeTransferOptions.validate(options);
+    // Validate and format options
+    const { error, value: joiValue } = makeTransferOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeTransfer formatted parameters");
 
-    // Format options
-    const value = options.value?.trim() || TX_VALUE_DEFAULT;
-    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
-    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenContractAddress = options.tokenContractAddress.trim();
-    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
-    const recipientNightfallAddress = options.recipientNightfallAddress.trim();
-    const isOffChain = options.isOffChain || false;
+    const {
+      tokenContractAddress,
+      value,
+      feeWei,
+      recipientNightfallAddress,
+      isOffChain,
+    } = joiValue;
+    let { tokenId } = joiValue;
 
-    // Set token only if it's not set or is different
-    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        contractAddress: tokenContractAddress,
-        ercStandard: tokenErcStandard,
-        web3: this.web3Websocket.web3,
-      });
-    }
-
-    // Convert value and fee to wei
-    let valueWei = "0";
-    if (value !== "0") {
-      valueWei = stringValueToWei(value, this.token.decimals);
-    }
-    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
+    // Determine ERC standard, set value/tokenId defaults,
+    // create an instance of Token, convert value to Wei if needed
+    const result = await prepareTokenValueTokenId(
+      tokenContractAddress,
+      value,
+      tokenId,
+      this.web3Websocket.web3,
+    );
+    const { token, valueWei } = result;
+    tokenId = result.tokenId;
 
     // Transfer
     const transferReceipts = await createAndSubmitTransfer(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
@@ -326,13 +349,13 @@ class User {
   }
 
   /**
-   *  Withdraws a token from Layer 2 back to Layer 1. It can then be withdrawn from the Shield contract's account by the owner in Layer 1.
+   * Withdraws a token from Layer 2 back to Layer 1. It can then be withdrawn from the Shield contract's account by the owner in Layer 1.
    *
    * @async
    * @method makeWithdrawal
    * @param {UserMakeWithdrawal} options
    * @param {string} options.tokenContractAddress
-   * @param {string} options.tokenErcStandard
+   * @param {string} [options.tokenErcStandard] Will be deprecated
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
@@ -345,36 +368,34 @@ class User {
   ): Promise<OnChainTransactionReceipts | OffChainTransactionReceipt> {
     logger.debug({ options }, "User :: makeWithdrawal");
 
-    makeWithdrawalOptions.validate(options);
+    // Validate and format options
+    const { error, value: joiValue } = makeWithdrawalOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeWithdrawal formatted parameters");
 
-    // Format options
-    const value = options.value?.trim() || TX_VALUE_DEFAULT;
-    const tokenId = options.tokenId?.trim() || TX_TOKEN_ID_DEFAULT;
-    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-    const tokenContractAddress = options.tokenContractAddress.trim();
-    const tokenErcStandard = options.tokenErcStandard.trim().toUpperCase();
-    const recipientEthAddress = options.recipientEthAddress.trim();
-    const isOffChain = options.isOffChain || false;
+    const {
+      tokenContractAddress,
+      value,
+      feeWei,
+      recipientEthAddress,
+      isOffChain,
+    } = joiValue;
+    let { tokenId } = joiValue;
 
-    // Set token only if it's not set or is different
-    if (!this.token || tokenContractAddress !== this.token.contractAddress) {
-      this.token = await TokenFactory.create({
-        contractAddress: tokenContractAddress,
-        ercStandard: tokenErcStandard,
-        web3: this.web3Websocket.web3,
-      });
-    }
-
-    // Convert value and fee to wei
-    let valueWei = "0";
-    if (value !== "0") {
-      valueWei = stringValueToWei(value, this.token.decimals);
-    }
-    logger.debug({ valueWei, feeWei }, "Value and fee in Wei");
+    // Determine ERC standard, set value/tokenId defaults,
+    // create an instance of Token, convert value to Wei if needed
+    const result = await prepareTokenValueTokenId(
+      tokenContractAddress,
+      value,
+      tokenId,
+      this.web3Websocket.web3,
+    );
+    const { token, valueWei } = result;
+    tokenId = result.tokenId;
 
     // Withdrawal
     const withdrawalReceipts = await createAndSubmitWithdrawal(
-      this.token,
+      token,
       this.ethAddress,
       this.ethPrivateKey,
       this.zkpKeys,
@@ -402,25 +423,30 @@ class User {
    * @async
    * @method finaliseWithdrawal
    * @param {UserFinaliseWithdrawal} options
-   * @param {string} options.withdrawTxHashL2
+   * @param {string} [options.withdrawTxHashL2] If not provided, will attempt to use latest withdrawal transaction hash
    * @returns {Promise<TransactionReceipt>}
    */
   async finaliseWithdrawal(
-    options: UserFinaliseWithdrawal,
+    options?: UserFinaliseWithdrawal,
   ): Promise<TransactionReceipt> {
     logger.debug({ options }, "User :: finaliseWithdrawal");
-    finaliseWithdrawalOptions.validate(options);
 
-    // If no withdrawTxHashL2 was given, try to use the latest
-    const withdrawTxHashL2 =
-      options.withdrawTxHashL2?.trim() ||
-      this.nightfallWithdrawalTxHashes[
-        this.nightfallWithdrawalTxHashes.length - 1
-      ];
+    let withdrawTxHashL2 = "";
+
+    // If options were passed validate and format, else use latest withdrawal hash
+    if (options) {
+      const { error, value } = finaliseWithdrawalOptions.validate(options);
+      isInputValid(error);
+      withdrawTxHashL2 = value.withdrawTxHashL2;
+    } else {
+      const withdrawalTxHashes = this.nightfallWithdrawalTxHashes;
+      withdrawTxHashL2 = withdrawalTxHashes[withdrawalTxHashes.length - 1];
+    }
+
     if (!withdrawTxHashL2)
       throw new NightfallSdkError("Could not find any withdrawal tx hash");
 
-    logger.info({ withdrawTxHashL2 }, "Finalise withdrawal with tx hash");
+    logger.debug({ withdrawTxHashL2 }, "Finalise withdrawal with tx hash");
 
     return createAndSubmitFinaliseWithdrawal(
       this.ethAddress,
@@ -446,13 +472,16 @@ class User {
 
     let tokenContractAddresses: string[] = [];
 
-    // If options, validate and format
+    // If options were passed, validate and format
     if (options) {
-      checkBalancesOptions.validate(options);
-      tokenContractAddresses =
-        options.tokenContractAddresses?.map((address) => address.trim()) || [];
+      const { error, value } = checkBalancesOptions.validate(options);
+      isInputValid(error);
+      tokenContractAddresses = value.tokenContractAddresses;
     }
-
+    logger.debug(
+      { tokenContractAddresses },
+      "Get pending deposits for token addresses",
+    );
     return this.client.getPendingDeposits(this.zkpKeys, tokenContractAddresses);
   }
 
