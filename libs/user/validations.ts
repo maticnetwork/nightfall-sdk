@@ -41,10 +41,7 @@ export const makeTransferOptions = makeTransaction.append({
 
 export const makeWithdrawalOptions = makeTransaction.append({
   feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
-  recipientEthAddress: Joi.string()
-    .trim()
-    .custom(isChecksum, "custom validation")
-    .required(),
+  recipientEthAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
 });
 
