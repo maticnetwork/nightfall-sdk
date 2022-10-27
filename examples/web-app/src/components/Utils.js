@@ -237,18 +237,22 @@ async function createUserFirstTime() {
     const nightfallUser = await UserFactory.create({
       clientApiUrl,
     });
+    console.log(nightfallUser);
+    if (nightfallUser) {
+      localStorage.setItem("userAddress", nightfallUser.ethAddress);
+      localStorage.setItem(
+        "nightfallUserAddress",
+        nightfallUser.zkpKeys.compressedZkpPublicKey,
+      );
+      localStorage.setItem(
+        "nightfallMnemonic",
+        nightfallUser.nightfallMnemonic,
+      );
+      localStorage.setItem("clientApiUrl", nightfallUser.client.apiUrl);
+    }
+    return nightfallUser;
   } catch (error) {
     console.log(error);
-  }
-
-  if (nightfallUser) {
-    localStorage.setItem("userAddress", nightfallUser.ethAddress);
-    localStorage.setItem(
-      "nightfallUserAddress",
-      nightfallUser.zkpKeys.compressedZkpPublicKey,
-    );
-    localStorage.setItem("nightfallMnemonic", nightfallUser.nightfallMnemonic);
-    localStorage.setItem("clientApiUrl", nightfallUser.client.apiUrl);
   }
 }
 
@@ -284,6 +288,7 @@ let createUser = async (nightfallMnemonic) => {
     console.log(error);
   }
 };
+
 export {
   makeDeposit,
   makeTransfer,
