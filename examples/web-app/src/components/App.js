@@ -6,8 +6,6 @@ import "bootstrap/dist/css/bootstrap.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 export default function App() {
-  //set the user in the state of the application
-
   return (
     <div>
       <BrowserRouter>

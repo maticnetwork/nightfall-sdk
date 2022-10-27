@@ -11,13 +11,15 @@ import {
   makeDepositERC1155,
   makeTransferERC1155,
   makeWithdrawalERC1155,
+  checkBalances,
+  createUser,
+  createUserFirstTime,
 } from "../Utils";
 
 export default function User() {
   const [userAddress, setUserAddress] = useState();
   const [userNightfallAddress, setUserNightfallAddress] = useState();
   const [nightfallMnemonic, setNightfallMnemonic] = useState();
-  const [clientApiUrl, setClientApiUrl] = useState();
   const [nightfallBalances, setNightfallBalances] = useState(0);
   useState(null);
   const [showERC20, setShowERC20] = useState(true);
@@ -29,59 +31,15 @@ export default function User() {
   const [depositTokenValue, setDepositTokenValue] = useState(null);
   const [transferTokenValue, setTransferTokenValue] = useState(null);
   const [withdrawalTokenValue, setWithdrawalTokenValue] = useState(null);
-
-  async function checkBalances(clientApiUrl, nightfallMnemonic) {
-    const nightfallUser = await UserFactory.create({
-      clientApiUrl,
-      nightfallMnemonic,
-    });
-    const balance = await nightfallUser.checkNightfallBalances();
-    if (balance) {
-      setNightfallBalances(Object.values(balance)[0][0].balance);
-    }
-
-    return Object.values(balance)[0][0].balance;
-  }
-
-  async function createUserFirstTime() {
-    const nightfallUser = await UserFactory.create({
-      clientApiUrl: process.env.CLIENT_API_URL,
-    });
-
-    if (nightfallUser) {
-      localStorage.setItem("userAddress", nightfallUser.ethAddress);
-      localStorage.setItem(
-        "nightfallUserAddress",
-        nightfallUser.zkpKeys.compressedZkpPublicKey,
-      );
-      localStorage.setItem(
-        "nightfallMnemonic",
-        nightfallUser.nightfallMnemonic,
-      );
-      localStorage.setItem("clientApiUrl", nightfallUser.client.apiUrl);
-    }
-  }
-
-  let createUser = async (clientApiUrl, nightfallMnemonic) => {
-    const nightfallUser = await UserFactory.create({
-      clientApiUrl,
-      nightfallMnemonic,
-    });
-    const balances = await nightfallUser.checkNightfallBalances();
-
-    if (balances) {
-      const balanceWei = Object.values(balances)[0][0].balance;
-      localStorage.setItem("nightfallBalances", balanceWei);
-      setNightfallBalances(balanceWei);
-    }
-    return nightfallUser;
-  };
+  const clientApiUrl = process.env.CLIENT_API_URL;
 
   if (window.ethereum) {
     window.ethereum.on("accountsChanged", function (accounts) {
       setUserAddress(accounts[0]);
       localStorage.setItem("userAddress", accounts[0]);
+      location.reload();
     });
+    useEffect(() => {}, [nightfallBalances]);
 
     useEffect(() => {
       const localMnemonic = localStorage.getItem("nightfallMnemonic");
@@ -93,13 +51,13 @@ export default function User() {
       if (nightfallMnemonic == "" && localMnemonic == null) {
         createUserFirstTime();
       } else {
-        createUser(process.env.CLIENT_API_URL, mnemonic);
+        createUser(mnemonic);
       }
 
+      console.log(localStorage.getItem("nightfallBalances"));
       setUserNightfallAddress(localStorage.getItem("nightfallUserAddress"));
       setUserAddress(localStorage.getItem("userAddress"));
       setNightfallMnemonic(localStorage.getItem("nightfallMnemonic"));
-      setClientApiUrl(localStorage.getItem("clientApiUrl"));
       setNightfallBalances(localStorage.getItem("nightfallBalances"));
     }, []);
   }
@@ -153,7 +111,7 @@ export default function User() {
                 <button
                   className="nf-button"
                   onClick={(e) => {
-                    makeDeposit(e, clientApiUrl, nightfallMnemonic);
+                    makeDeposit(e, nightfallMnemonic);
                   }}
                 >
                   {" "}
@@ -164,9 +122,7 @@ export default function User() {
                 </h6>
                 <button
                   className="nf-button"
-                  onClick={(e) =>
-                    makeTransfer(e, clientApiUrl, nightfallMnemonic)
-                  }
+                  onClick={(e) => makeTransfer(e, nightfallMnemonic)}
                 >
                   {" "}
                   Transfer
@@ -176,9 +132,7 @@ export default function User() {
                 </h6>
                 <button
                   className="nf-button"
-                  onClick={(e) =>
-                    makeWithdrawal(e, clientApiUrl, nightfallMnemonic)
-                  }
+                  onClick={(e) => makeWithdrawal(e, nightfallMnemonic)}
                 >
                   {" "}
                   Withdrawal
@@ -202,12 +156,7 @@ export default function User() {
                     <button
                       className="nf-button"
                       onClick={(e) =>
-                        makeDepositERC721(
-                          e,
-                          clientApiUrl,
-                          nightfallMnemonic,
-                          tokenIdDeposit,
-                        )
+                        makeDepositERC721(e, nightfallMnemonic, tokenIdDeposit)
                       }
                     >
                       {" "}
@@ -230,7 +179,6 @@ export default function User() {
                       onClick={(e) =>
                         makeTransferERC721(
                           e,
-                          clientApiUrl,
                           nightfallMnemonic,
                           tokenIdTransfer,
                         )
@@ -256,7 +204,6 @@ export default function User() {
                       onClick={(e) =>
                         makeWithdrawalERC721(
                           e,
-                          clientApiUrl,
                           nightfallMnemonic,
                           tokenIdWithdrawal,
                         )
@@ -293,7 +240,6 @@ export default function User() {
                       onClick={(e) =>
                         makeDepositERC1155(
                           e,
-                          clientApiUrl,
                           nightfallMnemonic,
                           tokenIdDeposit,
                           depositTokenValue,
@@ -325,7 +271,6 @@ export default function User() {
                       onClick={(e) =>
                         makeTransferERC1155(
                           e,
-                          clientApiUrl,
                           nightfallMnemonic,
                           tokenIdTransfer,
                           transferTokenValue,
@@ -357,7 +302,6 @@ export default function User() {
                       onClick={(e) =>
                         makeWithdrawalERC1155(
                           e,
-                          clientApiUrl,
                           nightfallMnemonic,
                           tokenIdWithdrawal,
                           withdrawalTokenValue,
@@ -377,7 +321,10 @@ export default function User() {
             </div>
             <button
               className="nf-button"
-              onClick={() => checkBalances(clientApiUrl, nightfallMnemonic)}
+              onClick={async () => {
+                const balance = await checkBalances(nightfallMnemonic);
+                setNightfallBalances(balance);
+              }}
             >
               Check Balance
             </button>
