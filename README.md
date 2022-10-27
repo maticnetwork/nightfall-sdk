@@ -152,11 +152,12 @@ npm run-script eg:[network]:import-commitments
 The Web Application is an example of how to use functionalities that SDK provides to interact with Nightfall via MetaMask.
 Learn more about it in the [docs](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-demo-app).
 
-### Set up your environment
+#### Set up your environment
 
-To be able to run the app you need a running instance of Nightfall and Nightfall Client. The Nightfall Client on Ganache is running at `http://localhost:8080`, but you can spin up your own client and update the `webAppConfig.js` file with a different url.
+To be able to run the app you need a running instance of Nightfall on Ganache, and a Nightfall Client. The Client is running at `http://localhost:8080`, but you can spin up your own client and update the `webAppConfig.js` file with a different url.
+Found out more about [what is a Client and how to run Nightfall](https://github.com/maticnetwork/nightfall-sdk#what-is-a-nightfall-client).
 
-#### Start the app:
+#### Start the app
 
 Open the repository, navigate to the web-app and install the dependencies
 
@@ -169,8 +170,10 @@ Navigate to the root directory and run the following script. The app is running 
 
 ```
 cd ../../
-npm run eg:react-web-app-start
+npm run eg:start-react-app
 ```
+
+#### Configure MetaMask
 
 Note that the app is working on Ganache so your MetaMask provider will have to be connected to Localhost with the following parameters.
 Import new network to MetaMask
@@ -184,7 +187,7 @@ Import new network to MetaMask
 
 Once you are on the correct network, import a ganache account with Test token to be able to execute transactions.
 
-You can use the ganache account with a private key stated in the .env config [above](https://github.com/maticnetwork/nightfall-sdk#environment-setup).
+You can use the Ganache account with a private key stated in the [.env config](https://github.com/maticnetwork/nightfall-sdk#environment-setup).
 
 ### Error handling
 

@@ -9,10 +9,10 @@ import {
 const clientApiUrl = process.env.CLIENT_API_URL;
 
 async function makeDeposit(e, nightfallMnemonic) {
-  e.preventDefault();
-  // Create a user with clientApiUrl and nightfallMnemonic
   // Prevent default onClick behaviour that refreshes the page
+  e.preventDefault();
   try {
+    // Create a user to deposit funds
     const nightfallUser = await UserFactory.create({
       clientApiUrl,
       nightfallMnemonic,
@@ -21,7 +21,6 @@ async function makeDeposit(e, nightfallMnemonic) {
     // Make a deposit for the user
     const txReceipts = await nightfallUser.makeDeposit({
       tokenContractAddress: erc20ContractAddress,
-      tokenErcStandard: "ERC20",
       value: erc20value,
     });
     return txReceipts;
@@ -33,8 +32,8 @@ async function makeDeposit(e, nightfallMnemonic) {
 async function makeTransfer(e, nightfallMnemonic) {
   e.preventDefault();
 
-  // Create a user that will transfer funds
   try {
+    // Create a user that will transfer funds
     const nightfallUserSender = await UserFactory.create({
       clientApiUrl,
       nightfallMnemonic,
@@ -45,13 +44,12 @@ async function makeTransfer(e, nightfallMnemonic) {
     });
     const recepientAddress = nightfallUserRecepient.getNightfallAddress();
 
-    // Make a transfer to the nightfall address of the recipient
+    // Make a transfer to the Nightfall address of the recipient
     const txReceipts = await nightfallUserSender.makeTransfer({
       tokenContractAddress: erc20ContractAddress,
-      tokenErcStandard: "ERC20",
       value: erc20value,
       recipientNightfallAddress: recepientAddress,
-      isOffChain: true,
+      isOffChain: false,
     });
     return txReceipts;
   } catch (error) {
@@ -62,16 +60,15 @@ async function makeTransfer(e, nightfallMnemonic) {
 async function makeWithdrawal(e, nightfallMnemonic) {
   e.preventDefault();
 
-  // Create a user with clientApiUrl and nightfallMnemonic
   try {
+    // Create a user to make a withdrawal
     const nightfallUser = await UserFactory.create({
       clientApiUrl,
       nightfallMnemonic,
     });
-
+    // Make a withdrawal to Layer 1
     const txReceipts = await nightfallUser.makeWithdrawal({
       tokenContractAddress: erc20ContractAddress,
-      tokenErcStandard: "ERC20",
       value: erc20value,
       recipientEthAddress: nightfallUser.ethAddress,
       feeWei: "0",
@@ -86,14 +83,14 @@ async function makeDepositERC721(e, nightfallMnemonic, tokenId) {
   e.preventDefault();
 
   try {
+    // Create a user to make a deposit
     const nightfallUser = await UserFactory.create({
       clientApiUrl,
       nightfallMnemonic,
     });
-    // Make a deposit for the user
+    // Make an ERC721 deposit for the user
     const txReceipts = await nightfallUser.makeDeposit({
       tokenContractAddress: erc721ContractAddress,
-      tokenErcStandard: "ERC721",
       tokenId,
     });
 
@@ -106,26 +103,25 @@ async function makeDepositERC721(e, nightfallMnemonic, tokenId) {
 async function makeTransferERC721(e, nightfallMnemonic, tokenId) {
   e.preventDefault();
 
-  // Create a user that will transfer erc721
+  // Create a user that will transfer ERC721
   try {
     const nightfallUserSender = await UserFactory.create({
       clientApiUrl,
       nightfallMnemonic,
     });
-    // Create a user that will recieve erc721
+    // Create a user that will recieve ERC721
     const nightfallUserRecepient = await UserFactory.create({
       clientApiUrl,
     });
 
     const recepientAddress = nightfallUserRecepient.getNightfallAddress();
 
-    // Make a transfer to the nightfall address of the recipient
+    // Make an ERC721 transfer to the Nightfall address of the recipient
     const txReceipts = await nightfallUserSender.makeTransfer({
       tokenContractAddress: erc721ContractAddress,
-      tokenErcStandard: "ERC721",
       tokenId,
       recipientNightfallAddress: recepientAddress,
-      isOffChain: true,
+      isOffChain: false,
     });
     return txReceipts;
   } catch (error) {
@@ -142,10 +138,9 @@ async function makeWithdrawalERC721(e, nightfallMnemonic, tokenId) {
       clientApiUrl,
       nightfallMnemonic,
     });
-
+    // Make an ERC721 withdrawal to Layer 1
     const txReceipts = await nightfallUser.makeWithdrawal({
       tokenContractAddress: erc721ContractAddress,
-      tokenErcStandard: "ERC721",
       tokenId,
       recipientEthAddress: nightfallUser.ethAddress,
       feeWei: "0",
@@ -168,7 +163,6 @@ async function makeDepositERC1155(e, nightfallMnemonic, tokenId, value) {
     // Make a deposit for the user
     const txReceipts = await nightfallUser.makeDeposit({
       tokenContractAddress: erc1155ContractAddress,
-      tokenErcStandard: "ERC1155",
       tokenId,
       value,
     });
@@ -193,14 +187,13 @@ async function makeTransferERC1155(e, nightfallMnemonic, tokenId, value) {
 
     const recepientAddress = nightfallUserRecepient.getNightfallAddress();
 
-    // Make a transfer to the nightfall address of the recipient
+    // Make an ERC1155 transfer to the Nightfall address of the recipient
     const txReceipts = await nightfallUserSender.makeTransfer({
       tokenContractAddress: erc1155ContractAddress,
-      tokenErcStandard: "ERC1155",
       tokenId,
       value,
       recipientNightfallAddress: recepientAddress,
-      isOffChain: true,
+      isOffChain: false,
     });
     return txReceipts;
   } catch (error) {
@@ -217,16 +210,36 @@ async function makeWithdrawalERC1155(e, nightfallMnemonic, tokenId, value) {
       clientApiUrl,
       nightfallMnemonic,
     });
-
+    // Make an ERC1155 withdrawal to Layer 1
     const txReceipts = await nightfallUser.makeWithdrawal({
       tokenContractAddress: erc1155ContractAddress,
-      tokenErcStandard: "ERC1155",
       tokenId,
       value,
       recipientEthAddress: nightfallUser.ethAddress,
       feeWei: "0",
     });
     return txReceipts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function checkBalances(nightfallMnemonic) {
+  try {
+    const nightfallUser = await UserFactory.create({
+      clientApiUrl,
+      nightfallMnemonic,
+    });
+
+    // Check the balances of the current user
+    const balance = await nightfallUser.checkNightfallBalances();
+
+    if (Object.keys(balance).length) {
+      const balanceWei = Object.values(balance)[0][0].balance;
+      localStorage.setItem("nightfallBalances", balanceWei);
+      return balanceWei;
+    }
+    return 0;
   } catch (error) {
     console.log(error);
   }
@@ -251,26 +264,6 @@ async function createUserFirstTime() {
       localStorage.setItem("clientApiUrl", nightfallUser.client.apiUrl);
     }
     return nightfallUser;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-async function checkBalances(nightfallMnemonic) {
-  try {
-    const nightfallUser = await UserFactory.create({
-      clientApiUrl,
-      nightfallMnemonic,
-    });
-
-    const balance = await nightfallUser.checkNightfallBalances();
-
-    if (Object.keys(balance)) {
-      const balanceWei = Object.values(balance)[0][0].balance;
-      localStorage.setItem("nightfallBalances", balanceWei);
-      return balanceWei;
-    }
-    return 0;
   } catch (error) {
     console.log(error);
   }
