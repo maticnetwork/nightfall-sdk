@@ -1,9 +1,12 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const { EnvironmentPlugin } = require("webpack");
+const { webAppConfig } = require("./webAppConfig");
 
 const htmlPlugin = new HtmlWebPackPlugin({
   template: "./src/index.html",
   filename: "./index.html",
+  publicPath: "/",
 });
 module.exports = {
   mode: "development",
@@ -22,7 +25,16 @@ module.exports = {
       },
     ],
   },
-  plugins: [htmlPlugin, new NodePolyfillPlugin()],
+  devServer: {
+    host: "0.0.0.0",
+    port: 4000,
+    historyApiFallback: true,
+  },
+  plugins: [
+    htmlPlugin,
+    new NodePolyfillPlugin(),
+    new EnvironmentPlugin(webAppConfig),
+  ],
   resolve: {
     fallback: {
       fs: false,

@@ -6,15 +6,13 @@ import "bootstrap/dist/css/bootstrap.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 export default function App() {
-  //set the user in the state of the application
-
   return (
     <div>
       <BrowserRouter>
         <Navbar></Navbar>
         <Routes>
           <Route path="/" exact element={<Home />}></Route>
-          <Route path="/about" exact element={<About />}></Route>
+          <Route path="/about" element={<About />}></Route>
         </Routes>
       </BrowserRouter>
     </div>
