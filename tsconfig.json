@@ -11,5 +11,5 @@
     "sourceMap": true,
     "target": "es2017"
   },
-  "include": ["libs/**/*", "examples/**/*", "__tests__/**/*"]
+  "include": ["libs/**/*"]
 }
