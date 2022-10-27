@@ -5,6 +5,7 @@ import {
   erc721ContractAddress,
   erc20value,
 } from "./Constants";
+
 const clientApiUrl = process.env.CLIENT_API_URL;
 
 async function makeDeposit(e, nightfallMnemonic) {

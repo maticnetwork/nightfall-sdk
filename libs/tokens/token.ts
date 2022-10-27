@@ -5,17 +5,51 @@ import { parentLogger } from "../utils";
 import { APPROVE_AMOUNT } from "./constants";
 import type { TokenOptions } from "./types";
 import erc20Abi from "./abis/ERC20.json";
+import erc165Abi from "../../libs/tokens/abis/ERC165.json";
 import erc721Abi from "./abis/ERC721.json";
 import erc1155Abi from "./abis/ERC1155.json";
 import type { AbiItem } from "web3-utils";
 import { NightfallSdkError } from "../utils/error";
-import { ERC20, ERC721, ERC1155 } from "./constants";
+import { ERC20, ERC721, ERC1155, ERC721_INTERFACE_ID } from "./constants";
 
 const logger = parentLogger.child({
   name: path.relative(process.cwd(), __filename),
 });
 
-class TokenFactory {
+/**
+ * Detects ERC standard for a given contract address using ERC165
+ *
+ * @function whichTokenStandard
+ * @param {string} contractAddress
+ * @param {Web3} web3
+ * @returns {string} "ERC20" | "ERC721" | "ERC1155"
+ */
+export async function whichTokenStandard(
+  contractAddress: string,
+  web3: Web3,
+): Promise<string> {
+  logger.debug({ contractAddress }, "whichTokenStandard");
+
+  const abi = erc165Abi as unknown as AbiItem;
+  const erc165 = new web3.eth.Contract(abi, contractAddress);
+
+  try {
+    const interface721 = await erc165.methods
+      .supportsInterface(ERC721_INTERFACE_ID)
+      .call();
+    if (interface721) {
+      logger.debug("ERC721 interface detected");
+      return ERC721;
+    }
+    logger.debug("ERC1155 interface detected");
+    return ERC1155;
+  } catch {
+    logger.debug("ERC165 reverted tx, assume interface ERC20");
+    return ERC20;
+  }
+}
+
+export class TokenFactory {
   static async create(options: TokenOptions) {
     logger.debug("TokenFactory :: create");
 
@@ -64,13 +98,6 @@ class Token {
     this.setTokenContract();
   }
 
-  setTokenContract() {
-    logger.debug("Token :: setTokenContract");
-    const abi = this.getContractAbi();
-    this.contract = new this.web3.eth.Contract(abi, this.contractAddress);
-    logger.debug("Token Contract ready");
-  }
-
   getContractAbi() {
     logger.debug("Token :: getContractAbi");
     if (this.ercStandard == ERC721) {
@@ -80,6 +107,13 @@ class Token {
     } else {
       return erc20Abi as unknown as AbiItem;
     }
+  }
+
+  setTokenContract() {
+    logger.debug("Token :: setTokenContract");
+    const abi = this.getContractAbi();
+    this.contract = new this.web3.eth.Contract(abi, this.contractAddress);
+    logger.debug("Token Contract ready");
   }
 
   async setTokenDecimals() {
@@ -143,5 +177,3 @@ class Token {
       .send({ from: owner });
   }
 }
-
-export default TokenFactory;

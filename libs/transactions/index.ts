@@ -3,7 +3,8 @@ import { createAndSubmitDeposit } from "./deposit";
 import { createAndSubmitTransfer } from "./transfer";
 import { createAndSubmitWithdrawal } from "./withdrawal";
 import { createAndSubmitFinaliseWithdrawal } from "./withdrawalFinalise";
-import { stringValueToWei } from "./helpers/units";
+import { stringValueToWei } from "./helpers/stringValueToWei";
+import { prepareTokenValueTokenId } from "./helpers/prepareTokenValueTokenId";
 
 export {
   createAndSubmitApproval,
@@ -12,4 +13,5 @@ export {
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
   stringValueToWei,
+  prepareTokenValueTokenId,
 };
