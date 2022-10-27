@@ -6,7 +6,7 @@
     "module": "node16",
     "moduleResolution": "node",
     "noImplicitAny": true,
-    "outDir": "dist",
+    "outDir": "dist/libs",
     "resolveJsonModule": true,
     "sourceMap": true,
     "target": "es2017"
