@@ -6,6 +6,7 @@ import {
   UserConstructor,
   UserMakeDeposit,
   UserMakeTransfer,
+  UserMakeTokenise,
   UserMakeWithdrawal,
   UserFinaliseWithdrawal,
   UserCheckBalances,
@@ -24,6 +25,7 @@ import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
   createAndSubmitTransfer,
+  createAndSubmitTokenise,
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
   prepareTokenValueTokenId,
@@ -33,6 +35,7 @@ import {
   createOptions,
   makeDepositOptions,
   makeTransferOptions,
+  makeTokeniseOptions,
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
   checkBalancesOptions,
@@ -123,6 +126,7 @@ class User {
   // Set when transacting
   nightfallDepositTxHashes: string[] = [];
   nightfallTransferTxHashes: string[] = [];
+  nightfallTokeniseTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
 
   constructor(options: UserConstructor) {
@@ -346,6 +350,54 @@ class User {
     );
 
     return transferReceipts;
+  }
+
+  /**
+  *  Mints token within Layer 2
+  *
+  * @async
+  * @method makeTokenise
+  * @param {UserMakeTokenise} options
+  * @param {string} options.value
+  * @param {string} options.tokenId
+  * @param {string} [options.tokenAddress]
+  * @param {string} [options.salt]
+  * @param {string} [options.feeWei]
+  * @returns {Promise<OffChainTransactionReceipt>}
+  */
+  async makeTokenise(
+    options: UserMakeTokenise,
+  ): Promise<OffChainTransactionReceipt> {
+    logger.debug(options, "User :: makeTokenise");
+
+    makeTokeniseOptions.validate(options);
+  
+    // Format options
+    const value = options.value.trim(); 
+    const tokenId = options.tokenId.trim();
+    const tokenAddress = options.tokenAddress?.trim() || randomL2TokenAddress();
+    const salt = options.salt?.trim() || randomSalt(); 
+    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
+
+    logger.debug({ value, feeWei }, "Value and fee in Wei");
+
+    // Tokenise
+    const tokeniseReceipts = await createAndSubmitTokenise(
+      this.zkpKeys,
+      this.client,
+      value,
+      tokenId,
+      tokenAddress,
+      salt,
+      feeWei,
+    );
+    logger.info({ tokeniseReceipts }, "Tokenise completed!");
+
+    this.nightfallTokeniseTxHashes.push(
+      tokeniseReceipts.txReceiptL2?.transactionHash,
+    );
+
+    return tokeniseReceipts;
   }
 
   /**

@@ -291,6 +291,47 @@ class Client {
     return res.data;
   }
 
+    /**
+   * Make POST request to create a L2 tokenisation transaction (tx)
+   *
+   * @async
+   * @method tokenise
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string} value The amount in Wei of the token to be deposited
+   * @param {string} tokenId The tokenId of the token to be deposited
+   * @param {string} tokenAddress Token address (optional)
+   * @param {string} salt Random salt (optional)
+   * @param {string} fee The amount in Wei to pay a proposer for the tx (optional)
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
+     async tokenise(
+      ownerZkpKeys: NightfallZkpKeys,
+      value: string,
+      tokenId: string,
+      tokenAddress?: string, 
+      salt?: string, 
+      fee?: string,
+    ): Promise<TransactionResponseData> {
+      const endpoint = "tokenise";
+      logger.debug({ endpoint }, "Calling client at");
+  
+      const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+        ercAddress: tokenAddress,
+        tokenId,
+        salt,
+        value,
+        rootKey: ownerZkpKeys.rootKey,
+        compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
+        fee,
+      });
+      logger.info(
+        { status: res.status, data: res.data },
+        `Client at ${endpoint} responded`,
+      );
+  
+      return res.data;
+    }
   /**
    * Make GET request to get aggregated value for deposits that have not settled in L2 yet
    *

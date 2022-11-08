@@ -10,6 +10,13 @@ const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
   return ethAddress;
 };
 
+const isValidL2TokenAddress = (tokenAddress: string, helpers: CustomHelpers) => {
+  const isValid = checkAddressChecksum(tokenAddress);
+  if (!isValid)
+    return helpers.message({ custom: "Invalid checksum, review ethAddress" });
+  return tokenAddress;
+};
+
 // See https://joi.dev/tester/
 
 const PATTERN_ETH_PRIVATE_KEY = /^0x[0-9a-f]{64}$/;
@@ -43,6 +50,18 @@ export const makeWithdrawalOptions = makeTransaction.append({
   feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
   recipientEthAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
+});
+
+const PATTERN_SALT = /^0x[0-9a-f]{64}$/;
+export const makeTokeniseOptions = Joi.object({
+  tokenAddress: Joi.string()
+    .trim()
+    .uppercase()
+    .custom(isValidL2TokenAddress, "custom validation"),
+  value: Joi.string().required(),
+  tokenId: Joi.string().required(),
+  salt: Joi.string().trim().pattern(PATTERN_SALT).required(),
+  feeWei: Joi.string(),
 });
 
 export const finaliseWithdrawalOptions = Joi.object({
