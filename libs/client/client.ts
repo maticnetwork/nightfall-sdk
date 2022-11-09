@@ -297,9 +297,9 @@ class Client {
    * @async
    * @method tokenise
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
-   * @param {number} value The amount in Wei of the token to be deposited
    * @param {string} tokenAddress Token address 
    * @param {string} tokenId The tokenId of the token to be deposited
+   * @param {number} value The amount in Wei of the token to be deposited
    * @param {string} salt Random salt (optional)
    * @param {string} fee The amount in Wei to pay a proposer for the tx (optional)
    * @throws {NightfallSdkError} Bad response
