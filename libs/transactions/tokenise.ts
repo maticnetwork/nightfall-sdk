@@ -16,9 +16,9 @@ const logger = parentLogger.child({
  * @function createAndSubmitTokenise
  * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
  * @param {Client} client An instance of Client to interact with the API
- * @param {string} value The amount in Wei of the token to be deposited
- * @param {string} tokenId The tokenId of an erc721
- * @param {string} tokenAddress Token address (optional)
+ * @param {string} tokenAddress Token address
+ * @param {string} tokenId The tokenId of L2 token
+ * @param {number} value The amount in Wei of the token to be deposited
  * @param {string} salt Random Salt (optional)
  * @param {string} fee The amount in Wei to pay a proposer for the tx (optional)
  * @returns {Promise<OffChainTransactionReceipt>}
@@ -26,9 +26,9 @@ const logger = parentLogger.child({
 export async function createAndSubmitTokenise(
   ownerZkpKeys: NightfallZkpKeys,
   client: Client,
-  value: string,
+  tokenAddress: string,
   tokenId: string,
-  tokenAddress?: string,
+  value: number,
   salt?: string,
   fee?: string,
 ): Promise<OffChainTransactionReceipt> {
@@ -36,9 +36,9 @@ export async function createAndSubmitTokenise(
 
   const resData = await client.tokenise(
     ownerZkpKeys,
-    value,
-    tokenId,
     tokenAddress,
+    tokenId,
+    value,
     salt,
     fee,
   );

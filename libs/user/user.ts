@@ -238,6 +238,7 @@ class User {
     const { tokenContractAddress, value, feeWei } = joiValue;
     let { tokenId } = joiValue;
 
+    console.log("XXXX", tokenContractAddress);
     // Determine ERC standard, set value/tokenId defaults,
     // create an instance of Token, convert value to Wei if needed
     const result = await prepareTokenValueTokenId(
@@ -358,9 +359,9 @@ class User {
   * @async
   * @method makeTokenise
   * @param {UserMakeTokenise} options
-  * @param {string} options.value
-  * @param {string} options.tokenId
-  * @param {string} [options.tokenAddress]
+  * @param {string} options.tokenAddress
+  * @param {string|number} options.tokenId
+  * @param {number} options.value
   * @param {string} [options.salt]
   * @param {string} [options.feeWei]
   * @returns {Promise<OffChainTransactionReceipt>}
@@ -370,24 +371,19 @@ class User {
   ): Promise<OffChainTransactionReceipt> {
     logger.debug(options, "User :: makeTokenise");
 
-    makeTokeniseOptions.validate(options);
+    const { error, value: joiValue } = makeTokeniseOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeTokenise formatted parameters");
   
-    // Format options
-    const value = options.value.trim(); 
-    const tokenId = options.tokenId.trim();
-    const tokenAddress = options.tokenAddress?.trim() || randomL2TokenAddress();
-    const salt = options.salt?.trim() || randomSalt(); 
-    const feeWei = options.feeWei?.trim() || TX_FEE_MATIC_WEI_DEFAULT;
-
-    logger.debug({ value, feeWei }, "Value and fee in Wei");
+    const { tokenAddress, tokenId, value, salt, feeWei} = joiValue;
 
     // Tokenise
     const tokeniseReceipts = await createAndSubmitTokenise(
       this.zkpKeys,
       this.client,
-      value,
-      tokenId,
       tokenAddress,
+      tokenId,
+      value,
       salt,
       feeWei,
     );

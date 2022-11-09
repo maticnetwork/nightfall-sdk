@@ -34,10 +34,10 @@ export interface UserMakeTransfer extends UserMakeTransaction {
   isOffChain?: boolean;
 }
 
-export interface UserMakeTokenise extends UserMakeTransaction {
- value : string;
- tokenId : string;
- tokenAddress?: string;
+export interface UserMakeTokenise {
+ tokenAddress: string;
+ value : number;
+ tokenId : number|string;
  salt?: string;
  feeWei?: string;
 }

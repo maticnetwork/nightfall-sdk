@@ -1,4 +1,7 @@
 {
+  "ts-node": {
+    "files": true,
+   }, 
   "compilerOptions": {
     "baseUrl": ".",
     "declaration": true,
@@ -9,7 +12,8 @@
     "outDir": "dist/libs",
     "resolveJsonModule": true,
     "sourceMap": true,
-    "target": "es2017"
+    "target": "es2016",
+    "allowJs": true
   },
-  "include": ["libs/**/*"]
+  "include": ["libs/**/*","decs.d.ts"]
 }

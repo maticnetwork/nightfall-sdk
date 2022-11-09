@@ -15,6 +15,7 @@ More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/in
 - Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Polygon Nightfall L2
 - Transfer ERC20,ERC721 and ERC1155 token commitments on Polygon Nightfall L2
 - Withdraw ERC20,ERC721 and ERC1155 token commitments from Polygon Nightfall L2 to Ethereum L1
+- Mint, Transfer, Transform and Burn Native Nightfall Tokens
 - Check ERC20,ERC721 and ERC1155 balances on Polygon Nightfall L2
 - Safely export/import ERC20,ERC721 and ERC1155 transaction commitments from and to Polygon Nightfall L2
 
@@ -58,16 +59,25 @@ As such, the example scripts will use a config object that preloads env vars fro
 
 ```
 # Contents of .env.ganache (based on .env.example)
-APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546
-APP_CLIENT_API_URL=http://localhost:8080
 
 # Nightfall_3 User 1
-APP_ETH_PRIVATE_KEY=0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e
 APP_NIGHTFALL_MNEMONIC=your Nightfall mnemonic
 
 # Nightfall_3 ERC20Mock contract address in ganache
 # Monitor the local deployment and double-check the contract address below
-APP_TOKEN_ADDRESS=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a
+APP_TOKEN_ADDRESS=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1aç
+
+LOG_LEVEL=info # log level
+APP_CLIENT_API_URL=http://localhost:8080 # client URL
+APP_NIGHTFALL_MNEMONIC=trip differ bamboo bundle bonus luxury strike mad merry muffin nose auction # NF mnemonic
+APP_ETH_PRIVATE_KEY=0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e # Ethereum private key
+APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546 # Blockchain websocket url
+
+##  Transactions will use the following information
+APP_TOKEN_ERC20=0xe721F2D97c58b1D1ccd0C80B88256a152d27f0Fe  # ERC20 token address
+APP_TX_VALUE=10  # Value to transact
+APP_TX_TOKEN_ID=1234  # Token Id (if using Nightfall Native Token)
+
 ```
 
 #### Available networks
