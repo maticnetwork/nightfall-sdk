@@ -47,4 +47,4 @@ const txReceiptL2 = {
 }
 
   
-export const tokeniseReceipts = { txReceiptL2 };
+export const tokeniseBurnReceipts = { txReceiptL2 };

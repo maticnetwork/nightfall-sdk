@@ -6,7 +6,7 @@ import {
   UserConstructor,
   UserMakeDeposit,
   UserMakeTransfer,
-  UserMakeTokenise,
+  UserMakeTokeniseBurn,
   UserMakeWithdrawal,
   UserFinaliseWithdrawal,
   UserCheckBalances,
@@ -26,6 +26,7 @@ import {
   createAndSubmitDeposit,
   createAndSubmitTransfer,
   createAndSubmitTokenise,
+  createAndSubmitBurn,
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
   prepareTokenValueTokenId,
@@ -36,6 +37,7 @@ import {
   makeDepositOptions,
   makeTransferOptions,
   makeTokeniseOptions,
+  makeBurnOptions,
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
   checkBalancesOptions,
@@ -127,6 +129,7 @@ class User {
   nightfallDepositTxHashes: string[] = [];
   nightfallTransferTxHashes: string[] = [];
   nightfallTokeniseTxHashes: string[] = [];
+  nightfallBurnTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
 
   constructor(options: UserConstructor) {
@@ -358,7 +361,7 @@ class User {
   *
   * @async
   * @method makeTokenise
-  * @param {UserMakeTokenise} options
+  * @param {UserMakeTokeniseBurn} options
   * @param {string} options.tokenAddress
   * @param {string|number} options.tokenId
   * @param {number} options.value
@@ -367,7 +370,7 @@ class User {
   * @returns {Promise<OffChainTransactionReceipt>}
   */
   async makeTokenise(
-    options: UserMakeTokenise,
+    options: UserMakeTokeniseBurn,
   ): Promise<OffChainTransactionReceipt> {
     logger.debug(options, "User :: makeTokenise");
 
@@ -394,6 +397,47 @@ class User {
     );
 
     return tokeniseReceipts;
+  }
+
+  /**
+  *  Burns token within Layer 2
+  *
+  * @async
+  * @method makeBurn
+  * @param {UserMakeTokeniseBurn} options
+  * @param {string} options.tokenAddress
+  * @param {string|number} options.tokenId
+  * @param {number} options.value
+  * @param {string} [options.feeWei]
+  * @returns {Promise<OffChainTransactionReceipt>}
+  */
+   async makeBurn(
+    options: UserMakeTokeniseBurn,
+  ): Promise<OffChainTransactionReceipt> {
+    logger.debug(options, "User :: makeBurn");
+
+    const { error, value: joiValue } = makeBurnOptions.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "makeBurn formatted parameters");
+  
+    const { tokenAddress, tokenId, value, feeWei} = joiValue;
+
+    // Tokenise
+    const burnReceipts = await createAndSubmitBurn(
+      this.zkpKeys,
+      this.client,
+      tokenAddress,
+      tokenId,
+      value,
+      feeWei,
+    );
+    logger.info({ burnReceipts }, "Burn completed!");
+
+    this.nightfallBurnTxHashes.push(
+      burnReceipts.txReceiptL2?.transactionHash,
+    );
+
+    return burnReceipts;
   }
 
   /**

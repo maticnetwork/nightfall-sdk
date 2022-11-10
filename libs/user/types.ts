@@ -34,7 +34,7 @@ export interface UserMakeTransfer extends UserMakeTransaction {
   isOffChain?: boolean;
 }
 
-export interface UserMakeTokenise {
+export interface UserMakeTokeniseBurn {
  tokenAddress: string;
  value : number;
  tokenId : number|string;

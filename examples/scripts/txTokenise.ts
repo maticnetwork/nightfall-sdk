@@ -6,13 +6,13 @@ import {
 
 
 const main = async () => {
-  let userSender;
+  let user;
   const value = Number(config.value) || 10;
   const tokenId = config.tokenId || 2345;
   const feeWei = "0";
   try {
     // # 1 Create an instance of User
-    userSender = await UserFactory.create({
+    user = await UserFactory.create({
       blockchainWsUrl: config.blockchainWsUrl,
       clientApiUrl: config.clientApiUrl,
       ethereumPrivateKey: config.ethereumPrivateKey,
@@ -25,7 +25,7 @@ const main = async () => {
     const salt = await randomSalt();
     
     // # 2 Tokenise
-    const txReceipts = await userSender.makeTokenise({
+    const txReceipts = await user.makeTokenise({
       tokenAddress,
       tokenId, 
       value, 
@@ -37,14 +37,14 @@ const main = async () => {
     // # 3 [OPTIONAL] You can check the transaction hash
     console.log(
       "Nightfall tokenise tx hashes",
-      userSender.nightfallTokeniseTxHashes,
+      user.nightfallTokeniseTxHashes,
     );
 
   } catch (error) {
     console.log(error);
     process.exit(1);
   } finally {
-    userSender.close();
+    user.close();
     console.log("Bye bye");
   }
 };

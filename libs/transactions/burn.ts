@@ -10,36 +10,33 @@ const logger = parentLogger.child({
 });
 
 /**
- * Handle the flow for tokenisation transaction (tx)
+ * Handle the flow for token burning transaction (tx)
  *
  * @async
- * @function createAndSubmitTokenise
+ * @function createAndSubmitBurn
  * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
  * @param {Client} client An instance of Client to interact with the API
- * @param {string} tokenAddress Token address to be minted
- * @param {string} tokenId The tokenId of L2 token to be minted
- * @param {number} value The amount in Wei of the token to be minted
- * @param {string} salt Random Salt (optional)
+ * @param {string} tokenAddress Token address to be burnt
+ * @param {string} tokenId The tokenId of L2 token to be burnt
+ * @param {number} value The amount in Wei of the token to be burnt
  * @param {string} fee The amount in Wei to pay a proposer for the tx (optional)
  * @returns {Promise<OffChainTransactionReceipt>}
  */
-export async function createAndSubmitTokenise(
+export async function createAndSubmitBurn(
   ownerZkpKeys: NightfallZkpKeys,
   client: Client,
   tokenAddress: string,
   tokenId: string,
   value: number,
-  salt?: string,
   fee?: string,
 ): Promise<OffChainTransactionReceipt> {
-  logger.debug("createAndSubmitTokenise");
+  logger.debug("createAndSubmitBurn");
 
-  const resData = await client.tokenise(
+  const resData = await client.burn(
     ownerZkpKeys,
     tokenAddress,
     tokenId,
     value,
-    salt,
     fee,
   );
   const txReceiptL2 = resData.transaction;

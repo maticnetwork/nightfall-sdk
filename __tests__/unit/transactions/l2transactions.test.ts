@@ -1,10 +1,10 @@
 import {
   createAndSubmitTokenise,
+  createAndSubmitBurn,
 } from "../../../libs/transactions";
 import { submitTransaction } from "../../../libs/transactions/helpers/submit";
 import { NightfallSdkError } from "../../../libs/utils/error";
-import { tokeniseReceipts } from "../../../__mocks__/mockTxTokeniseReceipts";
-import { txReceipt } from "../../../__mocks__/mockTxWithdrawalFinaliseReceipt";
+import { tokeniseBurnReceipts } from "../../../__mocks__/mockTxTokeniseBurnReceipts";
 
 jest.mock("../../../libs/transactions/helpers/submit");
 
@@ -15,13 +15,14 @@ describe("L2 Transactions", () => {
 
   const mockedClient = {
     tokenise: jest.fn(),
+    burn: jest.fn(),
   };
 
   describe("Tokenise", () => {
     const value = 10;
     const fee = "0";
     const tokenId = "0x00";
-    const { txReceiptL2 } = tokeniseReceipts;
+    const { txReceiptL2 } = tokeniseBurnReceipts;
 
     test("Should fail if client throws a Nightfall error", async () => {
       // Arrange
@@ -50,7 +51,6 @@ describe("L2 Transactions", () => {
     test("Should return an instance of <OffChainTransactionReceipts>", async () => {
       // Arrange
       const mockedTokeniseResData = {
-        //txDataToSign: unsignedTx,
         transaction: txReceiptL2,
       };
       mockedClient.tokenise.mockResolvedValue(mockedTokeniseResData);
@@ -76,6 +76,67 @@ describe("L2 Transactions", () => {
         tokenId,
         value,
         salt,
+        fee,
+      );
+      expect(txReceipts).toStrictEqual({ txReceiptL2 });
+    });
+  });
+
+  describe("Burn", () => {
+    const value = 10;
+    const fee = "0";
+    const tokenId = "0x00";
+    const { txReceiptL2 } = tokeniseBurnReceipts;
+
+    test("Should fail if client throws a Nightfall error", async () => {
+      // Arrange
+      mockedClient.burn.mockRejectedValue(
+        new NightfallSdkError("Oops, client failed at burn"),
+      );
+
+      // Act, Assert
+      expect(
+        async () =>
+          await createAndSubmitBurn(
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            ownerZkpKeys,
+            mockedClient,
+            l2TokenAddress,
+            tokenId,
+            value,
+            fee,
+          ),
+      ).rejects.toThrow(NightfallSdkError);
+      expect(mockedClient.burn).toHaveBeenCalledTimes(1);
+    });
+
+    test("Should return an instance of <OffChainTransactionReceipts>", async () => {
+      // Arrange
+      const mockedBurnResData = {
+        transaction: txReceiptL2,
+      };
+      mockedClient.burn.mockResolvedValue(mockedBurnResData);
+      (submitTransaction as jest.Mock).mockResolvedValue(txReceiptL2);
+
+      // Act
+      const txReceipts = await createAndSubmitBurn(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        ownerZkpKeys,
+        mockedClient,
+        l2TokenAddress,
+        tokenId,
+        value,
+        fee,
+      );
+
+      // Assert
+      expect(mockedClient.burn).toHaveBeenCalledWith(
+        ownerZkpKeys,
+        l2TokenAddress,
+        tokenId,
+        value,
         fee,
       );
       expect(txReceipts).toStrictEqual({ txReceiptL2 });
