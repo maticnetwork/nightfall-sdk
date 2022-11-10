@@ -36,7 +36,7 @@ describe("Suit of integration tests tokenisation", () => {
     tokenAddress2 = "0x3000000000000000000000000e9c6b925f14a0304746fcfe430f721472fb7088";
     badTokenAddress1 = "0x1000000000000000000000000e9c6b925f14a0304746fcfe430f721472fb7089";
     const balances = await user.checkNightfallBalances();
-    balanceToken1 = tokenAddress1 in balances ? balances[tokenAddress1][0] : {};
+    balanceToken1 = tokenAddress1 in balances ? balances[tokenAddress1][0] : {"balance":0};
   });
 
   test("Tokenise with invalid token address", async () => {
