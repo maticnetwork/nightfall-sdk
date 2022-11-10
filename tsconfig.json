@@ -12,7 +12,7 @@
     "outDir": "dist/libs",
     "resolveJsonModule": true,
     "sourceMap": true,
-    "target": "es2016",
+    "target": "es2017",
     "allowJs": true
   },
   "include": ["libs/**/*","decs.d.ts"]

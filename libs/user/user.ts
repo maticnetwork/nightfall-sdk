@@ -241,7 +241,6 @@ class User {
     const { tokenContractAddress, value, feeWei } = joiValue;
     let { tokenId } = joiValue;
 
-    console.log("XXXX", tokenContractAddress);
     // Determine ERC standard, set value/tokenId defaults,
     // create an instance of Token, convert value to Wei if needed
     const result = await prepareTokenValueTokenId(
