@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
-import { CONTRACT_SHIELD } from "./constants";
+import { CONTRACT_SHIELD, CONTRACT_KYC } from "./constants";
+import UserCommon from "./userCommon";
 import {
   UserFactoryCreate,
   UserConstructor,
@@ -11,6 +12,7 @@ import {
   UserCheckBalances,
   UserExportCommitments,
   UserImportCommitments,
+  UserValidateCertificate,
 } from "./types";
 import { Client } from "../client";
 import {
@@ -26,6 +28,7 @@ import {
   createAndSubmitTransfer,
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
+  createAndSubmitValidateCertificate,
   prepareTokenValueTokenId,
 } from "../transactions";
 import { parentLogger } from "../utils";
@@ -36,6 +39,7 @@ import {
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
   checkBalancesOptions,
+  validateCertificateOptions,
   isInputValid,
 } from "./validations";
 import type { NightfallZkpKeys } from "../nightfall/types";
@@ -43,6 +47,7 @@ import type { Commitment } from "../nightfall/types";
 import {
   OffChainTransactionReceipt,
   OnChainTransactionReceipts,
+  EthereumTransactionReceipts,
 } from "../transactions/types";
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
@@ -75,6 +80,10 @@ class UserFactory {
     const shieldContractAddress = await client.getContractAddress(
       CONTRACT_SHIELD,
     );
+    // Get KYC contract address
+    const kycContractAddress = await client.getContractAddress(
+      CONTRACT_KYC,
+    );
 
     // Set Web3 Provider and Eth account
     // If no private key is given, SDK tries to connect via MetaMask
@@ -102,6 +111,7 @@ class UserFactory {
       client,
       web3Websocket,
       shieldContractAddress,
+      kycContractAddress,
       ethPrivateKey,
       ethAddress,
       nightfallMnemonic: nightfallKeys.nightfallMnemonic,
@@ -110,11 +120,12 @@ class UserFactory {
   }
 }
 
-class User {
+class User extends UserCommon {
   // Set by constructor
   client: Client;
   web3Websocket: Web3Websocket;
   shieldContractAddress: string;
+  kycContractAddress: string;
   ethPrivateKey: string;
   ethAddress: string;
   nightfallMnemonic: string;
@@ -126,49 +137,13 @@ class User {
   nightfallWithdrawalTxHashes: string[] = [];
 
   constructor(options: UserConstructor) {
+    super(options);
     logger.debug("new User");
 
     let key: keyof UserConstructor;
     for (key in options) {
       this[key] = options[key];
     }
-  }
-
-  /**
-   * Allow user to check client API availability and blockchain ws connection
-   *
-   * @async
-   * @deprecated checkStatus - Will be removed in upcoming versions
-   */
-  async checkStatus() {
-    throw new NightfallSdkError(
-      "To be deprecated: use `isClientAlive`, `isWeb3WsAlive`",
-    );
-  }
-
-  /**
-   * Allow user to check client API availability
-   *
-   * @async
-   * @method isClientAlive
-   * @returns {Promise<boolean>}
-   */
-  async isClientAlive() {
-    logger.debug("User :: isClientAlive");
-    return this.client.healthCheck();
-  }
-
-  /**
-   * Allow user to check blockchain ws connection
-   *
-   * @async
-   * @method isWeb3WsAlive
-   * @returns {Promise<boolean>}
-   */
-  async isWeb3WsAlive() {
-    logger.debug("User :: isWeb3WsAlive");
-    const isWeb3WsAlive = await this.web3Websocket.setEthBlockNo();
-    return !!isWeb3WsAlive;
   }
 
   /**
@@ -191,21 +166,6 @@ class User {
   getNightfallAddress(): string {
     logger.debug("User :: getNightfallAddress");
     return this.zkpKeys?.compressedZkpPublicKey;
-  }
-
-  /**
-   * [Browser + MetaMask only] Update Ethereum account address
-   *
-   * @async
-   * @method updateEthAccountFromMetamask
-   * @returns {string} Ethereum account address
-   */
-  async updateEthAccountFromMetamask() {
-    logger.debug("User :: updateEthAccountFromMetamask");
-    if (this.ethPrivateKey) throw new NightfallSdkError("Method not available");
-    const ethAddress = await getEthAccountFromMetaMask(this.web3Websocket);
-    this.ethAddress = ethAddress;
-    return ethAddress;
   }
 
   /**
@@ -576,12 +536,41 @@ class User {
   }
 
   /**
-   * Close user blockchain ws connection
+   * Validate certificate
+   *
+   * @async
+   * @method validateCertificate
+   * @param {UserValidateCertificate} options
+   * @param {string} options.certificate
+   * @param {string} options.derPrivateKey
+   * @returns {Promise<EthereumTransactionReceipts>}
    */
-  close() {
-    logger.debug("User :: close");
-    this.web3Websocket.close();
-  }
+     async validateCertificate(
+      options: UserValidateCertificate
+   ): Promise<EthereumTransactionReceipts> {
+     logger.debug({ options }, "User :: removeAddressFromWhitelist");
+        
+     // Validate and format options
+     const { error, value: joiValue } = validateCertificateOptions.validate(options);
+     isInputValid(error);
+     logger.debug({ joiValue }, "removeAddressFromWhitelist formatted parameters");
+
+     const { certificate, derPrivateKey } = joiValue;
+
+     const validateCertificateReceipts = await createAndSubmitValidateCertificate(
+     this.ethAddress,
+     this.ethPrivateKey,
+     this.kycContractAddress,
+     this.web3Websocket.web3,
+     this.client,
+     certificate,
+     derPrivateKey);
+
+     logger.info({ validateCertificateReceipts }, "validate certificate completed!");
+
+    return validateCertificateReceipts;
+   }
+  
 }
 
 export default UserFactory;

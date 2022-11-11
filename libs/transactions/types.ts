@@ -14,3 +14,7 @@ export interface OnChainTransactionReceipts {
 export interface OffChainTransactionReceipt {
   txReceiptL2: TransactionReceiptL2;
 }
+
+export interface EthereumTransactionReceipts {
+  txReceipt: TransactionReceipt;
+}

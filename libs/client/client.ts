@@ -416,6 +416,150 @@ class Client {
 
     return res.data;
   }
+
+  /**
+   *
+   * Make GET request to verify if an address is whitelisted
+   *
+   * @async
+   * @method isAddressWhitelisted
+   * @param {string} ethAddress Ethereum address to verify if whitelisted
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<boolean>} Should resolve `boolean` (successMessage)
+   */
+   async isAddressWhitelisted(ethAddress: string) {
+    const endpoint = "whitelist/check";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.get(`${this.apiUrl}/${endpoint}`, {
+      params: {
+        address: ethAddress
+      },
+    });
+
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
+    return res.data.isWhitelisted;
+  }
+
+  /**
+   *
+   * Make POST request to add an address to the whitelist
+   *
+   * @async
+   * @method addAddressToWhitelist
+   * @param {string} address Ethereum address to add to whitelist
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<string>} Should resolve `string` (successMessage)
+   */
+     async addAddressToWhitelist(address: string) {
+      const endpoint = "whitelist/add";
+      logger.debug({ endpoint }, "Calling client at");
+
+      const res = await axios.post(`${this.apiUrl}/${endpoint}`, { 
+        address,
+      });
+
+      logger.info(
+        { status: res.status, data: res.data },
+        `Client at ${endpoint} responded`,
+      );
+
+      return res.data;
+    }
+
+  /**
+   *
+   * Make POST request to removed an address from the whitelist
+   *
+   * @async
+   * @method removeAddressFromWhitelist
+   * @param {string} address Ethereum address to remove from whitelist
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<string>} Should resolve `string` (successMessage)
+   */
+     async removeAddressFromWhitelist(address: string) {
+      const endpoint = "whitelist/remove";
+      logger.debug({ endpoint }, "Calling client at");
+
+      const res = await axios.post(`${this.apiUrl}/${endpoint}`, { 
+        address,
+      });
+
+      logger.info(
+        { status: res.status, data: res.data },
+        `Client at ${endpoint} responded`,
+      );
+
+      return res.data;
+    }
+
+  /**
+   *
+   * Make POST request to validate X509 certificate.
+   * Validate a certificate (which will also add the user to the whitelist if the certificate is
+   *  valid and the signature over their ethereum address checks out). The signature can be falsey if we 
+   *  don't want to whitelist the address but are just validating the certificate.
+   *  We might want to do this for an intermediate certificate for example.
+   *
+   * @async
+   * @method validateCertificate
+   * @param {string} certificate X509 certificate to validate
+   * @param {Buffer} ethereumAddressSignature Signature of Ethereum address
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<string>} Should resolve `string` (successMessage)
+   */
+     async validateCertificate(
+       certificate: string,
+       ethereumAddressSignature: Buffer 
+     ) {
+      const endpoint = "whitelist/validate";
+      logger.debug({ endpoint }, "Calling client at");
+
+      const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+        certificate,
+        ethereumAddressSignature,
+      });
+
+      logger.info(
+        { status: res.status, data: res.data },
+        `Client at ${endpoint} responded`,
+      );
+
+      return res.data;
+    }
+
+  /**
+   *
+   * Make GET request to verify if an address is Kycd
+   *
+   * @async
+   * @method kycCheck
+   * @param {string} ethAddress Ethereum address to verify if KYC
+   * @throws {NightfallSdkError} Bad response
+   * @return {Promise<boolean>} Should resolve `boolean` (successMessage)
+   */
+     async kycCheck(ethAddress: string) {
+      const endpoint = "whitelist/kyc-check";
+      logger.debug({ endpoint }, "Calling client at");
+  
+      const res = await axios.get(`${this.apiUrl}/${endpoint}`, {
+        params: {
+          address: ethAddress
+        },
+      });
+  
+      logger.info(
+        { status: res.status, data: res.data },
+        `Client at ${endpoint} responded`,
+      );
+  
+      return res.data.isKyc;
+    }
+
 }
 
 export default Client;

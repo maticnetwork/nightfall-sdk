@@ -9,14 +9,28 @@ export interface UserFactoryCreate {
   nightfallMnemonic?: string;
 }
 
-export interface UserConstructor {
+export interface WhitelistManagerFactoryCreate {
+  clientApiUrl: string;
+  blockchainWsUrl?: string;
+  ethereumPrivateKey?: string;
+}
+
+export interface UserCommonConstructor {
   client: Client;
   web3Websocket: Web3Websocket;
-  shieldContractAddress: string;
+  kycContractAddress: string;
   ethPrivateKey: string;
   ethAddress: string;
+}
+
+export interface UserConstructor extends UserCommonConstructor {
+  shieldContractAddress: string;
   nightfallMnemonic: string;
   zkpKeys: any;
+}
+
+export interface WhitelistManagerConstructor extends UserCommonConstructor {
+  whitelistContractAddress: string;
 }
 
 export interface UserMakeTransaction {
@@ -61,4 +75,13 @@ export interface UserImportCommitments {
 
 export interface UserBrowser extends Window {
   ethereum?: MetaMaskEthereumProvider;
+}
+
+export interface EthAddress {
+  ethAddress: string;
+}
+
+export interface UserValidateCertificate {
+  derPrivateKey: string;
+  certificate: string;
 }

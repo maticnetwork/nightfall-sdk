@@ -55,6 +55,22 @@ export const checkBalancesOptions = Joi.object({
   ),
 });
 
+export const ethAddressOptions = Joi.object({
+  ethereumAddress: Joi.string()
+  .trim()
+  .custom(isChecksum, "custom validation")
+  .required(),
+})
+
+export const validateCertificateOptions = Joi.object({
+  certificate: Joi.string()
+  .trim()
+  .required(),
+  derPrivateKey: Joi.string()
+  .trim()
+  .required(),
+})
+
 export function isInputValid(error: ValidationError | undefined) {
   if (error !== undefined) {
     const message = error.details.map((e) => e.message).join();
