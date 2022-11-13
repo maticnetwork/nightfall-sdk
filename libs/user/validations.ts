@@ -1,6 +1,5 @@
-import Joi, { CustomHelpers, ValidationError } from "joi";
+import Joi, { ValidationError } from "joi";
 import { NightfallSdkError } from "../utils/error";
-import { checkAddressChecksum } from "web3-utils";
 import { TX_FEE_ETH_WEI_DEFAULT, TX_FEE_MATIC_WEI_DEFAULT } from "./constants";
 import gen from 'general-number';
 
@@ -39,6 +38,7 @@ const isValidTokenId = (tokenId: string|number, helpers: CustomHelpers) => {
     return helpers.message({ custom: "Invalid token Id. It should be an element of BN_128 field" });
   return tokenIdStr;
 };
+
 // See https://joi.dev/tester/
 
 const PATTERN_ETH_PRIVATE_KEY = /^0x[0-9a-f]{64}$/;
@@ -50,10 +50,7 @@ export const createOptions = Joi.object({
 }).with("ethereumPrivateKey", "blockchainWsUrl");
 
 const makeTransaction = Joi.object({
-  tokenContractAddress: Joi.string()
-    .trim()
-    .custom(isChecksum, "custom validation")
-    .required(),
+  tokenContractAddress: Joi.string().trim().required(),
   tokenErcStandard: Joi.string(), // keep it for a while for compatibility
   value: Joi.string(),
   tokenId: Joi.string(),
@@ -100,9 +97,7 @@ export const finaliseWithdrawalOptions = Joi.object({
 });
 
 export const checkBalancesOptions = Joi.object({
-  tokenContractAddresses: Joi.array().items(
-    Joi.string().trim().custom(isChecksum, "custom validation"),
-  ),
+  tokenContractAddresses: Joi.array().items(Joi.string().trim()),
 });
 
 export function isInputValid(error: ValidationError | undefined) {
