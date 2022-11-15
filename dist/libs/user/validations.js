@@ -6,7 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isInputValid = exports.checkBalancesOptions = exports.finaliseWithdrawalOptions = exports.makeWithdrawalOptions = exports.makeTransferOptions = exports.makeDepositOptions = exports.createOptions = void 0;
 const joi_1 = __importDefault(require("joi"));
 const error_1 = require("../utils/error");
+const web3_utils_1 = require("web3-utils");
 const constants_1 = require("./constants");
+const isChecksum = (ethAddress, helpers) => {
+    const isValid = (0, web3_utils_1.checkAddressChecksum)(ethAddress);
+    if (!isValid)
+        return helpers.message({ custom: "Invalid checksum, review ethAddress" });
+    return ethAddress;
+};
 // See https://joi.dev/tester/
 const PATTERN_ETH_PRIVATE_KEY = /^0x[0-9a-f]{64}$/;
 exports.createOptions = joi_1.default.object({
@@ -16,7 +23,10 @@ exports.createOptions = joi_1.default.object({
     nightfallMnemonic: joi_1.default.string().trim(),
 }).with("ethereumPrivateKey", "blockchainWsUrl");
 const makeTransaction = joi_1.default.object({
-    tokenContractAddress: joi_1.default.string().trim().required(),
+    tokenContractAddress: joi_1.default.string()
+        .trim()
+        .custom(isChecksum, "custom validation")
+        .required(),
     tokenErcStandard: joi_1.default.string(),
     value: joi_1.default.string(),
     tokenId: joi_1.default.string(),
@@ -37,7 +47,7 @@ exports.finaliseWithdrawalOptions = joi_1.default.object({
     withdrawTxHashL2: joi_1.default.string().trim(),
 });
 exports.checkBalancesOptions = joi_1.default.object({
-    tokenContractAddresses: joi_1.default.array().items(joi_1.default.string().trim()),
+    tokenContractAddresses: joi_1.default.array().items(joi_1.default.string().trim().custom(isChecksum, "custom validation")),
 });
 function isInputValid(error) {
     if (error !== undefined) {
