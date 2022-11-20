@@ -1,18 +1,18 @@
 {
   "name": "web-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "React web application to demo how Nightfall SDK may be integrated",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack serve --config webpack.config.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Polygon Nightfall",
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^5.2.2",
-    "nightfall-sdk": "file:../../",
+    "nightfall-sdk": "1.0.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

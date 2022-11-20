@@ -6,92 +6,25 @@
 
 Software Development Kit for interacting with Polygon Nightfall.
 
-You can clone the repo and [play with the example scripts](#play-with-the-sdk-repository), or you can [install it as a dependency](#install-sdk-from-npm) from NPM.
+You can clone the repo and [play with the example scripts](#play-with-the-sdk-repository), or you can [install it as a dependency](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started) from NPM.
 
 More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/introduction/overview).
 
 ### What is the SDK for?
 
-- Deposit ERC20 tokens from Ethereum L1 to Polygon Nightfall L2
-- Transfer ERC20 token commitments on Polygon Nightfall L2
-- Withdraw ERC20 token commitments from Polygon Nightfall L2 to Ethereum L1
-- Check ERC20 balances on Polygon Nightfall L2
-- Safely export/import ERC20 transaction commitments from and to Polygon Nightfall L2
+- Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Polygon Nightfall L2
+- Transfer ERC20,ERC721 and ERC1155 token commitments on Polygon Nightfall L2
+- Withdraw ERC20,ERC721 and ERC1155 token commitments from Polygon Nightfall L2 to Ethereum L1
+- Check ERC20,ERC721 and ERC1155 balances on Polygon Nightfall L2
+- Safely export/import ERC20,ERC721 and ERC1155 transaction commitments from and to Polygon Nightfall L2
 
 To learn more about transactions, commitments and other core Nightfall features go to the [Protocol Docs](https://docs.polygon.technology/docs/category/nightfall-protocol/).
 
 ## What is a Nightfall Client?
 
-The Nightfall Client is a key part of the architecture. It generates zero-knowledge proofs, stores zero-knowledge commitments and interacts with the contracts. The SDK uses Nightfall Client to interact with the Nightfall Protocol.
+To use the SDK you need to have a Nightfall Client running.
 
-**To be able to use the SDK one must have a running instance of the Client**.
-
-### Setup a Client locally (Ganache)
-
-To use the SDK locally, set up and run the entire Nightfall project. The Client is part of this setup and by running the Project you are running the Client too.
-
-You will also need a running proposer, therefore you should use two terminals, one for running Nightfall and one for the Proposer.
-
-**Setup and run Polygon Nightfall**
-
-```bash
-git clone https://github.com/EYBlockchain/nightfall_3.git
-cd nightfall_3
-./setup-nightfall
-./start-nightfall -g -d
-```
-
-**Run the Proposer**
-
-```bash
-# terminal 2, also cd into nightfall_3
-./start-apps
-```
-
-### Setup a Client in testnet (Goerli)
-
-To use the SDK on a testnet you should only have a Client running, other parts of the infrastructure like the Proposer are provided.
-
-```bash
-git clone https://github.com/EYBlockchain/nightfall_3.git
-cd nightfall_3/nightfall-client
-```
-
-**Setup Client**
-
-Rename `client-example.env` to `.client.env` and update the contents as following:
-
-```
-ETH_NETWORK=goerli
-BLOCKCHAIN_URL=your web3 url provider to access the blockchain
-```
-
-**Run Client**
-
-```bash
-./start-client
-```
-
-## Install SDK from NPM
-
-Add the Nightfall SDK as a dependency to your project:
-
-```bash
-npm install nightfall-sdk
-```
-
-To use the SDK, import `UserFactory`. This will generate an instance of `User` that you should use to perform all the available operations. E.g.
-
-```bash
-import { UserFactory } from 'nightfall-sdk';
-
-user = await UserFactory.create(userOptions);
-const txReceipts = await user.makeDeposit(depositOptions);
-```
-
-_Where userOptions is of type UserFactoryCreate and depositOptions UserMakeDeposit_.
-
-Check out the [example scripts](#example-scripts) for a better understanding on how to use the SDK to its capacity. You can also dee-dive into the code and inspect the [User library](https://github.com/maticnetwork/nightfall-sdk/tree/master/libs/user) (see `user.ts` for more details about each method).
+Check out the [documentation](https://docs.polygon.technology/docs/nightfall/tools/user-sdk-api/) to learn about what is it and how to set it up.
 
 ## Play with the SDK repository
 
@@ -140,22 +73,7 @@ APP_TOKEN_ADDRESS=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a
 #### Available networks
 
 Polygon Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client.
-
-#### 2Tx rule
-
-**Applies to Nightfall Protocol on Ganache**
-
-Making a deposit, transfer or withdrawal means that a transaction is submitted to L2, when 2 transactions like this are submitted a block is proposed and created. The creation of a new block changes the state of Nightfall. Changing the state of L2 means that the deposit, transfer and withdrawal (not finalise-withdrawal) are finalised.
-
-E.g. Making 1 deposit won't change the state of Nightfall. Running the `eg:ganache:balances` script won't show any updated balance with the new deposit. Making 2 deposits or a deposit and a transfer will update the state and show the correct updated balance when running the script.
-
-#### 32Tx rule
-
-**Applies to Nightfall Protocol on Goerli Testnet**
-
-The 32Tx rule is essentially the same as the `2Tx rule` but with 32 transactions instead of 2.
-
-To learn more about Nightfall protocol visit the [documentation](https://docs.polygon.technology/docs/nightfall/faq/#how-long-do-transfers-take-on-polygon-nightfall-network-from-start-to-finish).
+Simple but important rules about [transaction processing](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started#available-networks).
 
 #### Nightfall keys
 
@@ -171,7 +89,7 @@ const mnemonic = user.getNightfallMnemonic();
 
 ### Example scripts
 
-**Before running the scripts below, we strongly recommend reading the [Getting started](#getting-started) section**.
+**Before running the scripts below, we strongly recommend reading the [Getting started](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started) section**.
 
 #### Make a deposit
 
@@ -229,11 +147,51 @@ The import commitment functionality provides a safe import of already exported N
 npm run-script eg:[network]:import-commitments
 ```
 
-## Using the SDK
+### Web App
+
+The Web Application is an example of how to use functionalities that SDK provides to interact with Nightfall via MetaMask.
+Learn more about it in the [docs](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-demo-app).
+
+#### Set up your environment
+
+To be able to run the app you need a running instance of Nightfall on Ganache, and a Nightfall Client. The Client is running at `http://localhost:8080`, but you can spin up your own client and update the `webAppConfig.js` file with a different url.
+Found out more about [what is a Client and how to run Nightfall](https://github.com/maticnetwork/nightfall-sdk#what-is-a-nightfall-client).
+
+#### Start the app
+
+Open the repository, navigate to the web-app and install the dependencies
+
+```
+cd examples/web-app
+npm install
+```
+
+Navigate to the root directory and run the following script. The app is running on port 4000.
+
+```
+cd ../../
+npm run eg:start-react-app
+```
+
+#### Configure MetaMask
+
+Note that the app is working on Ganache so your MetaMask provider will have to be connected to Localhost with the following parameters.
+Import new network to MetaMask
+
+|                 |                       |
+| --------------- | --------------------- |
+| Network name    | localhost             |
+| RPC URL         | http://localhost:8546 |
+| Chain ID        | 1337                  |
+| Currency symbol | Test                  |
+
+Once you are on the correct network, import a ganache account with Test token to be able to execute transactions.
+
+You can use the Ganache account with a private key stated in the [.env config](https://github.com/maticnetwork/nightfall-sdk#environment-setup).
 
 ### Error handling
 
-Today we are handling errors using the `NightfallSdkError` class, which is a simple implementation of the Error class. We might improve this in the future, but in the meantime make sure to wrap all SDK calls within a `try/catch` block.
+Check the [documentation](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-api#error-handling) to learn about error handling.
 
 ## Need help?
 

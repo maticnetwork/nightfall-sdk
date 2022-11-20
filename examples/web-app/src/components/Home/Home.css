@@ -23,3 +23,35 @@
 .home-container {
   text-align: center;
 }
+
+.ercs-section button {
+  padding: 10px;
+  margin: 10px;
+  color: #880ed4;
+  border-radius: 5px;
+
+  border: 1px solid gray;
+}
+
+.ercs-section button:hover {
+  padding: 10px;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+  margin: 10px;
+  background-color: blueviolet;
+  color: white;
+  border-radius: 5px;
+}
+
+.is-clicked {
+  padding: 10px;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+  margin: 10px;
+  background-color: blueviolet;
+  color: white !important;
+  border-radius: 5px;
+}
+
+.install-metamask {
+  margin-top: 10%;
+  font-size: 20px;
+}

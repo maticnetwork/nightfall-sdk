@@ -1,14 +1,6 @@
-import Joi, { CustomHelpers, ValidationError } from "joi";
+import Joi, { ValidationError } from "joi";
 import { NightfallSdkError } from "../utils/error";
-import { checkAddressChecksum } from "web3-utils";
 import { TX_FEE_ETH_WEI_DEFAULT, TX_FEE_MATIC_WEI_DEFAULT } from "./constants";
-
-const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
-  const isValid = checkAddressChecksum(ethAddress);
-  if (!isValid)
-    return helpers.message({ custom: "Invalid checksum, review ethAddress" });
-  return ethAddress;
-};
 
 // See https://joi.dev/tester/
 
@@ -21,10 +13,7 @@ export const createOptions = Joi.object({
 }).with("ethereumPrivateKey", "blockchainWsUrl");
 
 const makeTransaction = Joi.object({
-  tokenContractAddress: Joi.string()
-    .trim()
-    .custom(isChecksum, "custom validation")
-    .required(),
+  tokenContractAddress: Joi.string().trim().required(),
   tokenErcStandard: Joi.string(), // keep it for a while for compatibility
   value: Joi.string(),
   tokenId: Joi.string(),
@@ -41,10 +30,7 @@ export const makeTransferOptions = makeTransaction.append({
 
 export const makeWithdrawalOptions = makeTransaction.append({
   feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
-  recipientEthAddress: Joi.string()
-    .trim()
-    .custom(isChecksum, "custom validation")
-    .required(),
+  recipientEthAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
 });
 
@@ -53,9 +39,7 @@ export const finaliseWithdrawalOptions = Joi.object({
 });
 
 export const checkBalancesOptions = Joi.object({
-  tokenContractAddresses: Joi.array().items(
-    Joi.string().trim().custom(isChecksum, "custom validation"),
-  ),
+  tokenContractAddresses: Joi.array().items(Joi.string().trim()),
 });
 
 export function isInputValid(error: ValidationError | undefined) {

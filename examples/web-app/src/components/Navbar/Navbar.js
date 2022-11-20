@@ -43,7 +43,7 @@ export default function Navbar() {
               </li>
               <li className="nav-item">
                 <Link to="/about" className="styled-link">
-                  <a className="nav-link">About</a>
+                  <a className="nav-link">Use Cases</a>
                 </Link>
               </li>
               <li className="nav-item">
