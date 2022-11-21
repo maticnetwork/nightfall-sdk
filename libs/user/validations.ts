@@ -20,7 +20,9 @@ const makeTransaction = Joi.object({
   feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),
 }).or("value", "tokenId"); // these cannot have default
 
-export const makeDepositOptions = makeTransaction;
+export const makeDepositOptions = makeTransaction.append({
+  isFeePaidInL2: Joi.boolean().default(false),
+});
 
 export const makeTransferOptions = makeTransaction.append({
   feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
