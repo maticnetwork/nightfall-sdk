@@ -58,16 +58,20 @@ As such, the example scripts will use a config object that preloads env vars fro
 
 ```
 # Contents of .env.ganache (based on .env.example)
-APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546
+LOG_LEVEL=debug
+
 APP_CLIENT_API_URL=http://localhost:8080
-
-# Nightfall_3 User 1
+APP_NIGHTFALL_MNEMONIC=bip39 mnemonic
 APP_ETH_PRIVATE_KEY=0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e
-APP_NIGHTFALL_MNEMONIC=your Nightfall mnemonic
+APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546
 
-# Nightfall_3 ERC20Mock contract address in ganache
-# Monitor the local deployment and double-check the contract address below
-APP_TOKEN_ADDRESS=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1a
+# Monitor the local deployment and double-check the contract addresses below
+APP_TOKEN_ERC20=0xe721f2d97c58b1d1ccd0c80b88256a152d27f0fe
+APP_TOKEN_ERC721=0xda0107986bc43e207d0bb4d9c9a22d35e09db425
+APP_TOKEN_ERC1155=0x59ee10cf73e3cfcde03c8813f2ad57eac2248248
+
+APP_TX_VALUE=0.001
+APP_TX_TOKEN_ID=28948022309329048855892746252171976963317496166410141009864396001978282410021
 ```
 
 #### Available networks
