@@ -1,13 +1,8 @@
 import type Web3 from "web3";
-import path from "path";
-import { parentLogger } from "../utils";
+import { logger } from "../utils";
 import { NightfallSdkError } from "../utils/error";
 import type { Web3Websocket } from "./web3Websocket";
 import { MetaMaskEthereumProvider } from "./types";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 /**
  * Recreate an Ethereum account from a given private key and return the address

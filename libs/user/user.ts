@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import fs from "fs";
 import { CONTRACT_SHIELD } from "./constants";
 import {
@@ -28,7 +28,7 @@ import {
   createAndSubmitFinaliseWithdrawal,
   prepareTokenValueTokenId,
 } from "../transactions";
-import { parentLogger } from "../utils";
+import { logger } from "../utils";
 import {
   createOptions,
   makeDepositOptions,
@@ -47,10 +47,6 @@ import {
 import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import { commitmentsFromMnemonic } from "../nightfall";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 class UserFactory {
   static async create(options: UserFactoryCreate) {

@@ -8,8 +8,11 @@
     "nightfall_3",
     "nf3"
   ],
-  "main": "libs/user/index.js",
-  "module": "libs/user/index.js",
+  "main": "./libs/user/index.js",
+  "exports": {
+    "import": "./esm/user/index.js",
+    "require": "./cjs/user/index.js"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/maticnetwork/nightfall-sdk.git"

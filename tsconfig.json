@@ -3,10 +3,10 @@
     "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
-    "module": "node16",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Node16",
     "noImplicitAny": true,
-    "outDir": "dist/libs",
+    "outDir": "dist/esm",
     "resolveJsonModule": true,
     "sourceMap": true,
     "target": "es2017"

@@ -1,14 +1,9 @@
-import path from "path";
 import { TokenFactory, whichTokenStandard } from "../../tokens";
 import type Web3 from "web3";
 import { ERC20, ERC721 } from "../../tokens/constants";
 import { TX_VALUE_DEFAULT, TX_TOKEN_ID_DEFAULT } from "../../user/constants";
 import { stringValueToWei } from "./stringValueToWei";
-import { parentLogger } from "../../utils";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
+import { logger } from "../../utils";
 
 /**
  * Determine ERC standard
