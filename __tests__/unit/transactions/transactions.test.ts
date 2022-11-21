@@ -10,6 +10,9 @@ import { depositReceipts } from "../../../__mocks__/mockTxDepositReceipts";
 import { transferReceipts } from "../../../__mocks__/mockTxTransferReceipts";
 import { withdrawalReceipts } from "../../../__mocks__/mockTxWithdrawalReceipts";
 import { txReceipt } from "../../../__mocks__/mockTxWithdrawalFinaliseReceipt";
+import type { NightfallZkpKeys } from "../../../libs/nightfall/types";
+import type Web3 from "web3";
+import type { Client } from "../../../libs/client";
 
 jest.mock("../../../libs/transactions/helpers/submit");
 
@@ -30,7 +33,8 @@ describe("Transactions", () => {
 
   describe("Deposit", () => {
     const value = "70000000000000000";
-    const fee = "10";
+    const feeL1 = "10";
+    const feeL2 = "0";
     const tokenId = "0x00";
     const unsignedTx =
       "0x9ae2b6be00000000000000000000000000000000000000000000000000f...";
@@ -49,15 +53,14 @@ describe("Transactions", () => {
             token,
             ownerEthAddress,
             ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
+            ownerZkpKeys as unknown as NightfallZkpKeys,
             shieldContractAddress,
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             value,
             tokenId,
-            fee,
+            feeL1,
+            feeL2,
           ),
       ).rejects.toThrow(NightfallSdkError);
       expect(mockedClient.deposit).toHaveBeenCalledTimes(1);
@@ -77,15 +80,14 @@ describe("Transactions", () => {
         token,
         ownerEthAddress,
         ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
+        ownerZkpKeys as unknown as NightfallZkpKeys,
         shieldContractAddress,
-        web3,
-        mockedClient,
+        web3 as unknown as Web3,
+        mockedClient as unknown as Client,
         value,
         tokenId,
-        fee,
+        feeL1,
+        feeL2,
       );
 
       // Assert
@@ -94,7 +96,7 @@ describe("Transactions", () => {
         ownerZkpKeys,
         value,
         tokenId,
-        fee,
+        feeL2,
       );
       expect(submitTransaction).toHaveBeenCalledWith(
         ownerEthAddress,
@@ -102,7 +104,7 @@ describe("Transactions", () => {
         shieldContractAddress,
         unsignedTx,
         web3,
-        fee,
+        feeL1,
       );
       expect(txReceipts).toStrictEqual({ txReceipt, txReceiptL2 });
     });
@@ -136,12 +138,10 @@ describe("Transactions", () => {
             token,
             ownerEthAddress,
             ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
+            ownerZkpKeys as unknown as NightfallZkpKeys,
             shieldContractAddress,
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             value,
             tokenId,
             fee,
@@ -163,12 +163,10 @@ describe("Transactions", () => {
         token,
         ownerEthAddress,
         ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
+        ownerZkpKeys as unknown as NightfallZkpKeys,
         shieldContractAddress,
-        web3,
-        mockedClient,
+        web3 as unknown as Web3,
+        mockedClient as unknown as Client,
         value,
         tokenId,
         fee,
@@ -215,12 +213,10 @@ describe("Transactions", () => {
             token,
             ownerEthAddress,
             ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
+            ownerZkpKeys as unknown as NightfallZkpKeys,
             shieldContractAddress,
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             value,
             tokenId,
             fee,
@@ -242,12 +238,10 @@ describe("Transactions", () => {
         token,
         ownerEthAddress,
         ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
+        ownerZkpKeys as unknown as NightfallZkpKeys,
         shieldContractAddress,
-        web3,
-        mockedClient,
+        web3 as unknown as Web3,
+        mockedClient as unknown as Client,
         value,
         tokenId,
         fee,
@@ -289,10 +283,8 @@ describe("Transactions", () => {
             ownerEthAddress,
             ownerEthPrivateKey,
             shieldContractAddress,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             withdrawTxHashL2,
           ),
       ).rejects.toThrow(NightfallSdkError);

@@ -219,6 +219,7 @@ class User {
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
+   * @param {boolean} [options.isFeePaidInL2]
    * @returns {Promise<OnChainTransactionReceipts>}
    */
   async makeDeposit(
@@ -231,7 +232,7 @@ class User {
     isInputValid(error);
     logger.debug({ joiValue }, "makeDeposit formatted parameters");
 
-    const { tokenContractAddress, value, feeWei } = joiValue;
+    const { tokenContractAddress, value, feeWei, isFeePaidInL2 } = joiValue;
     let { tokenId } = joiValue;
 
     // Determine ERC standard, set value/tokenId defaults,
@@ -244,6 +245,15 @@ class User {
     );
     const { token, valueWei } = result;
     tokenId = result.tokenId;
+
+    // Set fees
+    let feeL1,
+      feeL2 = "0";
+    if (isFeePaidInL2) {
+      feeL2 = feeWei;
+    } else {
+      feeL1 = feeWei;
+    }
 
     // Approval
     const approvalReceipt = await createAndSubmitApproval(
@@ -268,7 +278,8 @@ class User {
       this.client,
       valueWei,
       tokenId,
-      feeWei,
+      feeL1,
+      feeL2,
     );
     logger.info({ depositReceipts }, "Deposit completed!");
 

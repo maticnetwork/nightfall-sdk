@@ -29,6 +29,7 @@ const main = async () => {
     const txReceipts = await user.makeDeposit({
       tokenContractAddress: config.tokenContractAddress,
       value: config.value,
+      // isFeePaidInL2: true,
       // tokenId: config.tokenId,
     });
     console.log("Transaction receipts", txReceipts);
