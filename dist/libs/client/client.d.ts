@@ -64,7 +64,7 @@ declare class Client {
      * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
      * @param {string} value The amount in Wei of the token to be deposited
      * @param {string} tokenId The tokenId of the token to be deposited
-     * @param {string} fee The amount in Wei to pay a proposer for the tx
+     * @param {string} fee Proposer payment for the tx in L2
      * @throws {NightfallSdkError} Bad response
      * @returns {Promise<TransactionResponseData>}
      */

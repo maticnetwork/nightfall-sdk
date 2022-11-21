@@ -75,6 +75,7 @@ declare class User {
      * @param {string} [options.value]
      * @param {string} [options.tokenId]
      * @param {string} [options.feeWei]
+     * @param {boolean} [options.isFeePaidInL2]
      * @returns {Promise<OnChainTransactionReceipts>}
      */
     makeDeposit(options: UserMakeDeposit): Promise<OnChainTransactionReceipts>;

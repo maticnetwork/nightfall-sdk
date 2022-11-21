@@ -26,11 +26,11 @@ const GAS_PRICE_MULTIPLIER = Number(process.env.GAS_PRICE_MULTIPLIER) || 2;
  * @param {string} recipientEthAddress Eth address receiving the contents of the tx
  * @param {string} unsignedTx The contents of the tx (sent in data)
  * @param {Web3} web3 web3js instance
- * @param {string} fee The amount in Wei to pay a proposer for the tx
+ * @param {string} value Proposer payment for the tx in L1
  * @returns {Promise<TransactionReceipt>}
  */
-async function submitTransaction(senderEthAddress, senderEthPrivateKey, recipientEthAddress, unsignedTx, web3, fee = "0") {
-    logger.debug({ senderEthAddress, recipientEthAddress, unsignedTx, fee }, "submitTransaction");
+async function submitTransaction(senderEthAddress, senderEthPrivateKey, recipientEthAddress, unsignedTx, web3, value = "0") {
+    logger.debug({ senderEthAddress, recipientEthAddress, unsignedTx, value }, "submitTransaction");
     // Estimate gas
     const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // ISSUE #28
     const gasPrice = Math.ceil(Number(GAS_PRICE) * GAS_PRICE_MULTIPLIER); // ISSUE #28
@@ -39,7 +39,7 @@ async function submitTransaction(senderEthAddress, senderEthPrivateKey, recipien
         from: senderEthAddress,
         to: recipientEthAddress,
         data: unsignedTx,
-        value: fee,
+        value,
         gas,
         gasPrice,
     };

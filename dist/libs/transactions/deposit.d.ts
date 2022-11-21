@@ -16,8 +16,9 @@ import type { OnChainTransactionReceipts } from "./types";
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be deposited
  * @param {string} tokenId The tokenId of an erc721
- * @param {string} fee The amount in Wei to pay a proposer for the tx
+ * @param {string} feeL1 Proposer payment for the tx in L1
+ * @param {string} feeL2 Proposer payment for the tx in L2
  * @throws {NightfallSdkError} Error while broadcasting tx
  * @returns {Promise<OnChainTransactionReceipts>}
  */
-export declare function createAndSubmitDeposit(token: any, ownerEthAddress: string, ownerEthPrivateKey: undefined | string, ownerZkpKeys: NightfallZkpKeys, shieldContractAddress: string, web3: Web3, client: Client, value: string, tokenId: string, fee: string): Promise<OnChainTransactionReceipts>;
+export declare function createAndSubmitDeposit(token: any, ownerEthAddress: string, ownerEthPrivateKey: undefined | string, ownerZkpKeys: NightfallZkpKeys, shieldContractAddress: string, web3: Web3, client: Client, value: string, tokenId: string, feeL1: string, feeL2: string): Promise<OnChainTransactionReceipts>;

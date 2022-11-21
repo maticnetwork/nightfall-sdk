@@ -148,6 +148,7 @@ class User {
      * @param {string} [options.value]
      * @param {string} [options.tokenId]
      * @param {string} [options.feeWei]
+     * @param {boolean} [options.isFeePaidInL2]
      * @returns {Promise<OnChainTransactionReceipts>}
      */
     async makeDeposit(options) {
@@ -157,19 +158,27 @@ class User {
         const { error, value: joiValue } = validations_1.makeDepositOptions.validate(options);
         (0, validations_1.isInputValid)(error);
         logger.debug({ joiValue }, "makeDeposit formatted parameters");
-        const { tokenContractAddress, value, feeWei } = joiValue;
+        const { tokenContractAddress, value, feeWei, isFeePaidInL2 } = joiValue;
         let { tokenId } = joiValue;
         // Determine ERC standard, set value/tokenId defaults,
         // create an instance of Token, convert value to Wei if needed
         const result = await (0, transactions_1.prepareTokenValueTokenId)(tokenContractAddress, value, tokenId, this.web3Websocket.web3);
         const { token, valueWei } = result;
         tokenId = result.tokenId;
+        // Set fees
+        let feeL1, feeL2 = "0";
+        if (isFeePaidInL2) {
+            feeL2 = feeWei;
+        }
+        else {
+            feeL1 = feeWei;
+        }
         // Approval
         const approvalReceipt = await (0, transactions_1.createAndSubmitApproval)(token, this.ethAddress, this.ethPrivateKey, this.shieldContractAddress, this.web3Websocket.web3, valueWei);
         if (approvalReceipt)
             logger.info({ approvalReceipt }, "Approval completed!");
         // Deposit
-        const depositReceipts = await (0, transactions_1.createAndSubmitDeposit)(token, this.ethAddress, this.ethPrivateKey, this.zkpKeys, this.shieldContractAddress, this.web3Websocket.web3, this.client, valueWei, tokenId, feeWei);
+        const depositReceipts = await (0, transactions_1.createAndSubmitDeposit)(token, this.ethAddress, this.ethPrivateKey, this.zkpKeys, this.shieldContractAddress, this.web3Websocket.web3, this.client, valueWei, tokenId, feeL1, feeL2);
         logger.info({ depositReceipts }, "Deposit completed!");
         this.nightfallDepositTxHashes.push((_a = depositReceipts.txReceiptL2) === null || _a === void 0 ? void 0 : _a.transactionHash);
         return depositReceipts;

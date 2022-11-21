@@ -26,19 +26,20 @@ const logger = utils_1.parentLogger.child({
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be deposited
  * @param {string} tokenId The tokenId of an erc721
- * @param {string} fee The amount in Wei to pay a proposer for the tx
+ * @param {string} feeL1 Proposer payment for the tx in L1
+ * @param {string} feeL2 Proposer payment for the tx in L2
  * @throws {NightfallSdkError} Error while broadcasting tx
  * @returns {Promise<OnChainTransactionReceipts>}
  */
-async function createAndSubmitDeposit(token, ownerEthAddress, ownerEthPrivateKey, ownerZkpKeys, shieldContractAddress, web3, client, value, tokenId, fee) {
+async function createAndSubmitDeposit(token, ownerEthAddress, ownerEthPrivateKey, ownerZkpKeys, shieldContractAddress, web3, client, value, tokenId, feeL1, feeL2) {
     logger.debug("createAndSubmitDeposit");
-    const resData = await client.deposit(token, ownerZkpKeys, value, tokenId, fee);
+    const resData = await client.deposit(token, ownerZkpKeys, value, tokenId, feeL2);
     const txReceiptL2 = resData.transaction;
     const unsignedTx = resData.txDataToSign;
     logger.debug({ unsignedTx }, "Deposit tx, unsigned");
     let txReceipt;
     try {
-        txReceipt = await (0, submit_1.submitTransaction)(ownerEthAddress, ownerEthPrivateKey, shieldContractAddress, unsignedTx, web3, fee);
+        txReceipt = await (0, submit_1.submitTransaction)(ownerEthAddress, ownerEthPrivateKey, shieldContractAddress, unsignedTx, web3, feeL1);
     }
     catch (err) {
         logger.child({ resData }).error(err, "Error when submitting transaction");
