@@ -1,4 +1,3 @@
-import path from "node:path";
 import fs from "fs";
 import { CONTRACT_SHIELD } from "./constants";
 import {
@@ -28,7 +27,7 @@ import {
   createAndSubmitFinaliseWithdrawal,
   prepareTokenValueTokenId,
 } from "../transactions";
-import { logger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import {
   createOptions,
   makeDepositOptions,
@@ -44,7 +43,6 @@ import {
   OffChainTransactionReceipt,
   OnChainTransactionReceipts,
 } from "../transactions/types";
-import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import { commitmentsFromMnemonic } from "../nightfall";
 

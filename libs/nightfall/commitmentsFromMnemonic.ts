@@ -1,6 +1,5 @@
 import { Commitment } from "./types";
-import { logger } from "../utils";
-import { NightfallSdkError } from "../utils/error";
+import { logger, NightfallSdkError } from "../utils";
 
 /**
  * Verify if all commitments in the list belong to the user compressed zkp public key

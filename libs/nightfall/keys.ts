@@ -1,8 +1,7 @@
-import { logger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import { createMnemonic, validateNfMnemonic } from "./helpers";
 import type { Client } from "../client";
 import type { NightfallKeys } from "./types";
-import { NightfallSdkError } from "../utils/error";
 
 /**
  * Validate given mnemonic or create a mnemonic

@@ -11,5 +11,11 @@
     "sourceMap": true,
     "target": "es2017"
   },
-  "include": ["libs/**/*"]
+  "include": ["libs/**/*"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "node16",
+      "moduleResolution": "node"
+    }
+  }
 }

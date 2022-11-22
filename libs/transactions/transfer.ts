@@ -1,5 +1,5 @@
 import type Web3 from "web3";
-import { logger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
@@ -9,7 +9,6 @@ import type {
   OffChainTransactionReceipt,
   OnChainTransactionReceipts,
 } from "./types";
-import { NightfallSdkError } from "../utils/error";
 
 /**
  * Handle the flow for transfer transaction (tx)

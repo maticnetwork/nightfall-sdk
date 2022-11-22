@@ -1,6 +1,5 @@
 import type Web3 from "web3";
-import { logger } from "../utils";
-import { NightfallSdkError } from "../utils/error";
+import { logger, NightfallSdkError } from "../utils";
 import type { Web3Websocket } from "./web3Websocket";
 import { MetaMaskEthereumProvider } from "./types";
 
