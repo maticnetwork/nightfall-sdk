@@ -8,8 +8,14 @@
     "nightfall_3",
     "nf3"
   ],
-  "main": "libs/user/index.js",
-  "module": "libs/user/index.js",
+  "main": "./dist/cjs/user/index.js",
+  "exports": {
+    "import": "./dist/esm/user/index.js",
+    "require": "./dist/cjs/user/index.js"
+  },
+  "files": [
+    "./dist/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/maticnetwork/nightfall-sdk.git"
@@ -66,7 +72,7 @@
     "build:cjs": "tsc --module CommonJS -outDir dist/cjs",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
-    "semantic-release": "cp -r package.json ./dist && semantic-release",
+    "semantic-release": "semantic-release",
     "test:ganache": "DOTENV_CONFIG_PATH=./examples/scripts/.env.ganache jest --setupFiles dotenv/config",
     "test:goerli": "DOTENV_CONFIG_PATH=./examples/scripts/.env.goerli jest --setupFiles dotenv/config",
     "eg:ganache:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.ganache dotenv_config_debug=true",
@@ -110,12 +116,7 @@
           "changelogFile": "CHANGELOG.md"
         }
       ],
-      [
-        "@semantic-release/npm",
-        {
-          "pkgRoot": "./dist"
-        }
-      ],
+      "@semantic-release/npm",
       [
         "@semantic-release/git",
         {

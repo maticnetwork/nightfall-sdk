@@ -1,4 +1,3 @@
-import path from "path";
 import fs from "fs";
 import { CONTRACT_SHIELD } from "./constants";
 import {
@@ -28,7 +27,7 @@ import {
   createAndSubmitFinaliseWithdrawal,
   prepareTokenValueTokenId,
 } from "../transactions";
-import { parentLogger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import {
   createOptions,
   makeDepositOptions,
@@ -44,13 +43,8 @@ import {
   OffChainTransactionReceipt,
   OnChainTransactionReceipts,
 } from "../transactions/types";
-import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import { commitmentsFromMnemonic } from "../nightfall";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 class UserFactory {
   static async create(options: UserFactoryCreate) {

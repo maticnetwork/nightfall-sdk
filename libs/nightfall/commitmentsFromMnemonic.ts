@@ -1,11 +1,5 @@
-import path from "path";
 import { Commitment } from "./types";
-import { parentLogger } from "../utils";
-import { NightfallSdkError } from "../utils/error";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
+import { logger, NightfallSdkError } from "../utils";
 
 /**
  * Verify if all commitments in the list belong to the user compressed zkp public key

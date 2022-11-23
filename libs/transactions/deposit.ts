@@ -1,17 +1,10 @@
 import type Web3 from "web3";
-import path from "path";
-import { parentLogger } from "../utils";
-// import type { Token } from "../tokens";
+import { logger, NightfallSdkError } from "../utils";
 import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
 import type { OnChainTransactionReceipts } from "./types";
-import { NightfallSdkError } from "../utils/error";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 /**
  * Handle the flow for deposit transaction (tx)

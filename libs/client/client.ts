@@ -1,15 +1,9 @@
 import axios from "axios";
 import type { Commitment } from "../nightfall/types";
-import path from "path";
-import { parentLogger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { RecipientNightfallData } from "libs/transactions/types";
-import { NightfallSdkError } from "../utils/error";
 import { TransactionResponseData } from "./types";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 axios.interceptors.response.use(
   (response) => response,
