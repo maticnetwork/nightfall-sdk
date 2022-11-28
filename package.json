@@ -13,8 +13,10 @@
     "import": "./dist/esm/user/index.js",
     "require": "./dist/cjs/user/index.js"
   },
+  "types": "./dist/types/user/index.d.ts",
   "files": [
-    "./dist/**/*"
+    "./dist/**/*",
+    "./CHANGELOG.md"
   ],
   "repository": {
     "type": "git",

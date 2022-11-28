@@ -4,7 +4,7 @@ import { logger, NightfallSdkError } from "../utils";
 import { APPROVE_AMOUNT } from "./constants";
 import type { TokenOptions } from "./types";
 import erc20Abi from "./abis/ERC20.json";
-import erc165Abi from "../../libs/tokens/abis/ERC165.json";
+import erc165Abi from "./abis/ERC165.json";
 import erc721Abi from "./abis/ERC721.json";
 import erc1155Abi from "./abis/ERC1155.json";
 import type { AbiItem } from "web3-utils";
