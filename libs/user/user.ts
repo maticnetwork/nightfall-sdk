@@ -226,7 +226,7 @@ class User {
     isInputValid(error);
     logger.debug({ joiValue }, "makeDeposit formatted parameters");
 
-    const { tokenContractAddress, value, feeWei, isFeePaidInL2 } = joiValue;
+    const { tokenContractAddress, value, feeWei } = joiValue;
     let { tokenId } = joiValue;
 
     // Determine ERC standard, set value/tokenId defaults,
@@ -239,15 +239,6 @@ class User {
     );
     const { token, valueWei } = result;
     tokenId = result.tokenId;
-
-    // Set fees
-    let feeL1,
-      feeL2 = "0";
-    if (isFeePaidInL2) {
-      feeL2 = feeWei;
-    } else {
-      feeL1 = feeWei;
-    }
 
     // Approval
     const approvalReceipt = await createAndSubmitApproval(
@@ -272,8 +263,7 @@ class User {
       this.client,
       valueWei,
       tokenId,
-      feeL1,
-      feeL2,
+      feeWei,
     );
     logger.info({ depositReceipts }, "Deposit completed!");
 
