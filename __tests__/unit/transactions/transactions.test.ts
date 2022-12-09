@@ -33,8 +33,7 @@ describe("Transactions", () => {
 
   describe("Deposit", () => {
     const value = "70000000000000000";
-    const feeL1 = "10";
-    const feeL2 = "0";
+    const fee = "10";
     const tokenId = "0x00";
     const unsignedTx =
       "0x9ae2b6be00000000000000000000000000000000000000000000000000f...";
@@ -59,8 +58,7 @@ describe("Transactions", () => {
             mockedClient as unknown as Client,
             value,
             tokenId,
-            feeL1,
-            feeL2,
+            fee,
           ),
       ).rejects.toThrow(NightfallSdkError);
       expect(mockedClient.deposit).toHaveBeenCalledTimes(1);
@@ -86,8 +84,7 @@ describe("Transactions", () => {
         mockedClient as unknown as Client,
         value,
         tokenId,
-        feeL1,
-        feeL2,
+        fee,
       );
 
       // Assert
@@ -96,7 +93,7 @@ describe("Transactions", () => {
         ownerZkpKeys,
         value,
         tokenId,
-        feeL2,
+        fee,
       );
       expect(submitTransaction).toHaveBeenCalledWith(
         ownerEthAddress,
@@ -104,7 +101,6 @@ describe("Transactions", () => {
         shieldContractAddress,
         unsignedTx,
         web3,
-        feeL1,
       );
       expect(txReceipts).toStrictEqual({ txReceipt, txReceiptL2 });
     });

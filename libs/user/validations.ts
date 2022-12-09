@@ -1,6 +1,6 @@
 import Joi, { ValidationError } from "joi";
 import { NightfallSdkError } from "../utils/error";
-import { TX_FEE_ETH_WEI_DEFAULT, TX_FEE_MATIC_WEI_DEFAULT } from "./constants";
+import { TX_FEE_WEI_DEFAULT } from "./constants";
 
 // See https://joi.dev/tester/
 
@@ -17,21 +17,17 @@ const makeTransaction = Joi.object({
   tokenErcStandard: Joi.string(), // keep it for a while for compatibility
   value: Joi.string(),
   tokenId: Joi.string(),
-  feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),
+  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
 }).or("value", "tokenId"); // these cannot have default
 
-export const makeDepositOptions = makeTransaction.append({
-  isFeePaidInL2: Joi.boolean().default(false),
-});
+export const makeDepositOptions = makeTransaction;
 
 export const makeTransferOptions = makeTransaction.append({
-  feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
   recipientNightfallAddress: Joi.string().trim().required(), // ISSUE #76
   isOffChain: Joi.boolean().default(false),
 });
 
 export const makeWithdrawalOptions = makeTransaction.append({
-  feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
   recipientEthAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
 });

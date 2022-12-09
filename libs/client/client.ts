@@ -158,10 +158,9 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
+      rootKey: ownerZkpKeys.rootKey,
       value,
       tokenId,
-      compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
-      nullifierKey: ownerZkpKeys.nullifierKey,
       fee,
     });
     logger.info(
@@ -198,12 +197,12 @@ class Client {
     logger.debug({ endpoint }, "Calling client at");
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
-      offchain: isOffChain,
       ercAddress: token.contractAddress,
-      tokenId,
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
+      tokenId,
       fee,
+      offchain: isOffChain,
     });
     if (res.data.error && res.data.error === "No suitable commitments") {
       logger.error(res, "No suitable commitments were found");

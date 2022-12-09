@@ -27,9 +27,7 @@ export interface UserMakeTransaction {
   feeWei?: string;
 }
 
-export interface UserMakeDeposit extends UserMakeTransaction {
-  isFeePaidInL2?: boolean;
-}
+export type UserMakeDeposit = UserMakeTransaction;
 
 export interface UserMakeTransfer extends UserMakeTransaction {
   recipientNightfallAddress: string;

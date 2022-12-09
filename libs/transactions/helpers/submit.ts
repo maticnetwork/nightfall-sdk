@@ -2,15 +2,10 @@ import type Web3 from "web3";
 import { logger } from "../../utils";
 import type { TransactionReceipt } from "web3-core";
 
-const GAS = globalThis.process?.env.GAS ?? 4000000;
-const GAS_PRICE = globalThis.process?.env.GAS_PRICE ?? 10000000000;
-// const GAS_ESTIMATE_ENDPOINT =
-//   globalThis.process?.env.GAS_ESTIMATE_ENDPOINT ??
-//   "https://vqxy02tr5e.execute-api.us-east-2.amazonaws.com/production/estimateGas";
-
-const GAS_MULTIPLIER = Number(globalThis.process?.env.GAS_MULTIPLIER) ?? 2;
-const GAS_PRICE_MULTIPLIER =
-  Number(globalThis.process?.env.GAS_PRICE_MULTIPLIER) ?? 2;
+const GAS = 4000000;
+const GAS_PRICE = 10000000000;
+const GAS_MULTIPLIER = 2;
+const GAS_PRICE_MULTIPLIER = 2;
 
 /**
  * Create, sign and broadcast an Ethereum transaction (tx) to the network

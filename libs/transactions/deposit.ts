@@ -20,8 +20,7 @@ import type { OnChainTransactionReceipts } from "./types";
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be deposited
  * @param {string} tokenId The tokenId of an erc721
- * @param {string} feeL1 Proposer payment for the tx in L1
- * @param {string} feeL2 Proposer payment for the tx in L2
+ * @param {string} fee Proposer payment for the tx in L2 [Wei]
  * @throws {NightfallSdkError} Error while broadcasting tx
  * @returns {Promise<OnChainTransactionReceipts>}
  */
@@ -35,8 +34,7 @@ export async function createAndSubmitDeposit(
   client: Client,
   value: string,
   tokenId: string,
-  feeL1: string,
-  feeL2: string,
+  fee: string,
 ): Promise<OnChainTransactionReceipts> {
   logger.debug("createAndSubmitDeposit");
 
@@ -45,7 +43,7 @@ export async function createAndSubmitDeposit(
     ownerZkpKeys,
     value,
     tokenId,
-    feeL2,
+    fee,
   );
   const txReceiptL2 = resData.transaction;
   const unsignedTx = resData.txDataToSign;
@@ -59,7 +57,6 @@ export async function createAndSubmitDeposit(
       shieldContractAddress,
       unsignedTx,
       web3,
-      feeL1,
     );
   } catch (err) {
     logger.child({ resData }).error(err, "Error when submitting transaction");
