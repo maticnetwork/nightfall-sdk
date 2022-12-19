@@ -46,16 +46,6 @@ export default function Navbar() {
                   <a className="nav-link">Use Cases</a>
                 </Link>
               </li>
-              <li className="nav-item">
-                <Link></Link>
-                <a
-                  className="nav-link"
-                  target="_blank"
-                  href="https://wiki.polygon.technology/docs/nightfall/introduction/overview/"
-                >
-                  Docs
-                </a>
-              </li>
             </ul>
             <form className="px-4">
               <button className="btn connect-wallet ml-2 wallet-address">

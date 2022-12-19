@@ -4,19 +4,19 @@
 
 ## What is Nightfall SDK?
 
-Software Development Kit for interacting with Polygon Nightfall.
+Software Development Kit for interacting with Nightfall.
 
 You can clone the repo and [play with the example scripts](#play-with-the-sdk-repository), or you can [install it as a dependency](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started) from NPM.
 
-More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/introduction/overview).
+More about [Nightfall](https://docs.polygon.technology/docs/nightfall/introduction/overview).
 
 ### What is the SDK for?
 
-- Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Polygon Nightfall L2
-- Transfer ERC20,ERC721 and ERC1155 token commitments on Polygon Nightfall L2
-- Withdraw ERC20,ERC721 and ERC1155 token commitments from Polygon Nightfall L2 to Ethereum L1
-- Check ERC20,ERC721 and ERC1155 balances on Polygon Nightfall L2
-- Safely export/import ERC20,ERC721 and ERC1155 transaction commitments from and to Polygon Nightfall L2
+- Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Nightfall L2
+- Transfer ERC20,ERC721 and ERC1155 token commitments on Nightfall L2
+- Withdraw ERC20,ERC721 and ERC1155 token commitments from Nightfall L2 to Ethereum L1
+- Check ERC20,ERC721 and ERC1155 balances on Nightfall L2
+- Safely export/import ERC20,ERC721 and ERC1155 transaction commitments from and to Nightfall L2
 
 To learn more about transactions, commitments and other core Nightfall features go to the [Protocol Docs](https://docs.polygon.technology/docs/category/nightfall-protocol/).
 
@@ -76,7 +76,7 @@ APP_TX_TOKEN_ID=2894802230932904885589274625217197696331749616641014100986439600
 
 #### Available networks
 
-Polygon Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client.
+Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client.
 Simple but important rules about [transaction processing](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started#available-networks).
 
 #### Nightfall keys
@@ -199,4 +199,4 @@ Check the [documentation](https://wiki.polygon.technology/docs/nightfall/tools/u
 
 ## Need help?
 
-If you have any questions or need some help, join the [Polygon Nightfall discord server](https://discord.com/invite/pZkC3JV2bR).
+If you have any questions or need some help, join the [Nightfall discord server](https://discord.com/invite/pZkC3JV2bR).
