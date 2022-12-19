@@ -1,15 +1,9 @@
 import axios from "axios";
 import type { Commitment } from "../nightfall/types";
-import path from "path";
-import { parentLogger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { RecipientNightfallData } from "libs/transactions/types";
-import { NightfallSdkError } from "../utils/error";
 import { TransactionResponseData } from "./types";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 axios.interceptors.response.use(
   (response) => response,
@@ -147,7 +141,7 @@ class Client {
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be deposited
    * @param {string} tokenId The tokenId of the token to be deposited
-   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @param {string} fee Proposer payment for the tx in L2
    * @throws {NightfallSdkError} Bad response
    * @returns {Promise<TransactionResponseData>}
    */
@@ -164,10 +158,9 @@ class Client {
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
       ercAddress: token.contractAddress,
       tokenType: token.ercStandard,
+      rootKey: ownerZkpKeys.rootKey,
       value,
       tokenId,
-      compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
-      nullifierKey: ownerZkpKeys.nullifierKey,
       fee,
     });
     logger.info(
@@ -204,12 +197,12 @@ class Client {
     logger.debug({ endpoint }, "Calling client at");
 
     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
-      offchain: isOffChain,
       ercAddress: token.contractAddress,
-      tokenId,
       rootKey: ownerZkpKeys.rootKey,
       recipientData: recipientNightfallData,
+      tokenId,
       fee,
+      offchain: isOffChain,
     });
     if (res.data.error && res.data.error === "No suitable commitments") {
       logger.error(res, "No suitable commitments were found");

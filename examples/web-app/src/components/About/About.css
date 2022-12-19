@@ -1,3 +1,17 @@
 .main-container {
   text-align: center;
+  margin: 0 auto;
+  left: 50%;
+}
+.main-container h4 {
+  padding: 20px;
+}
+
+.main-container h5 {
+  padding: 15px;
+}
+
+.main-container h6 {
+  padding: 10px;
+  color: blueviolet;
 }

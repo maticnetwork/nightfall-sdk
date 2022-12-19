@@ -1,6 +1,6 @@
 {
   "name": "nightfall-sdk",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "SDK for interacting with Polygon Nightfall",
   "keywords": [
     "nightfall",
@@ -8,10 +8,15 @@
     "nightfall_3",
     "nf3"
   ],
-  "main": "dist/cjs/libs/user/index.js",
-  "module": "dist/libs/user/index.js",
+  "main": "./dist/cjs/user/index.js",
+  "exports": {
+    "import": "./dist/esm/user/index.js",
+    "require": "./dist/cjs/user/index.js"
+  },
+  "types": "./dist/types/user/index.d.ts",
   "files": [
-    "dist"
+    "./dist/**/*",
+    "./CHANGELOG.md"
   ],
   "repository": {
     "type": "git",
@@ -38,6 +43,8 @@
     "@babel/preset-typescript": "^7.18.6",
     "@commitlint/cli": "^17.0.3",
     "@commitlint/config-conventional": "^17.0.3",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
     "@types/events": "^3.0.0",
     "@types/jest": "^28.1.3",
     "@types/node": "^17.0.40",
@@ -51,6 +58,7 @@
     "husky": "^8.0.1",
     "jest": "^28.1.1",
     "prettier": "2.6.2",
+    "semantic-release": "^19.0.5",
     "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
@@ -66,7 +74,7 @@
     "build:cjs": "tsc --module CommonJS -outDir dist/cjs",
     "lint": "eslint . --ext .ts",
     "prettier": "prettier --check .",
-    "prepare": "husky install",
+    "semantic-release": "semantic-release",
     "test:ganache": "DOTENV_CONFIG_PATH=./examples/scripts/.env.ganache jest --setupFiles dotenv/config",
     "test:goerli": "DOTENV_CONFIG_PATH=./examples/scripts/.env.goerli jest --setupFiles dotenv/config",
     "eg:ganache:deposit": "ts-node -r dotenv/config examples/scripts/txDeposit.ts dotenv_config_path=./examples/scripts/.env.ganache dotenv_config_debug=true",
@@ -83,7 +91,48 @@
     "eg:goerli:balances": "ts-node -r dotenv/config examples/scripts/balances.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:export-commitments": "ts-node -r dotenv/config examples/scripts/exportCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
     "eg:goerli:import-commitments": "ts-node -r dotenv/config examples/scripts/importCommitments.ts dotenv_config_path=./examples/scripts/.env.goerli",
-    "eg:web-app": "npm run build && cd examples/webApp/ && npm run serve",
-    "eg:react-web-app-start": "npm run build && cd examples/web-app/ && npm start"
+    "eg:start-react-app": "npm run build && cd examples/web-app/ && npm start",
+    "utils:ganache:mint-721": "ts-node -r dotenv/config examples/scripts/utils/mint721.ts dotenv_config_path=./examples/scripts/.env.ganache"
+  },
+  "release": {
+    "branches": [
+      "+([0-9])?(.{+([0-9]),x}).x",
+      "master",
+      "next",
+      "next-major",
+      {
+        "name": "beta",
+        "prerelease": true
+      },
+      {
+        "name": "alpha",
+        "prerelease": true
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      "@semantic-release/npm",
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "dist/**/*.{js,ts}",
+            "CHANGELOG.md",
+            "README.md",
+            "package.json"
+          ],
+          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+        }
+      ]
+    ],
+    "repositoryUrl": "https://github.com/maticnetwork/nightfall-sdk.git",
+    "tagFormat": "v${version}"
   }
 }

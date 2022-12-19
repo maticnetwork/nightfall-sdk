@@ -1,17 +1,10 @@
 import type Web3 from "web3";
-import path from "path";
-import { parentLogger } from "../utils";
-// import type { Token } from "../tokens";
+import { logger, NightfallSdkError } from "../utils";
 import { submitTransaction } from "./helpers/submit";
 import type { Client } from "../client";
 import type { NightfallZkpKeys } from "../nightfall/types";
 import type { TransactionReceipt } from "web3-core";
 import type { OnChainTransactionReceipts } from "./types";
-import { NightfallSdkError } from "../utils/error";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 /**
  * Handle the flow for deposit transaction (tx)
@@ -27,7 +20,7 @@ const logger = parentLogger.child({
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be deposited
  * @param {string} tokenId The tokenId of an erc721
- * @param {string} fee The amount in Wei to pay a proposer for the tx
+ * @param {string} fee Proposer payment for the tx in L2 [Wei]
  * @throws {NightfallSdkError} Error while broadcasting tx
  * @returns {Promise<OnChainTransactionReceipts>}
  */
@@ -64,7 +57,6 @@ export async function createAndSubmitDeposit(
       shieldContractAddress,
       unsignedTx,
       web3,
-      fee,
     );
   } catch (err) {
     logger.child({ resData }).error(err, "Error when submitting transaction");

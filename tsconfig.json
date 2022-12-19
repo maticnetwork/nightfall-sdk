@@ -3,13 +3,19 @@
     "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
-    "module": "node16",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Node16",
     "noImplicitAny": true,
-    "outDir": "dist",
+    "outDir": "dist/esm",
     "resolveJsonModule": true,
     "sourceMap": true,
     "target": "es2017"
   },
-  "include": ["libs/**/*", "examples/**/*", "__tests__/**/*"]
+  "include": ["libs/**/*"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "node16",
+      "moduleResolution": "node"
+    }
+  }
 }
