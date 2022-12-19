@@ -2,7 +2,7 @@ import Web3 from "web3";
 import type { WebsocketProvider } from "web3-core";
 import type { UserBrowser } from "../user/types";
 import type { MetaMaskEthereumProvider } from "./types";
-import logger from "../utils/logger";
+import { logger } from "../utils";
 import {
   WEB3_PROVIDER_OPTIONS,
   TX_TIMEOUT_BLOCKS,
