@@ -23,7 +23,7 @@ const makeTransaction = Joi.object({
 export const makeDepositOptions = makeTransaction;
 
 export const makeTransferOptions = makeTransaction.append({
-  recipientNightfallAddress: Joi.string().trim().required(), // ISSUE #76
+  recipientNightfallAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
 });
 
@@ -43,7 +43,6 @@ export const checkBalancesOptions = Joi.object({
 export function isInputValid(error: ValidationError | undefined) {
   if (error !== undefined) {
     const message = error.details.map((e) => e.message).join();
-    // TODO log error ISSUE #33
     throw new NightfallSdkError(message);
   }
 }

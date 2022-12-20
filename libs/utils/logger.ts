@@ -7,7 +7,7 @@ const LOGGER_TIME_STRING = "yyyy-mm-dd HH:MM:ss";
 // @ts-ignore
 // https://getpino.io/#/docs/transports?id=typescript-compatibility
 const logger = pino({
-  level: LOGGER_DEFAULT_LEVEL, // ISSUE #33
+  level: LOGGER_DEFAULT_LEVEL,
   transport: {
     target: "pino-pretty",
     options: {
