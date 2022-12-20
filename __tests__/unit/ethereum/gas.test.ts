@@ -1,9 +1,7 @@
 import type Web3 from "web3";
 import { estimateGas } from "../../../libs/ethereum";
-import {
-  TX_GAS_DEFAULT,
-  TX_GAS_MULTIPLIER,
-} from "../../../libs/ethereum/constants";
+import { TX_GAS_MULTIPLIER } from "../../../libs/ethereum/constants";
+import { NightfallSdkError } from "../../../libs/utils/error";
 
 describe("Estimate gas", () => {
   const tx = {
@@ -16,18 +14,17 @@ describe("Estimate gas", () => {
     eth: { estimateGas: jest.fn() },
   };
 
-  test("Should return default * multiplier if web3 call fails", async () => {
+  test("Should fail if web3 call fails", () => {
     // Arrange
     mockedWeb3.eth.estimateGas.mockRejectedValue(
       new Error("Oops! Web3 failed"),
     );
 
-    // Act
-    const gas = await estimateGas(tx, mockedWeb3 as undefined as Web3);
-
-    // Assert
+    // Act, Assert
+    expect(
+      async () => await estimateGas(tx, mockedWeb3 as undefined as Web3),
+    ).rejects.toThrow(NightfallSdkError);
     expect(mockedWeb3.eth.estimateGas).toHaveBeenCalledTimes(1);
-    expect(gas).toBe(Math.ceil(TX_GAS_DEFAULT * TX_GAS_MULTIPLIER));
   });
 
   test("Should return gas * multiplier", async () => {

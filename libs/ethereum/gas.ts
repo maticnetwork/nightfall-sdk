@@ -1,4 +1,5 @@
 import type Web3 from "web3";
+import { TX_GAS_MULTIPLIER, TX_GAS_PRICE_MULTIPLIER } from "./constants";
 import { logger, NightfallSdkError } from "../utils";
 import type { TransactionConfig } from "web3-core";
 
@@ -13,6 +14,7 @@ import type { TransactionConfig } from "web3-core";
  * @function estimateGas
  * @param {TransactionConfig} tx A tx object
  * @param {Web3} web3
+ * @throws {NightfallSdkError} Web3 errors
  * @returns {Promise<number>}
  */
 export async function estimateGas(
@@ -29,7 +31,7 @@ export async function estimateGas(
     logger.error(error, "Gas estimation failed");
     throw new NightfallSdkError(error);
   }
-  return Math.ceil(gas * 2); // 50% buffer
+  return Math.ceil(gas * TX_GAS_MULTIPLIER);
 }
 
 /**
@@ -38,6 +40,7 @@ export async function estimateGas(
  * @async
  * @function estimateGasPrice
  * @param {Web3} web3
+ * @throws {NightfallSdkError} Web3 errors
  * @returns {Promise<number>}
  */
 export async function estimateGasPrice(web3: Web3): Promise<number> {
@@ -51,5 +54,5 @@ export async function estimateGasPrice(web3: Web3): Promise<number> {
     logger.error(err, "Something went wrong while getting gas price");
     throw new NightfallSdkError(err);
   }
-  return Math.ceil(gasPrice * 2); // 50% buffer
+  return Math.ceil(gasPrice * TX_GAS_PRICE_MULTIPLIER);
 }
