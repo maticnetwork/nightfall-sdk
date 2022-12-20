@@ -1,31 +1,6 @@
-import axios from "axios";
 import type Web3 from "web3";
-import { logger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import type { TransactionConfig } from "web3-core";
-import {
-  GAS,
-  GAS_MULTIPLIER,
-  GAS_PRICE_ESTIMATE_ENDPOINT,
-  GAS_PRICE,
-  GAS_PRICE_MULTIPLIER,
-} from "./constants";
-
-const gas = globalThis.process?.env.GAS
-  ? Number(globalThis.process?.env.GAS)
-  : GAS;
-const gasMultiplier = globalThis.process?.env.GAS_MULTIPLIER
-  ? Number(globalThis.process?.env.GAS_MULTIPLIER)
-  : GAS_MULTIPLIER;
-
-const gasEstimateEndpoint =
-  globalThis.process?.env.GAS_PRICE_ESTIMATE_ENDPOINT ??
-  GAS_PRICE_ESTIMATE_ENDPOINT;
-const gasPrice = globalThis.process?.env.GAS_PRICE
-  ? Number(globalThis.process?.env.GAS_PRICE)
-  : GAS_PRICE;
-const gasPriceMultiplier = globalThis.process?.env.GAS_PRICE_MULTIPLIER
-  ? Number(globalThis.process?.env.GAS_PRICE_MULTIPLIER)
-  : GAS_PRICE_MULTIPLIER;
 
 /**
  * Estimate the amount of gas that will be needed to submit a transaction (tx)
@@ -46,15 +21,15 @@ export async function estimateGas(
 ): Promise<number> {
   logger.debug({ tx }, "estimateGas");
 
-  let proposedGas;
+  let gas;
   try {
-    proposedGas = await web3.eth.estimateGas(tx);
-    logger.debug(`Gas estimated at ${proposedGas}`);
+    gas = await web3.eth.estimateGas(tx);
+    logger.debug(`Gas estimated at ${gas}`);
   } catch (error) {
-    proposedGas = gas;
-    logger.warn(`Gas estimation failed, default to ${proposedGas}`);
+    logger.error(error, "Gas estimation failed");
+    throw new NightfallSdkError(error);
   }
-  return Math.ceil(proposedGas * gasMultiplier);
+  return Math.ceil(gas * 2); // 50% buffer
 }
 
 /**
@@ -70,27 +45,15 @@ export async function estimateGas(
  * @returns {Promise<number>}
  */
 export async function estimateGasPrice(web3: Web3): Promise<number> {
-  logger.debug({ msg: "Estimate gas price..." });
+  logger.debug("estimateGasPrice");
 
-  let proposedGasPrice;
+  let gasPrice;
   try {
-    const { result } = (await axios.get(gasEstimateEndpoint)).data;
-    proposedGasPrice = Number(result?.ProposeGasPrice) * 10 ** 9;
-    logger.debug({ msg: "Gas price", proposedGasPrice });
-  } catch (error) {
-    try {
-      proposedGasPrice = Number(await web3.eth.getGasPrice());
-      logger.debug({
-        msg: "Gas endpoint failed, web3 gas price",
-        proposedGasPrice,
-      });
-    } catch (err) {
-      proposedGasPrice = gasPrice;
-      logger.debug({
-        msg: "Gas price estimation failed, use default",
-        proposedGasPrice,
-      });
-    }
+    gasPrice = Number(await web3.eth.getGasPrice());
+    logger.debug(`Gas price is ${gasPrice}`);
+  } catch (err) {
+    logger.error(err, "Something went wrong while getting gas price");
+    throw new NightfallSdkError(err);
   }
-  return Math.ceil(proposedGasPrice * gasPriceMultiplier);
+  return Math.ceil(gasPrice * 2); // 50% buffer
 }
