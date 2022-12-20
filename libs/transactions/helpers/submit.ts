@@ -1,13 +1,7 @@
 import type Web3 from "web3";
 import type { TransactionConfig, TransactionReceipt } from "web3-core";
-import { logger } from "../../utils";
-import { estimateGas } from "../../ethereum";
-
-
-const GAS = 4000000;
-const GAS_PRICE = 10000000000;
-const GAS_MULTIPLIER = 2;
-const GAS_PRICE_MULTIPLIER = 2;
+import { logger, NightfallSdkError } from "../../utils";
+import { estimateGas, estimateGasPrice } from "../../ethereum";
 
 /**
  * Create, sign and broadcast an Ethereum transaction (tx) to the network
@@ -34,12 +28,23 @@ export async function submitTransaction(
     { senderEthAddress, recipientEthAddress, unsignedTx, value },
     "submitTransaction",
   );
+
+  const isListening = await web3.eth.net.isListening();
+  if (!isListening)
+    throw new NightfallSdkError(
+      "Web3 websocket not listening, try again later",
+    );
+
+  // Estimate gasPrice
+  const gasPrice = await estimateGasPrice(web3);
+
   // Ethereum tx
   const tx: TransactionConfig = {
     from: senderEthAddress,
     to: recipientEthAddress,
     data: unsignedTx,
     value,
+    gasPrice,
   };
 
   // Estimate tx gas

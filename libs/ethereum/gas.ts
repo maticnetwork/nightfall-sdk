@@ -35,10 +35,6 @@ export async function estimateGas(
 /**
  * Estimate gas price
  *
- * First tries to get gas_price value from external endpoint,
- * if the request fails attempts to query the value via web3,
- * if web3 fails too uses default
- *
  * @async
  * @function estimateGasPrice
  * @param {Web3} web3
