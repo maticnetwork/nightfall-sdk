@@ -4,8 +4,9 @@ import {
   UserFactoryCreate,
   UserConstructor,
   UserMakeDeposit,
+  UserMintL2Token,
   UserMakeTransfer,
-  UserMakeTokeniseBurn,
+  UserBurnL2Token,
   UserMakeWithdrawal,
   UserFinaliseWithdrawal,
   UserCheckBalances,
@@ -23,8 +24,8 @@ import { createZkpKeysAndSubscribeToIncomingKeys } from "../nightfall";
 import {
   createAndSubmitApproval,
   createAndSubmitDeposit,
-  createAndSubmitTransfer,
   createAndSubmitTokenise,
+  createAndSubmitTransfer,
   createAndSubmitBurn,
   createAndSubmitWithdrawal,
   createAndSubmitFinaliseWithdrawal,
@@ -34,9 +35,9 @@ import { logger, NightfallSdkError } from "../utils";
 import {
   createOptions,
   makeDepositOptions,
+  mintL2Token,
   makeTransferOptions,
-  makeTokeniseOptions,
-  makeBurnOptions,
+  burnL2Token,
   makeWithdrawalOptions,
   finaliseWithdrawalOptions,
   checkBalancesOptions,
@@ -122,8 +123,8 @@ class User {
   // Set when transacting
   nightfallDepositTxHashes: string[] = [];
   nightfallTransferTxHashes: string[] = [];
-  nightfallTokeniseTxHashes: string[] = [];
-  nightfallBurnTxHashes: string[] = [];
+  nightfallMintingTxHashes: string[] = [];
+  nightfallBurningTxHashes: string[] = [];
   nightfallWithdrawalTxHashes: string[] = [];
 
   constructor(options: UserConstructor) {
@@ -160,7 +161,7 @@ class User {
   }
 
   /**
-   * Allow user to check blockchain ws connection
+   * Allow user to check blockchain websocket (ws) connection
    *
    * @async
    * @method isWeb3WsAlive
@@ -282,6 +283,50 @@ class User {
   }
 
   /**
+   *  Mints a token within Layer 2
+   *
+   * @async
+   * @method mintL2Token
+   * @param {UserMintL2Token} options
+   * @param {string} options.tokenAddress
+   * @param {string|number} options.tokenId
+   * @param {number} options.value
+   * @param {string} [options.salt]
+   * @param {string} [options.feeWei]
+   * @returns {Promise<OffChainTransactionReceipt>}
+   */
+  async mintL2Token(
+    options: UserMintL2Token,
+  ): Promise<OffChainTransactionReceipt> {
+    logger.debug(options, "User :: mintL2Token");
+
+    // Validate and format options
+    const { error, value: joiValue } = mintL2Token.validate(options);
+    isInputValid(error);
+    logger.debug({ joiValue }, "mintL2Token formatted parameters");
+
+    const { tokenAddress, value, tokenId, salt, feeWei } = joiValue;
+
+    // Mint (aka Tokenise)
+    const mintingReceipts = await createAndSubmitTokenise(
+      this.zkpKeys,
+      this.client,
+      tokenAddress,
+      value,
+      tokenId,
+      salt,
+      feeWei,
+    );
+    logger.info({ mintingReceipts }, "Minting completed!");
+
+    this.nightfallMintingTxHashes.push(
+      mintingReceipts.txReceiptL2?.transactionHash,
+    );
+
+    return mintingReceipts;
+  }
+
+  /**
    * Transfers a token within Layer 2
    *
    * @async
@@ -351,73 +396,31 @@ class User {
   }
 
   /**
-  *  Mints token within Layer 2
-  *
-  * @async
-  * @method makeTokenise
-  * @param {UserMakeTokeniseBurn} options
-  * @param {string} options.tokenAddress
-  * @param {string|number} options.tokenId
-  * @param {number} options.value
-  * @param {string} [options.salt]
-  * @param {string} [options.feeWei]
-  * @returns {Promise<OffChainTransactionReceipt>}
-  */
-  async makeTokenise(
-    options: UserMakeTokeniseBurn,
+   *  Burns a token within Layer 2
+   *
+   * @async
+   * @method burnL2Token
+   * @param {UserBurnL2Token} options
+   * @param {string} options.tokenAddress
+   * @param {string|number} options.tokenId
+   * @param {number} options.value
+   * @param {string} [options.feeWei]
+   * @returns {Promise<OffChainTransactionReceipt>}
+   */
+  async burnL2Token(
+    options: UserBurnL2Token,
   ): Promise<OffChainTransactionReceipt> {
-    logger.debug(options, "User :: makeTokenise");
+    logger.debug(options, "User :: burnL2Token");
 
-    const { error, value: joiValue } = makeTokeniseOptions.validate(options);
+    // Validate and format options
+    const { error, value: joiValue } = burnL2Token.validate(options);
     isInputValid(error);
-    logger.debug({ joiValue }, "makeTokenise formatted parameters");
-  
-    const { tokenAddress, tokenId, value, salt, feeWei} = joiValue;
+    logger.debug({ joiValue }, "burnL2Token formatted parameters");
 
-    // Tokenise
-    const tokeniseReceipts = await createAndSubmitTokenise(
-      this.zkpKeys,
-      this.client,
-      tokenAddress,
-      tokenId,
-      value,
-      salt,
-      feeWei,
-    );
-    logger.info({ tokeniseReceipts }, "Tokenise completed!");
+    const { tokenAddress, tokenId, value, feeWei } = joiValue;
 
-    this.nightfallTokeniseTxHashes.push(
-      tokeniseReceipts.txReceiptL2?.transactionHash,
-    );
-
-    return tokeniseReceipts;
-  }
-
-  /**
-  *  Burns token within Layer 2
-  *
-  * @async
-  * @method makeBurn
-  * @param {UserMakeTokeniseBurn} options
-  * @param {string} options.tokenAddress
-  * @param {string|number} options.tokenId
-  * @param {number} options.value
-  * @param {string} [options.feeWei]
-  * @returns {Promise<OffChainTransactionReceipt>}
-  */
-   async makeBurn(
-    options: UserMakeTokeniseBurn,
-  ): Promise<OffChainTransactionReceipt> {
-    logger.debug(options, "User :: makeBurn");
-
-    const { error, value: joiValue } = makeBurnOptions.validate(options);
-    isInputValid(error);
-    logger.debug({ joiValue }, "makeBurn formatted parameters");
-  
-    const { tokenAddress, tokenId, value, feeWei} = joiValue;
-
-    // Tokenise
-    const burnReceipts = await createAndSubmitBurn(
+    // Burn
+    const burningReceipts = await createAndSubmitBurn(
       this.zkpKeys,
       this.client,
       tokenAddress,
@@ -425,13 +428,13 @@ class User {
       value,
       feeWei,
     );
-    logger.info({ burnReceipts }, "Burn completed!");
+    logger.info({ burningReceipts }, "Burning completed!");
 
-    this.nightfallBurnTxHashes.push(
-      burnReceipts.txReceiptL2?.transactionHash,
+    this.nightfallBurningTxHashes.push(
+      burningReceipts.txReceiptL2?.transactionHash,
     );
 
-    return burnReceipts;
+    return burningReceipts;
   }
 
   /**

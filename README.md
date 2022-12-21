@@ -15,7 +15,7 @@ More about [Nightfall](https://docs.polygon.technology/docs/nightfall/introducti
 - Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Nightfall L2
 - Transfer ERC20,ERC721 and ERC1155 token commitments on Nightfall L2
 - Withdraw ERC20,ERC721 and ERC1155 token commitments from Nightfall L2 to Ethereum L1
-- Create, Transfer, Transform and Burn Nightfall Native Tokens exclusively on L2
+- Mint, Transfer and Burn Nightfall native tokens exclusively on L2
 - Check Nightfall L2 balances
 - Safely export/import ERC20,ERC721 and ERC1155 commitments from and to Nightfall L2
 
