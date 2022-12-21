@@ -150,8 +150,7 @@ describe("Client", () => {
         tokenType: token.ercStandard,
         tokenId: "0x00",
         value,
-        compressedZkpPublicKey: zkpKeys.compressedZkpPublicKey,
-        nullifierKey: zkpKeys.nullifierKey,
+        rootKey: zkpKeys.rootKey,
         fee,
       });
       expect(result).toBe(data);

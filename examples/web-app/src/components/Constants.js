@@ -1,6 +1,6 @@
-const erc20ContractAddress = "0xe721F2D97c58b1D1ccd0C80B88256a152d27f0Fe";
-const erc721ContractAddress = "0x7F68ba0dB1D62fB166758Fe5Ef10853537F8DFc5";
-const erc1155ContractAddress = "0xdA0107986bC43E207D0Bb4D9c9a22d35e09db425";
+const erc20ContractAddress = "0x7f68ba0db1d62fb166758fe5ef10853537f8dfc5";
+const erc721ContractAddress = "0x60234eb1380175818ca2c22fa64eee04e174fbe2";
+const erc1155ContractAddress = "0xe28c7f9d1a79677f2c48bdcd678197bda40b883e";
 const erc20value = "0.0001";
 
 export {

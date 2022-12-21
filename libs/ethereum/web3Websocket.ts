@@ -2,13 +2,13 @@ import Web3 from "web3";
 import type { WebsocketProvider } from "web3-core";
 import type { UserBrowser } from "../user/types";
 import type { MetaMaskEthereumProvider } from "./types";
-import logger from "../utils/logger";
+import { logger } from "../utils";
 import {
   WEB3_PROVIDER_OPTIONS,
   TX_TIMEOUT_BLOCKS,
   TX_CONFIRMATION_BLOCKS,
   WS_CONNECTION_PING_TIME_MS,
-  WS_BLOCKNO_PING_TIME_MS,
+  WS_BLOCK_NO_PING_TIME_MS,
 } from "./constants";
 import { NightfallSdkError } from "../utils/error";
 
@@ -100,7 +100,7 @@ class Web3Websocket {
     this.intervalIds.push(
       setInterval(async () => {
         await this.setEthBlockNo();
-      }, WS_BLOCKNO_PING_TIME_MS),
+      }, WS_BLOCK_NO_PING_TIME_MS),
     );
   }
 

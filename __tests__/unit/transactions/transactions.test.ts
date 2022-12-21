@@ -10,6 +10,9 @@ import { depositReceipts } from "../../../__mocks__/mockTxDepositReceipts";
 import { transferReceipts } from "../../../__mocks__/mockTxTransferReceipts";
 import { withdrawalReceipts } from "../../../__mocks__/mockTxWithdrawalReceipts";
 import { txReceipt } from "../../../__mocks__/mockTxWithdrawalFinaliseReceipt";
+import type { NightfallZkpKeys } from "../../../libs/nightfall/types";
+import type Web3 from "web3";
+import type { Client } from "../../../libs/client";
 
 jest.mock("../../../libs/transactions/helpers/submit");
 
@@ -49,12 +52,10 @@ describe("Transactions", () => {
             token,
             ownerEthAddress,
             ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
+            ownerZkpKeys as unknown as NightfallZkpKeys,
             shieldContractAddress,
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             value,
             tokenId,
             fee,
@@ -77,12 +78,10 @@ describe("Transactions", () => {
         token,
         ownerEthAddress,
         ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
+        ownerZkpKeys as unknown as NightfallZkpKeys,
         shieldContractAddress,
-        web3,
-        mockedClient,
+        web3 as unknown as Web3,
+        mockedClient as unknown as Client,
         value,
         tokenId,
         fee,
@@ -102,7 +101,6 @@ describe("Transactions", () => {
         shieldContractAddress,
         unsignedTx,
         web3,
-        fee,
       );
       expect(txReceipts).toStrictEqual({ txReceipt, txReceiptL2 });
     });
@@ -136,12 +134,10 @@ describe("Transactions", () => {
             token,
             ownerEthAddress,
             ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
+            ownerZkpKeys as unknown as NightfallZkpKeys,
             shieldContractAddress,
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             value,
             tokenId,
             fee,
@@ -163,12 +159,10 @@ describe("Transactions", () => {
         token,
         ownerEthAddress,
         ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
+        ownerZkpKeys as unknown as NightfallZkpKeys,
         shieldContractAddress,
-        web3,
-        mockedClient,
+        web3 as unknown as Web3,
+        mockedClient as unknown as Client,
         value,
         tokenId,
         fee,
@@ -215,12 +209,10 @@ describe("Transactions", () => {
             token,
             ownerEthAddress,
             ownerEthPrivateKey,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            ownerZkpKeys,
+            ownerZkpKeys as unknown as NightfallZkpKeys,
             shieldContractAddress,
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             value,
             tokenId,
             fee,
@@ -242,12 +234,10 @@ describe("Transactions", () => {
         token,
         ownerEthAddress,
         ownerEthPrivateKey,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ownerZkpKeys,
+        ownerZkpKeys as unknown as NightfallZkpKeys,
         shieldContractAddress,
-        web3,
-        mockedClient,
+        web3 as unknown as Web3,
+        mockedClient as unknown as Client,
         value,
         tokenId,
         fee,
@@ -289,10 +279,8 @@ describe("Transactions", () => {
             ownerEthAddress,
             ownerEthPrivateKey,
             shieldContractAddress,
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            web3,
-            mockedClient,
+            web3 as unknown as Web3,
+            mockedClient as unknown as Client,
             withdrawTxHashL2,
           ),
       ).rejects.toThrow(NightfallSdkError);

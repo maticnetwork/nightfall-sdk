@@ -1,14 +1,8 @@
 import type Web3 from "web3";
-import path from "path";
-import { parentLogger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 // import type { Token } from "../tokens";
 import { submitTransaction } from "./helpers/submit";
 import type { TransactionReceipt } from "web3-core";
-import { NightfallSdkError } from "../utils/error";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 /**
  * Handle the flow for approval transaction (tx)

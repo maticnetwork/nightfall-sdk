@@ -1,16 +1,9 @@
-import Joi, { ValidationError } from "joi";
+import Joi, { CustomHelpers, ValidationError } from "joi";
 import { NightfallSdkError } from "../utils/error";
-import { TX_FEE_ETH_WEI_DEFAULT, TX_FEE_MATIC_WEI_DEFAULT } from "./constants";
+import { TX_FEE_WEI_DEFAULT } from "./constants";
 import gen from 'general-number';
 
 const { GN } = gen;
-
-const isChecksum = (ethAddress: string, helpers: CustomHelpers) => {
-  const isValid = checkAddressChecksum(ethAddress);
-  if (!isValid)
-    return helpers.message({ custom: "Invalid checksum, review ethAddress" });
-  return ethAddress;
-};
 
 const isValidL2TokenAddress = (tokenAddress: string, helpers: CustomHelpers) => {
   const binAddress = (new GN(tokenAddress)).binary;
@@ -30,14 +23,15 @@ const isValidSalt = (salt: string, helpers: CustomHelpers) => {
 const isValidTokenId = (tokenId: string|number, helpers: CustomHelpers) => {
   let isValid = typeof tokenId === "string" || typeof tokenId === "number";
   if (!isValid)
-    return helpers.message({ custom: "Invalid token Id. It should be a number or a string" });
+    return helpers.message({ custom: "Invalid tokenId, should be number or string" });
 
   const tokenIdStr = typeof tokenId === "string" ? tokenId.trim() : tokenId.toString();
   isValid = BigInt(tokenIdStr) < BigInt("21888242871839275222246405745257275088548364400416034343698204186575808495617");
   if (!isValid)
-    return helpers.message({ custom: "Invalid token Id. It should be an element of BN_128 field" });
+    return helpers.message({ custom: "Invalid tokenId, should be an element of BN_128 field" });
   return tokenIdStr;
 };
+
 
 // See https://joi.dev/tester/
 
@@ -54,19 +48,17 @@ const makeTransaction = Joi.object({
   tokenErcStandard: Joi.string(), // keep it for a while for compatibility
   value: Joi.string(),
   tokenId: Joi.string(),
-  feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),
+  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
 }).or("value", "tokenId"); // these cannot have default
 
 export const makeDepositOptions = makeTransaction;
 
 export const makeTransferOptions = makeTransaction.append({
-  feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
-  recipientNightfallAddress: Joi.string().trim().required(), // ISSUE #76
+  recipientNightfallAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
 });
 
 export const makeWithdrawalOptions = makeTransaction.append({
-  feeWei: Joi.string().default(TX_FEE_MATIC_WEI_DEFAULT),
   recipientEthAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
 });
@@ -79,7 +71,7 @@ export const makeTokeniseOptions = Joi.object({
   tokenId: Joi.required().custom(isValidTokenId, "custom validation"),
   value: Joi.number().required(),
   salt: Joi.string().trim().custom(isValidSalt, "custom validation"),
-  feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),
+  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
 });
 
 export const makeBurnOptions = Joi.object({
@@ -89,7 +81,7 @@ export const makeBurnOptions = Joi.object({
     .custom(isValidL2TokenAddress, "custom validation"),
   tokenId: Joi.required().custom(isValidTokenId, "custom validation"),
   value: Joi.number().required(),
-  feeWei: Joi.string().default(TX_FEE_ETH_WEI_DEFAULT),
+  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
 });
 
 export const finaliseWithdrawalOptions = Joi.object({
@@ -103,7 +95,6 @@ export const checkBalancesOptions = Joi.object({
 export function isInputValid(error: ValidationError | undefined) {
   if (error !== undefined) {
     const message = error.details.map((e) => e.message).join();
-    // TODO log error ISSUE #33
     throw new NightfallSdkError(message);
   }
 }

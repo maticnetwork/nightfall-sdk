@@ -1,3 +1,17 @@
+## [1.0.2](https://github.com/maticnetwork/nightfall-sdk/compare/v1.0.1...v1.0.2) (2022-11-21)
+
+
+### Bug Fixes
+
+* **readme:** updated ganache env vars ([#152](https://github.com/maticnetwork/nightfall-sdk/issues/152)) ([43ae235](https://github.com/maticnetwork/nightfall-sdk/commit/43ae23556d4488e536cd60222429a36e2608f0db))
+
+## [1.0.1](https://github.com/maticnetwork/nightfall-sdk/compare/v1.0.0...v1.0.1) (2022-11-17)
+
+
+### Bug Fixes
+
+* **user:** rm custom validation checksum for token addresses failing randomly ([6d395c6](https://github.com/maticnetwork/nightfall-sdk/commit/6d395c6541c3e2e5ddf6a05492133a6fec6d40f9))
+
 # 1.0.0 (2022-10-27)
 
 

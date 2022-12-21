@@ -1,4 +1,3 @@
-import path from "path";
 import fs from "fs";
 import { CONTRACT_SHIELD } from "./constants";
 import {
@@ -31,7 +30,7 @@ import {
   createAndSubmitFinaliseWithdrawal,
   prepareTokenValueTokenId,
 } from "../transactions";
-import { parentLogger } from "../utils";
+import { logger, NightfallSdkError } from "../utils";
 import {
   createOptions,
   makeDepositOptions,
@@ -49,13 +48,8 @@ import {
   OffChainTransactionReceipt,
   OnChainTransactionReceipts,
 } from "../transactions/types";
-import { NightfallSdkError } from "../utils/error";
 import type { TransactionReceipt } from "web3-core";
 import { commitmentsFromMnemonic } from "../nightfall";
-
-const logger = parentLogger.child({
-  name: path.relative(process.cwd(), __filename),
-});
 
 class UserFactory {
   static async create(options: UserFactoryCreate) {
@@ -64,7 +58,7 @@ class UserFactory {
     // Validate and format options
     const { error, value } = createOptions.validate(options);
     isInputValid(error);
-    // TODO log value with obfuscation ISSUE #33
+    // TODO log value with obfuscation
 
     const {
       clientApiUrl,
@@ -226,6 +220,7 @@ class User {
    * @param {string} [options.value]
    * @param {string} [options.tokenId]
    * @param {string} [options.feeWei]
+   * @param {boolean} [options.isFeePaidInL2]
    * @returns {Promise<OnChainTransactionReceipts>}
    */
   async makeDeposit(

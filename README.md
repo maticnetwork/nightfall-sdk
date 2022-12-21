@@ -4,20 +4,20 @@
 
 ## What is Nightfall SDK?
 
-Software Development Kit for interacting with Polygon Nightfall.
+Software Development Kit for interacting with Nightfall.
 
 You can clone the repo and [play with the example scripts](#play-with-the-sdk-repository), or you can [install it as a dependency](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started) from NPM.
 
-More about [Polygon Nightfall](https://docs.polygon.technology/docs/nightfall/introduction/overview).
+More about [Nightfall](https://docs.polygon.technology/docs/nightfall/introduction/overview).
 
 ### What is the SDK for?
 
-- Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Polygon Nightfall L2
-- Transfer ERC20,ERC721 and ERC1155 token commitments on Polygon Nightfall L2
-- Withdraw ERC20,ERC721 and ERC1155 token commitments from Polygon Nightfall L2 to Ethereum L1
-- Mint, Transfer, Transform and Burn Native Nightfall Tokens
-- Check ERC20,ERC721 and ERC1155 balances on Polygon Nightfall L2
-- Safely export/import ERC20,ERC721 and ERC1155 transaction commitments from and to Polygon Nightfall L2
+- Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Nightfall L2
+- Transfer ERC20,ERC721 and ERC1155 token commitments on Nightfall L2
+- Withdraw ERC20,ERC721 and ERC1155 token commitments from Nightfall L2 to Ethereum L1
+- Create, Transfer, Transform and Burn Nightfall Native Tokens exclusively on L2
+- Check Nightfall L2 balances
+- Safely export/import ERC20,ERC721 and ERC1155 commitments from and to Nightfall L2
 
 To learn more about transactions, commitments and other core Nightfall features go to the [Protocol Docs](https://docs.polygon.technology/docs/category/nightfall-protocol/).
 
@@ -60,29 +60,25 @@ As such, the example scripts will use a config object that preloads env vars fro
 ```
 # Contents of .env.ganache (based on .env.example)
 
-# Nightfall_3 User 1
-APP_NIGHTFALL_MNEMONIC=your Nightfall mnemonic
+LOG_LEVEL=info
 
-# Nightfall_3 ERC20Mock contract address in ganache
-# Monitor the local deployment and double-check the contract address below
-APP_TOKEN_ADDRESS=0xa8473bEF03cBE50229a39718CBDC1fdee2F26b1aç
+APP_CLIENT_API_URL=http://localhost:8080
+APP_NIGHTFALL_MNEMONIC=bip39 mnemonic
+APP_ETH_PRIVATE_KEY=0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e
+APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546
 
-LOG_LEVEL=info # log level
-APP_CLIENT_API_URL=http://localhost:8080 # client URL
-APP_NIGHTFALL_MNEMONIC=trip differ bamboo bundle bonus luxury strike mad merry muffin nose auction # NF mnemonic
-APP_ETH_PRIVATE_KEY=0x4775af73d6dc84a0ae76f8726bda4b9ecf187c377229cb39e1afa7a18236a69e # Ethereum private key
-APP_BLOCKCHAIN_WEBSOCKET_URL=ws://localhost:8546 # Blockchain websocket url
+# Monitor the local deployment and double-check the contract addresses below
+APP_TOKEN_ERC20=0x7F68ba0dB1D62fB166758Fe5Ef10853537F8DFc5
+APP_TOKEN_ERC721=0x60234EB1380175818ca2c22Fa64Eee04e174fbE2
+APP_TOKEN_ERC1155=0xe28C7F9D1a79677F2C48BdcD678197bDa40b883e
 
-##  Transactions will use the following information
-APP_TOKEN_ERC20=0xe721F2D97c58b1D1ccd0C80B88256a152d27f0Fe  # ERC20 token address
-APP_TX_VALUE=10  # Value to transact
-APP_TX_TOKEN_ID=1234  # Token Id (if using Nightfall Native Token)
-
+APP_TX_VALUE=0.001
+APP_TX_TOKEN_ID=28948022309329048855892746252171976963317496166410141009864396001978282410021
 ```
 
 #### Available networks
 
-Polygon Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client.
+Nightfall has been thoroughly tested on `ganache` and `goerli`. On Goerli we provide most of the infrastructure required to run Nightfall, except for the client.
 Simple but important rules about [transaction processing](https://wiki.polygon.technology/docs/nightfall/tools/user-sdk-getting-started#available-networks).
 
 #### Nightfall keys
@@ -205,4 +201,4 @@ Check the [documentation](https://wiki.polygon.technology/docs/nightfall/tools/u
 
 ## Need help?
 
-If you have any questions or need some help, join the [Polygon Nightfall discord server](https://discord.com/invite/pZkC3JV2bR).
+If you have any questions or need some help, join the [Nightfall discord server](https://discord.com/invite/pZkC3JV2bR).

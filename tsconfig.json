@@ -1,19 +1,23 @@
 {
-  "ts-node": {
-    "files": true,
-   }, 
   "compilerOptions": {
     "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
-    "module": "node16",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "Node16",
     "noImplicitAny": true,
-    "outDir": "dist/libs",
+    "outDir": "dist/esm",
     "resolveJsonModule": true,
     "sourceMap": true,
     "target": "es2017",
     "allowJs": true
   },
-  "include": ["libs/**/*","decs.d.ts"]
+  "include": ["libs/**/*", "decs.d.ts"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "node16",
+      "moduleResolution": "node"
+    },
+    "files": true
+  }
 }

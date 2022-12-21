@@ -1,3 +1,4 @@
-import parentLogger from "./logger";
+import logger from "./logger";
+import { NightfallSdkError } from "./error";
 
-export { parentLogger };
+export { logger, NightfallSdkError };
