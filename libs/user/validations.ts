@@ -79,16 +79,6 @@ export const makeWithdrawalOptions = makeTransaction.append({
   isOffChain: Joi.boolean().default(false),
 });
 
-export const makeBurnOptions = Joi.object({
-  tokenAddress: Joi.string()
-    .trim()
-    .required()
-    .custom(isValidL2TokenAddress, "custom validation"),
-  tokenId: Joi.required().custom(isValidTokenId, "custom validation"),
-  value: Joi.number().required(),
-  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
-});
-
 export const finaliseWithdrawalOptions = Joi.object({
   withdrawTxHashL2: Joi.string().trim(),
 });
