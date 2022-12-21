@@ -417,15 +417,15 @@ class User {
     isInputValid(error);
     logger.debug({ joiValue }, "burnL2Token formatted parameters");
 
-    const { tokenAddress, tokenId, value, feeWei } = joiValue;
+    const { tokenAddress, value, tokenId, feeWei } = joiValue;
 
     // Burn
     const burningReceipts = await createAndSubmitBurn(
       this.zkpKeys,
       this.client,
       tokenAddress,
-      tokenId,
       value,
+      tokenId,
       feeWei,
     );
     logger.info({ burningReceipts }, "Burning completed!");
