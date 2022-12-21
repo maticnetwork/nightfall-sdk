@@ -8,7 +8,6 @@
     "start": "webpack serve --config webpack.config.js"
   },
   "keywords": [],
-  "author": "Polygon Nightfall",
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^5.2.2",

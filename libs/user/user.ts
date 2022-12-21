@@ -53,7 +53,7 @@ class UserFactory {
     // Validate and format options
     const { error, value } = createOptions.validate(options);
     isInputValid(error);
-    // TODO log value with obfuscation ISSUE #33
+    // TODO log value with obfuscation
 
     const {
       clientApiUrl,

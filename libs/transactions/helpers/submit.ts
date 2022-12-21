@@ -1,11 +1,7 @@
 import type Web3 from "web3";
-import { logger } from "../../utils";
-import type { TransactionReceipt } from "web3-core";
-
-const GAS = 4000000;
-const GAS_PRICE = 10000000000;
-const GAS_MULTIPLIER = 2;
-const GAS_PRICE_MULTIPLIER = 2;
+import type { TransactionConfig, TransactionReceipt } from "web3-core";
+import { logger, NightfallSdkError } from "../../utils";
+import { estimateGas, estimateGasPrice } from "../../ethereum";
 
 /**
  * Create, sign and broadcast an Ethereum transaction (tx) to the network
@@ -33,29 +29,36 @@ export async function submitTransaction(
     "submitTransaction",
   );
 
-  // Estimate gas
-  const gas = Math.ceil(Number(GAS) * GAS_MULTIPLIER); // ISSUE #28
-  const gasPrice = Math.ceil(Number(GAS_PRICE) * GAS_PRICE_MULTIPLIER); // ISSUE #28
-  logger.debug(
-    `Transaction gasPrice was set at ${Math.ceil(
-      gasPrice / 10 ** 9,
-    )} GWei, gas limit was set at ${gas}`,
-  );
+  const isListening = await web3.eth.net.isListening();
+  if (!isListening)
+    throw new NightfallSdkError(
+      "Web3 websocket not listening, try again later",
+    );
 
-  const tx = {
+  // Estimate gasPrice
+  const gasPrice = await estimateGasPrice(web3);
+
+  // Ethereum tx
+  const tx: TransactionConfig = {
     from: senderEthAddress,
     to: recipientEthAddress,
     data: unsignedTx,
     value,
-    gas,
     gasPrice,
   };
 
+  // Estimate tx gas
+  const gas = await estimateGas(tx, web3);
+  logger.debug(`Transaction gas set at ${gas}`);
+  tx.gas = gas;
+
+  // If no private key is given, SDK tries to submit tx via MetaMask
   if (!senderEthPrivateKey) {
     logger.debug({ tx }, "Send tx via MetaMask...");
     return web3.eth.sendTransaction(tx);
   }
 
+  // Otherwise, sign tx then submit it
   logger.debug({ tx }, "Sign tx...");
   const signedTx = await web3.eth.accounts.signTransaction(
     tx,

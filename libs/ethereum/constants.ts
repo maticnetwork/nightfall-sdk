@@ -18,4 +18,8 @@ export const TX_CONFIRMATION_BLOCKS = 12;
 
 // See libs/ethereum/web3Websocket.ts: checkWsConnection, getBlockNumber
 export const WS_CONNECTION_PING_TIME_MS = 2000;
-export const WS_BLOCKNO_PING_TIME_MS = 15000;
+export const WS_BLOCK_NO_PING_TIME_MS = 15000;
+
+// See libs/ethereum/gas.ts
+export const TX_GAS_MULTIPLIER = 2;
+export const TX_GAS_PRICE_MULTIPLIER = 2;
