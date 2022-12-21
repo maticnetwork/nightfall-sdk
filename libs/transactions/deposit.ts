@@ -20,7 +20,7 @@ import type { OnChainTransactionReceipts } from "./types";
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} value The amount in Wei of the token to be deposited
  * @param {string} tokenId The tokenId of an erc721
- * @param {string} fee Proposer payment for the tx in L2 [Wei]
+ * @param {string} fee Proposer payment in Wei for the tx in L2
  * @throws {NightfallSdkError} Error while broadcasting tx
  * @returns {Promise<OnChainTransactionReceipts>}
  */

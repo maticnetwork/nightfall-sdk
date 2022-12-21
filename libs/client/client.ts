@@ -141,7 +141,7 @@ class Client {
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be deposited
    * @param {string} tokenId The tokenId of the token to be deposited
-   * @param {string} fee Proposer payment for the tx in L2
+   * @param {string} fee Proposer payment in Wei for the tx in L2
    * @throws {NightfallSdkError} Bad response
    * @returns {Promise<TransactionResponseData>}
    */
@@ -172,6 +172,47 @@ class Client {
   }
 
   /**
+   * Make POST request to create a L2 tokenisation transaction (tx)
+   *
+   * @async
+   * @method tokenise
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string} tokenAddress Token address to be minted in L2
+   * @param {number} value The amount in Wei of the token to be minted
+   * @param {string} tokenId The tokenId of the token to be minted
+   * @param {string} salt Random salt
+   * @param {string} fee Proposer payment in Wei for the tx in L2
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
+  async tokenise(
+    ownerZkpKeys: NightfallZkpKeys,
+    tokenAddress: string,
+    value: number,
+    tokenId: string,
+    salt: string,
+    fee: string,
+  ): Promise<TransactionResponseData> {
+    const endpoint = "tokenise";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      ercAddress: tokenAddress,
+      rootKey: ownerZkpKeys.rootKey,
+      value,
+      tokenId,
+      salt,
+      fee,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
+    return res.data;
+  }
+
+  /**
    * Make POST request to create a transfer transaction (tx)
    *
    * @async
@@ -180,7 +221,7 @@ class Client {
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {RecipientNightfallData} recipientNightfallData An object with [valueWei], [recipientCompressedZkpPublicKey]
    * @param {string} tokenId The tokenId of the token to be transferred
-   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @param {string} fee Proposer payment in Wei for the tx in L2
    * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
    * @throws {NightfallSdkError} No commitments found or bad response
    * @returns {Promise<TransactionResponseData>}
@@ -217,6 +258,45 @@ class Client {
   }
 
   /**
+   * Make POST request to create a L2 burn transaction (tx)
+   *
+   * @async
+   * @method burn
+   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
+   * @param {string} tokenAddress Token address of the token to be burnt in L2
+   * @param {number} value The amount in Wei of the token to be burnt
+   * @param {string} tokenId The tokenId of the token to be burnt
+   * @param {string} fee Proposer payment in Wei for the tx in L2
+   * @throws {NightfallSdkError} Bad response
+   * @returns {Promise<TransactionResponseData>}
+   */
+  async burn(
+    ownerZkpKeys: NightfallZkpKeys,
+    tokenAddress: string,
+    value: number,
+    tokenId: string,
+    fee: string,
+  ): Promise<TransactionResponseData> {
+    const endpoint = "burn";
+    logger.debug({ endpoint }, "Calling client at");
+
+    const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
+      ercAddress: tokenAddress,
+      rootKey: ownerZkpKeys.rootKey,
+      value,
+      tokenId,
+      providedCommitments: [],
+      fee,
+    });
+    logger.info(
+      { status: res.status, data: res.data },
+      `Client at ${endpoint} responded`,
+    );
+
+    return res.data;
+  }
+
+  /**
    * Make POST request to create a withdrawal transaction (tx)
    *
    * @async
@@ -225,7 +305,7 @@ class Client {
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} value The amount in Wei of the token to be withdrawn
    * @param {string} tokenId The tokenId of the token to be withdrawn
-   * @param {string} fee The amount in Wei to pay a proposer for the tx
+   * @param {string} fee Proposer payment in Wei for the tx in L2
    * @param {boolean} isOffChain If true, tx will be sent to the proposer's API (handled off-chain)
    * @throws {NightfallSdkError} Bad response
    * @returns {Promise<TransactionResponseData>}
@@ -283,88 +363,6 @@ class Client {
 
     return res.data;
   }
-
-  /**
-   * Make POST request to create a L2 tokenisation transaction (tx)
-   *
-   * @async
-   * @method tokenise
-   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
-   * @param {string} tokenAddress Token address to be minted
-   * @param {string} tokenId The tokenId of the token to be minted
-   * @param {number} value The amount in Wei of the token to be minted
-   * @param {string} salt Random salt (optional)
-   * @param {string} fee The amount in Wei to pay a proposer for the tx (optional)
-   * @throws {NightfallSdkError} Bad response
-   * @returns {Promise<TransactionResponseData>}
-   */
-     async tokenise(
-      ownerZkpKeys: NightfallZkpKeys,
-      tokenAddress: string, 
-      tokenId: string,
-      value: number,
-      salt?: string, 
-      fee?: string,
-    ): Promise<TransactionResponseData> {
-      const endpoint = "tokenise";
-      logger.debug({ endpoint }, "Calling client at");
-  
-      const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
-        ercAddress: tokenAddress,
-        tokenId,
-        salt,
-        value,
-        rootKey: ownerZkpKeys.rootKey,
-        compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
-        fee,
-      });
-      logger.info(
-        { status: res.status, data: res.data },
-        `Client at ${endpoint} responded`,
-      );
-  
-      return res.data;
-    }
-
-   /**
-   * Make POST request to create a L2 burn transaction (tx)
-   *
-   * @async
-   * @method burn
-   * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
-   * @param {string} tokenAddress Token address 
-   * @param {string} tokenId The tokenId of the token to be burnt
-   * @param {number} value The amount in Wei of the token to be burnt
-   * @param {string} fee The amount in Wei to pay a proposer for the tx (optional)
-   * @throws {NightfallSdkError} Bad response
-   * @returns {Promise<TransactionResponseData>}
-   */
-   async burn(
-     ownerZkpKeys: NightfallZkpKeys,
-     tokenAddress: string, 
-     tokenId: string,
-     value: number,
-     fee?: string,
-   ): Promise<TransactionResponseData> {
-     const endpoint = "burn";
-     logger.debug({ endpoint }, "Calling client at");
-
-     const res = await axios.post(`${this.apiUrl}/${endpoint}`, {
-       ercAddress: tokenAddress,
-       tokenId,
-       value,
-       providedCommitments: [],
-       rootKey: ownerZkpKeys.rootKey,
-       compressedZkpPublicKey: ownerZkpKeys.compressedZkpPublicKey,
-       fee,
-     });
-     logger.info(
-       { status: res.status, data: res.data },
-       `Client at ${endpoint} responded`,
-     );
- 
-     return res.data;
-   }
 
   /**
    * Make GET request to get aggregated value for deposits that have not settled in L2 yet
@@ -467,7 +465,7 @@ class Client {
   }
 
   /**
-   * Make equest to get all unspent commitments filtered by Nightfall addresse and 
+   * Make GET request to get all unspent commitments filtered by Nightfall addresses and
    * commitment erc address
    *
    * @method getUnspentCommitments
@@ -476,21 +474,19 @@ class Client {
    * @throws {NightfallSdkError} No compressedZkpPublicKey given or bad response
    * @returns {Promise<Commitment[]>} Should resolve into a list of all existing commitments if request is successful
    */
-   async getUnspentCommitments(
+  async getUnspentCommitments(
     listOfCompressedZkpPublicKey: string[],
     listOfErcAddresses: string[],
   ): Promise<Commitment[]> {
     const endpoint = "commitment/commitments";
     logger.debug({ endpoint }, "Calling client at");
 
-    const res = await axios.get(
-      `${this.apiUrl}/${endpoint}`,{
-         params: { 
-          listOfCompressedZkpPublicKey,
-          listOfErcAddresses,
-         },
-      }
-    );
+    const res = await axios.get(`${this.apiUrl}/${endpoint}`, {
+      params: {
+        listOfCompressedZkpPublicKey,
+        listOfErcAddresses,
+      },
+    });
     logger.info(
       { status: res.status, data: res.data },
       `Client at ${endpoint} responded`,

@@ -51,37 +51,32 @@ const makeTransaction = Joi.object({
   feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
 }).or("value", "tokenId"); // these cannot have default
 
+const l2TokenisationTransaction = Joi.object({
+  tokenAddress: Joi.string()
+    .trim()
+    .required()
+    .custom(isValidL2TokenAddress, "custom validation"),
+  tokenId: Joi.required().custom(isValidTokenId, "custom validation"),
+  value: Joi.number().required(),
+  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
+});
+
 export const makeDepositOptions = makeTransaction;
+
+export const mintL2Token = l2TokenisationTransaction.append({
+  salt: Joi.string().trim().custom(isValidSalt, "custom validation"),
+});
 
 export const makeTransferOptions = makeTransaction.append({
   recipientNightfallAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
 });
 
+export const burnL2Token = l2TokenisationTransaction;
+
 export const makeWithdrawalOptions = makeTransaction.append({
   recipientEthAddress: Joi.string().trim().required(),
   isOffChain: Joi.boolean().default(false),
-});
-
-export const makeTokeniseOptions = Joi.object({
-  tokenAddress: Joi.string()
-    .trim()
-    .required()
-    .custom(isValidL2TokenAddress, "custom validation"),
-  tokenId: Joi.required().custom(isValidTokenId, "custom validation"),
-  value: Joi.number().required(),
-  salt: Joi.string().trim().custom(isValidSalt, "custom validation"),
-  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
-});
-
-export const makeBurnOptions = Joi.object({
-  tokenAddress: Joi.string()
-    .trim()
-    .required()
-    .custom(isValidL2TokenAddress, "custom validation"),
-  tokenId: Joi.required().custom(isValidTokenId, "custom validation"),
-  value: Joi.number().required(),
-  feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
 });
 
 export const finaliseWithdrawalOptions = Joi.object({
