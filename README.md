@@ -59,7 +59,6 @@ As such, the example scripts will use a config object that preloads env vars fro
 
 ```
 # Contents of .env.ganache (based on .env.example)
-
 LOG_LEVEL=info
 
 APP_CLIENT_API_URL=http://localhost:8080
