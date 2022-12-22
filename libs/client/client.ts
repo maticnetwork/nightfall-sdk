@@ -476,7 +476,7 @@ class Client {
    */
   async getUnspentCommitments(
     listOfCompressedZkpPublicKey: string[],
-    listOfErcAddresses: string[],
+    listOfErcAddresses?: string[],
   ): Promise<Commitment[]> {
     const endpoint = "commitment/commitments";
     logger.debug({ endpoint }, "Calling client at");
