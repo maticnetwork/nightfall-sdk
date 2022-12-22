@@ -15,8 +15,9 @@ More about [Nightfall](https://docs.polygon.technology/docs/nightfall/introducti
 - Deposit ERC20,ERC721 and ERC1155 tokens from Ethereum L1 to Nightfall L2
 - Transfer ERC20,ERC721 and ERC1155 token commitments on Nightfall L2
 - Withdraw ERC20,ERC721 and ERC1155 token commitments from Nightfall L2 to Ethereum L1
-- Check ERC20,ERC721 and ERC1155 balances on Nightfall L2
-- Safely export/import ERC20,ERC721 and ERC1155 transaction commitments from and to Nightfall L2
+- Mint, Transfer and Burn Nightfall native tokens exclusively on L2
+- Check Nightfall L2 balances
+- Safely export/import ERC20,ERC721 and ERC1155 commitments from and to Nightfall L2
 
 To learn more about transactions, commitments and other core Nightfall features go to the [Protocol Docs](https://docs.polygon.technology/docs/category/nightfall-protocol/).
 
@@ -58,7 +59,7 @@ As such, the example scripts will use a config object that preloads env vars fro
 
 ```
 # Contents of .env.ganache (based on .env.example)
-LOG_LEVEL=debug
+LOG_LEVEL=info
 
 APP_CLIENT_API_URL=http://localhost:8080
 APP_NIGHTFALL_MNEMONIC=bip39 mnemonic

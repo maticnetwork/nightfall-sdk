@@ -36,7 +36,7 @@ const main = async () => {
 
     // # 5 Retrieve the transaction hash to finalise the withdrawal after the cooling off period
     console.log(
-      "Nightfall withdrawal tx hashes ::",
+      "Nightfall withdrawal tx hashes",
       user.nightfallWithdrawalTxHashes,
     );
   } catch (error) {

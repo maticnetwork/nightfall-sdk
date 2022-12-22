@@ -27,12 +27,25 @@ export interface UserMakeTransaction {
   feeWei?: string;
 }
 
+export interface UserL2TokenisationTransaction {
+  tokenAddress: string;
+  value: string;
+  tokenId: number | string;
+  feeWei?: string;
+}
+
 export type UserMakeDeposit = UserMakeTransaction;
+
+export interface UserMintL2Token extends UserL2TokenisationTransaction {
+  salt?: string;
+}
 
 export interface UserMakeTransfer extends UserMakeTransaction {
   recipientNightfallAddress: string;
   isOffChain?: boolean;
 }
+
+export type UserBurnL2Token = UserL2TokenisationTransaction;
 
 export interface UserMakeWithdrawal extends UserMakeTransaction {
   recipientEthAddress: string;

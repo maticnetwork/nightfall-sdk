@@ -9,13 +9,15 @@
     "outDir": "dist/esm",
     "resolveJsonModule": true,
     "sourceMap": true,
-    "target": "es2017"
+    "target": "es2017",
+    "allowJs": true
   },
-  "include": ["libs/**/*"],
+  "include": ["libs/**/*", "decs.d.ts"],
   "ts-node": {
     "compilerOptions": {
       "module": "node16",
       "moduleResolution": "node"
-    }
+    },
+    "files": true
   }
 }
