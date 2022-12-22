@@ -29,7 +29,7 @@ export interface UserMakeTransaction {
 
 export interface UserL2TokenisationTransaction {
   tokenAddress: string;
-  value: number;
+  value: string;
   tokenId: number | string;
   feeWei?: string;
 }

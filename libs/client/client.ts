@@ -178,7 +178,7 @@ class Client {
    * @method tokenise
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} tokenAddress Token address to be minted in L2
-   * @param {number} value The amount in Wei of the token to be minted
+   * @param {string} value The amount in Wei of the token to be minted
    * @param {string} tokenId The tokenId of the token to be minted
    * @param {string} salt Random salt
    * @param {string} fee Proposer payment in Wei for the tx in L2
@@ -188,7 +188,7 @@ class Client {
   async tokenise(
     ownerZkpKeys: NightfallZkpKeys,
     tokenAddress: string,
-    value: number,
+    value: string,
     tokenId: string,
     salt: string,
     fee: string,
@@ -264,7 +264,7 @@ class Client {
    * @method burn
    * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
    * @param {string} tokenAddress Token address of the token to be burnt in L2
-   * @param {number} value The amount in Wei of the token to be burnt
+   * @param {string} value The amount in Wei of the token to be burnt
    * @param {string} tokenId The tokenId of the token to be burnt
    * @param {string} fee Proposer payment in Wei for the tx in L2
    * @throws {NightfallSdkError} Bad response
@@ -273,7 +273,7 @@ class Client {
   async burn(
     ownerZkpKeys: NightfallZkpKeys,
     tokenAddress: string,
-    value: number,
+    value: string,
     tokenId: string,
     fee: string,
   ): Promise<TransactionResponseData> {

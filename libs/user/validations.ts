@@ -57,7 +57,7 @@ const l2TokenisationTransaction = Joi.object({
     .required()
     .custom(isValidL2TokenAddress, "custom validation"),
   tokenId: Joi.required().custom(isValidTokenId, "custom validation"),
-  value: Joi.number().required(),
+  value: Joi.string().required(),
   feeWei: Joi.string().default(TX_FEE_WEI_DEFAULT),
 });
 

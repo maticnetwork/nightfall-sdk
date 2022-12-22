@@ -11,7 +11,7 @@ import type { OffChainTransactionReceipt } from "./types";
  * @param {NightfallZkpKeys} ownerZkpKeys Sender's set of Zero-knowledge proof keys
  * @param {Client} client An instance of Client to interact with the API
  * @param {string} tokenAddress Token address of the token to be burnt in L2
- * @param {number} value The amount in Wei of the token to be burnt
+ * @param {string} value The amount in Wei of the token to be burnt
  * @param {string} tokenId The tokenId of the token to be burnt
  * @param {string} fee Proposer payment in Wei for the tx in L2
  * @returns {Promise<OffChainTransactionReceipt>}
@@ -20,7 +20,7 @@ export async function createAndSubmitBurn(
   ownerZkpKeys: NightfallZkpKeys,
   client: Client,
   tokenAddress: string,
-  value: number,
+  value: string,
   tokenId: string,
   fee: string,
 ): Promise<OffChainTransactionReceipt> {

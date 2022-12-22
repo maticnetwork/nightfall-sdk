@@ -289,8 +289,8 @@ class User {
    * @method mintL2Token
    * @param {UserMintL2Token} options
    * @param {string} options.tokenAddress
-   * @param {string|number} options.tokenId
-   * @param {number} options.value
+   * @param {string | number} options.tokenId
+   * @param {string} options.value
    * @param {string} [options.salt]
    * @param {string} [options.feeWei]
    * @returns {Promise<OffChainTransactionReceipt>}
@@ -402,8 +402,8 @@ class User {
    * @method burnL2Token
    * @param {UserBurnL2Token} options
    * @param {string} options.tokenAddress
-   * @param {string|number} options.tokenId
-   * @param {number} options.value
+   * @param {string | number} options.tokenId
+   * @param {string} options.value
    * @param {string} [options.feeWei]
    * @returns {Promise<OffChainTransactionReceipt>}
    */
