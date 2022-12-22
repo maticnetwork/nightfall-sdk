@@ -25,8 +25,8 @@ const main = async () => {
     const commitmentsToBurn = Object.values(
       unspentCommitments[myNightfallAddress as keyof object],
     )[0];
-
     console.log("commitmentToBurn", commitmentsToBurn);
+
     // # 3 Burn
     const txReceipts = await user.burnL2Token({
       tokenAddress: commitmentsToBurn[0].ercAddress,
@@ -37,7 +37,7 @@ const main = async () => {
     console.log("Transaction receipts", txReceipts);
 
     // # 4 [OPTIONAL] You can check the transaction hash
-    console.log("Nightfall minting tx hashes", user.nightfallBurningTxHashes);
+    console.log("Nightfall burning tx hashes", user.nightfallBurningTxHashes);
   } catch (error) {
     console.log(error);
     process.exit(1);
