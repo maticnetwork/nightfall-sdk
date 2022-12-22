@@ -8,10 +8,12 @@ import { tokeniseBurnReceipts } from "../../../__mocks__/mockTxTokeniseBurnRecei
 
 jest.mock("../../../libs/transactions/helpers/submit");
 
-describe("L2 Transactions", () => {
+describe.skip("L2 Transactions", () => {
   const ownerZkpKeys = {};
-  const l2TokenAddress = "0x300000000000000000000000d7b31f55b06a8fe34282aa62f250961d7afebc0a";
-  const salt = "0x4ae258391e959abdcc53dfdd017ca2c976bf1b677dfc70b861721132dc1c10d";
+  const l2TokenAddress =
+    "0x300000000000000000000000d7b31f55b06a8fe34282aa62f250961d7afebc0a";
+  const salt =
+    "0x4ae258391e959abdcc53dfdd017ca2c976bf1b677dfc70b861721132dc1c10d";
 
   const mockedClient = {
     tokenise: jest.fn(),
